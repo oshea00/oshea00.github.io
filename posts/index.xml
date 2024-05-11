@@ -6,14 +6,15 @@
     <description>Recent content in Posts on MyAIStuff</description>
     <generator>Hugo -- 0.125.7</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 09 May 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 11 May 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Hello</title>
-      <link>https://oshea00.github.io/posts/hello/</link>
-      <pubDate>Thu, 09 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/hello/</guid>
-      <description>This is my first post.</description>
+      <title>Fine-tuning Llama3</title>
+      <link>https://oshea00.github.io/posts/finetuning-llama3-8b/</link>
+      <pubDate>Sat, 11 May 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/finetuning-llama3-8b/</guid>
+      <description>Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
+Prerequisites You&amp;rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.</description>
     </item>
   </channel>
 </rss>
