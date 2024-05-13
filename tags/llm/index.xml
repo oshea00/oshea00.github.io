@@ -16,5 +16,13 @@
       <description>Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
 Prerequisites You&amp;rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.</description>
     </item>
+    <item>
+      <title>OpenAI Python API Compatibility</title>
+      <link>https://oshea00.github.io/posts/openai-compatible-apis/</link>
+      <pubDate>Sat, 11 May 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/openai-compatible-apis/</guid>
+      <description>An increasing number of open-sourced generative AI large language models (LLM) are being hosted behind an OpenAI API-compatible endpoint or have tools that offer an OpenAI API. The Python library for accessing OpenAI is just a REST client, and the library provides a way to specify the URL and an API key, as well as the model being offered by the provider.
+Here are a few examples of how the OpenAI library is used with other open-source models.</description>
+    </item>
   </channel>
 </rss>
