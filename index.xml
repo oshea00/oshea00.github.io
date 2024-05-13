@@ -19,7 +19,7 @@ Prerequisites You&amp;rsquo;ll want to use Python 3.11 until Torch compile suppo
     <item>
       <title>OpenAI Python API Compatibility</title>
       <link>https://oshea00.github.io/posts/openai-compatible-apis/</link>
-      <pubDate>Sat, 11 May 2024 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 09 May 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/openai-compatible-apis/</guid>
       <description>An increasing number of open-sourced generative AI large language models (LLM) are being hosted behind an OpenAI API-compatible endpoint or have tools that offer an OpenAI API. The Python library for accessing OpenAI is just a REST client, and the library provides a way to specify the URL and an API key, as well as the model being offered by the provider.
 Here are a few examples of how the OpenAI library is used with other open-source models.</description>

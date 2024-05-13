@@ -64,8 +64,8 @@ Here are a few examples of how the OpenAI library is used with other open-source
 Here are a few examples of how the OpenAI library is used with other open-source models." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://oshea00.github.io/posts/openai-compatible-apis/" /><meta property="article:section" content="posts" />
-<meta property="article:published_time" content="2024-05-11T00:00:00+00:00" />
-<meta property="article:modified_time" content="2024-05-11T00:00:00+00:00" />
+<meta property="article:published_time" content="2024-05-09T00:00:00+00:00" />
+<meta property="article:modified_time" content="2024-05-09T00:00:00+00:00" />
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="OpenAI Python API Compatibility"/>
@@ -106,8 +106,8 @@ Here are a few examples of how the OpenAI library is used with other open-source
   "articleBody": "An increasing number of open-sourced generative AI large language models (LLM) are being hosted behind an OpenAI API-compatible endpoint or have tools that offer an OpenAI API. The Python library for accessing OpenAI is just a REST client, and the library provides a way to specify the URL and an API key, as well as the model being offered by the provider.\nHere are a few examples of how the OpenAI library is used with other open-source models.\nOllama Although there are macOS and Windows versions, Ollama is primarily a Linux-based tool that lets you download various LLMs easily and host them on your own hardware. An impressive number of models are available. Ollama runs locally as an API by default that accepts REST commands compatible with the OpenAI API.\nSee the Ollama GitHub repository.\nHere’s a quick start to run a small LLM model locally. If you have an Nvidia or AMD GPU, it will configure itself to use them automatically. If not, it defaults to CPU.\nInstall Ollama\ncurl -fsSL https://ollama.com/install.sh | sh Manual GGUF model creation procedure The following steps show how to install a GGUF model file into Ollama. This is useful in cases where the model may not already be in the Ollama Hub list of models. It also tends to work well in cases where you are behind a proxy that is causing problems using the ollama run command.\nYou will need the HuggingFace CLI to download the Phi-2 LLM model manually.\npython3 -m pip install huggingface-cli Download the LLM model in GGUF format. Note: make sure to have your HF_TOKEN from here setup as an enviroment variable, or run huggingface-cli login prior to this.\n# If run from your home directory, this creates a ~/downloads directory if not already existing: huggingface-cli download \\ TheBloke/phi-2-GGUF \\ phi-2.Q4_K_M.gguf \\ --local-dir downloads \\ --local-dir-use-symlinks False Create a file named Modelfile (actually, any name is OK) with the following line in it.\nFROM ./downloads/phi-2.Q4_K_M.gguf Build the model using this file as input to Ollama create:\nollama create phi2 -f Modelfile Now you can verify the model is present, then run it:\nollama list ollama run phi2 \u003e\u003e\u003e in a sentence, why is the sky blue? The sky is blue because of a phenomenon known as Rayleigh scattering.... The response on my Surface with i7-1185G7 @ 3.00GHZ CPU (no GPU) takes about 30 seconds.\nBy comparison, my RTX4090-equipped Corsair Vengeance i7400 liquid-cooled i9 12900X 64GB RAM box runs the Llama7 8B Model for the same query about the sky in less than a second.\nHere is an example of running a query using the OpenAI library against the local Ollama API referencing the PHI-2 model we loaded above. In the case of Ollama, there is no api_key, but it is a required element for the library.\nNvidia Nvidia provides access to open-source foundation models on its build platform (build.nvidia.com/explore/discover), which makes it easy to try these. Example code for these models uses an OpenAI API-compatible method. This is not an OpenAI-hosted model. It uses the same OpenAI Python library as the Ollama example above except, in this case, NVidia does have a process for requesting and using an API_KEY that works with their playground host. In this example, the phi-3 model is being requested.\nOpen-source models will increasingly be represented in cases where large models are overkill or the desire for complete control over the data is paramount. Containerizing these and running them on cloud infrastructure or running them locally with your own data on your own hardware is within reach of modest budgets and is a good way to learn more about LLMs and the tools used to develop solutions with them.\n",
   "wordCount" : "616",
   "inLanguage": "en",
-  "datePublished": "2024-05-11T00:00:00Z",
-  "dateModified": "2024-05-11T00:00:00Z",
+  "datePublished": "2024-05-09T00:00:00Z",
+  "dateModified": "2024-05-09T00:00:00Z",
   "author":[{
     "@type": "Person",
     "name": "Michael OShea"
@@ -194,7 +194,7 @@ Here are a few examples of how the OpenAI library is used with other open-source
     <h1 class="post-title entry-hint-parent">
       OpenAI Python API Compatibility
     </h1>
-    <div class="post-meta"><span title='2024-05-11 00:00:00 +0000 UTC'>May 11, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea
+    <div class="post-meta"><span title='2024-05-09 00:00:00 +0000 UTC'>May 9, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea
 
 </div>
   </header> 
