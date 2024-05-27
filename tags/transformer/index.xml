@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Transformer on MyAIStuff</title>
+    <link>https://oshea00.github.io/tags/transformer/</link>
+    <description>Recent content in Transformer on MyAIStuff</description>
+    <generator>Hugo -- 0.126.1</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 27 May 2024 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://oshea00.github.io/tags/transformer/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Transformers -  Positional Encoding</title>
+      <link>https://oshea00.github.io/posts/transformers-positional-encoding/</link>
+      <pubDate>Mon, 27 May 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/transformers-positional-encoding/</guid>
+      <description>Since transformer input is processed in parallel rather than serially, it is necessary to encode the relative positions of the input sequence of tokens in some way. The positional encoding in the transformer model uses sinusoidal functions to create a unique encoding for each position.
+In working through the article on Transformers, as described in the original paper &amp;ldquo;Attention is All You Need&amp;rdquo; by Vaswani et al., the following formulas are used to encode the PE tensor values:</description>
+    </item>
+  </channel>
+</rss>

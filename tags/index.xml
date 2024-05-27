@@ -4,22 +4,36 @@
     <title>Tags on MyAIStuff</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MyAIStuff</description>
-    <generator>Hugo -- 0.125.7</generator>
+    <generator>Hugo -- 0.126.1</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 11 May 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 27 May 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Llama3</title>
-      <link>https://oshea00.github.io/tags/llama3/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/llama3/</guid>
-      <description></description>
-    </item>
     <item>
       <title>Llm</title>
       <link>https://oshea00.github.io/tags/llm/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Torch</title>
+      <link>https://oshea00.github.io/tags/torch/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/torch/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Transformer</title>
+      <link>https://oshea00.github.io/tags/transformer/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/transformer/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Llama3</title>
+      <link>https://oshea00.github.io/tags/llama3/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/llama3/</guid>
       <description></description>
     </item>
     <item>
