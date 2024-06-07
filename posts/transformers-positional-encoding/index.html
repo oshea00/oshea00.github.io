@@ -78,6 +78,23 @@ In working through the article on Transformers, as described in the original pap
 </script>
 
   
+    
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-37B7H2GBCX');
+        }
+      </script>
+    
+  
 
 <meta property="og:title" content="Transformers -  Positional Encoding" />
 <meta property="og:description" content="Since transformer input is processed in parallel rather than serially, it is necessary to encode the relative positions of the input sequence of tokens in some way. The positional encoding in the transformer model uses sinusoidal functions to create a unique encoding for each position.
