@@ -4,10 +4,17 @@
     <title>Posts on MikesBlog</title>
     <link>https://oshea00.github.io/posts/</link>
     <description>Recent content in Posts on MikesBlog</description>
-    <generator>Hugo -- 0.127.0</generator>
+    <generator>Hugo -- 0.128.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 27 May 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 07 Jul 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Scaling OpenAI With AsyncOpenAI</title>
+      <link>https://oshea00.github.io/posts/async-openai/</link>
+      <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/async-openai/</guid>
+      <description>As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.</description>
+    </item>
     <item>
       <title>Transformers -  Positional Encoding</title>
       <link>https://oshea00.github.io/posts/transformers-positional-encoding/</link>
