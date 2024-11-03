@@ -6,27 +6,41 @@
     <description>Recent content in Tags on MikesBlog</description>
     <generator>Hugo -- 0.136.5</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 20 Aug 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 02 Nov 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Embedding</title>
-      <link>https://oshea00.github.io/tags/embedding/</link>
-      <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/embedding/</guid>
+      <title>Classification</title>
+      <link>https://oshea00.github.io/tags/classification/</link>
+      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/classification/</guid>
       <description></description>
     </item>
     <item>
       <title>Llm</title>
       <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
       <title>Openai</title>
       <link>https://oshea00.github.io/tags/openai/</link>
-      <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/openai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Promp Engineering</title>
+      <link>https://oshea00.github.io/tags/promp-engineering/</link>
+      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/promp-engineering/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Embedding</title>
+      <link>https://oshea00.github.io/tags/embedding/</link>
+      <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/embedding/</guid>
       <description></description>
     </item>
     <item>
