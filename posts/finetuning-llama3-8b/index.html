@@ -7,8 +7,20 @@
 <meta name="robots" content="index, follow">
 <title>Fine-tuning Llama3 | MikesBlog</title>
 <meta name="keywords" content="llm, tuning, llama3">
-<meta name="description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
-Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.">
+<meta name="description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I
+wrote this article to bring everything together.
+Prerequisites
+
+You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.
+Install torchtune
+
+pip install torchtune
+
+Install EleutherAI&rsquo;s Evaluation Harness
+
+pip install lm_eval==0.4.*
+Download Llama3-8B model
+You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/finetuning-llama3-8b/">
 <link crossorigin="anonymous" href="/assets/css/stylesheet.5ff2630c4d1b3e25bc21f0ecd96681dbcf58219e741fa627857820b5485cb770.css" integrity="sha256-X/JjDE0bPiW8IfDs2WaB289YIZ50H6YnhXggtUhct3A=" rel="preload stylesheet" as="style">
@@ -57,8 +69,6 @@ Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports 
 
     </style>
 </noscript>
-  
-    
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -72,13 +82,21 @@ Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports 
           gtag('js', new Date());
           gtag('config', 'G-37B7H2GBCX');
         }
-      </script>
-    
-  
+      </script><meta property="og:title" content="Fine-tuning Llama3" />
+<meta property="og:description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I
+wrote this article to bring everything together.
+Prerequisites
 
-<meta property="og:title" content="Fine-tuning Llama3" />
-<meta property="og:description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
-Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv." />
+You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.
+Install torchtune
+
+pip install torchtune
+
+Install EleutherAI&rsquo;s Evaluation Harness
+
+pip install lm_eval==0.4.*
+Download Llama3-8B model
+You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://oshea00.github.io/posts/finetuning-llama3-8b/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2024-05-11T00:00:00+00:00" />
@@ -86,8 +104,20 @@ Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports 
 
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Fine-tuning Llama3"/>
-<meta name="twitter:description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
-Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv."/>
+<meta name="twitter:description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I
+wrote this article to bring everything together.
+Prerequisites
+
+You&rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.
+Install torchtune
+
+pip install torchtune
+
+Install EleutherAI&rsquo;s Evaluation Harness
+
+pip install lm_eval==0.4.*
+Download Llama3-8B model
+You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here."/>
 
 
 <script type="application/ld+json">
@@ -116,7 +146,7 @@ Prerequisites You&rsquo;ll want to use Python 3.11 until Torch compile supports 
   "@type": "BlogPosting",
   "headline": "Fine-tuning Llama3",
   "name": "Fine-tuning Llama3",
-  "description": "Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.\nPrerequisites You\u0026rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv.",
+  "description": "Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.\nPrerequisites You\u0026rsquo;ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv. Install torchtune pip install torchtune Install EleutherAI\u0026rsquo;s Evaluation Harness pip install lm_eval==0.4.* Download Llama3-8B model You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here.\n",
   "keywords": [
     "llm", "tuning", "llama3"
   ],

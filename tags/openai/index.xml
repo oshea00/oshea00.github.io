@@ -4,7 +4,7 @@
     <title>Openai on MikesBlog</title>
     <link>https://oshea00.github.io/tags/openai/</link>
     <description>Recent content in Openai on MikesBlog</description>
-    <generator>Hugo -- 0.133.0</generator>
+    <generator>Hugo -- 0.136.5</generator>
     <language>en</language>
     <lastBuildDate>Tue, 20 Aug 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/openai/index.xml" rel="self" type="application/rss+xml" />
@@ -13,15 +13,19 @@
       <link>https://oshea00.github.io/posts/a-rose-by-any-other-name/</link>
       <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/a-rose-by-any-other-name/</guid>
-      <description>You might want to test an expected response from a prompt sent to a large language model, but string comparisons will not help you. The inherent variability in large language model (LLM) responses will require you to find new ways to compare generated prompt results.
-There are a few reasons why a generated prompt result will not exactly match a prior result: the prompt itself may have changed, the model parameters may have changed, or the model&amp;rsquo;s inherent variability may inject a small amount of change in the results.</description>
+      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/androidrose.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+You might want to test an expected response from a prompt sent to a large language model, but string comparisons will not help you. The inherent variability in large language model (LLM) responses will require you to find new ways to compare generated prompt results.&lt;/p&gt;
+&lt;p&gt;There are a few reasons why a generated prompt result will not exactly match a prior result: the prompt itself may have changed, the model parameters may have changed, or the model&amp;rsquo;s inherent variability may inject a small amount of change in the results.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Scaling OpenAI With AsyncOpenAI</title>
       <link>https://oshea00.github.io/posts/async-openai/</link>
       <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/async-openai/</guid>
-      <description>As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.</description>
+      <description>&lt;p&gt;As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
