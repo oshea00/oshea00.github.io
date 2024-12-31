@@ -4,10 +4,21 @@
     <title>AI Tools on MikesBlog</title>
     <link>https://oshea00.github.io/tags/ai-tools/</link>
     <description>Recent content in AI Tools on MikesBlog</description>
-    <generator>Hugo -- 0.139.4</generator>
+    <generator>Hugo -- 0.140.2</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 15 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 30 Dec 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/ai-tools/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge</title>
+      <link>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</link>
+      <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentengineer_3_1_aspect_ratio.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;The first time I fired up an MCP (Model Context Protocol) server plugin, &amp;ldquo;Agent,&amp;rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&amp;rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&amp;rsquo;re in the early days, and there&amp;rsquo;s a lot of ground to cover before Agents become seamless collaborators.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Navigating the Fragmented Landscape of Agentic AI Tools</title>
       <link>https://oshea00.github.io/posts/agentic-ai-fragmentation/</link>
