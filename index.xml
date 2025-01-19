@@ -4,10 +4,23 @@
     <title>MikesBlog</title>
     <link>https://oshea00.github.io/</link>
     <description>Recent content on MikesBlog</description>
-    <generator>Hugo -- 0.140.2</generator>
+    <generator>Hugo -- 0.141.0</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 30 Dec 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 18 Jan 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>LLMs At The Command Line - Part 1</title>
+      <link>https://oshea00.github.io/posts/aichat-part1/</link>
+      <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/aichat-part1/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cartoon_terminal.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;If you are a command-line fan and want to experiment with large language models (LLM), you will love &lt;a href=&#34;https://github.com/sigoden/aichat&#34;&gt;&lt;code&gt;AiChat&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;There are many popular graphical front ends for working with large language models (LLM), such as OpenAI&amp;rsquo;s ChatGPT, and Anthropic&amp;rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as there it has many advanced and useful features.&lt;/p&gt;
+&lt;p&gt;One such feature is an easy-to-use, out-of-the-box RAG feature (Response Augmented Generation) useful for searching existing content. I&amp;rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge</title>
       <link>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</link>
