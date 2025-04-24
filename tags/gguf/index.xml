@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Gguf on MikesBlog</title>
-    <link>https://example.org/tags/gguf/</link>
+    <link>https://oshea00.github.io/tags/gguf/</link>
     <description>Recent content in Gguf on MikesBlog</description>
     <generator>Hugo -- 0.146.7</generator>
     <language>en</language>
     <lastBuildDate>Thu, 09 May 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://example.org/tags/gguf/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://oshea00.github.io/tags/gguf/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>OpenAI Python API Compatibility</title>
-      <link>https://example.org/posts/openai-compatible-apis/</link>
+      <link>https://oshea00.github.io/posts/openai-compatible-apis/</link>
       <pubDate>Thu, 09 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/posts/openai-compatible-apis/</guid>
+      <guid>https://oshea00.github.io/posts/openai-compatible-apis/</guid>
       <description>&lt;p&gt;An increasing number of open-sourced generative AI large language models (LLM) are being hosted behind an OpenAI API-compatible endpoint or have tools that offer an OpenAI API. The Python library for accessing OpenAI is just a REST client, and the library provides a way to specify the URL and an API key, as well as the model being offered by the provider.&lt;/p&gt;
 &lt;p&gt;Here are a few examples of how the OpenAI library is used with other open-source models.&lt;/p&gt;</description>
     </item>

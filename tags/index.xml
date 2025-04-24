@@ -2,150 +2,150 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Tags on MikesBlog</title>
-    <link>https://example.org/tags/</link>
+    <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
     <generator>Hugo -- 0.146.7</generator>
     <language>en</language>
     <lastBuildDate>Sat, 18 Jan 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://example.org/tags/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Aichat</title>
-      <link>https://example.org/tags/aichat/</link>
+      <link>https://oshea00.github.io/tags/aichat/</link>
       <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/aichat/</guid>
+      <guid>https://oshea00.github.io/tags/aichat/</guid>
       <description></description>
     </item>
     <item>
       <title>Llm</title>
-      <link>https://example.org/tags/llm/</link>
+      <link>https://oshea00.github.io/tags/llm/</link>
       <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/llm/</guid>
+      <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
       <title>Rag</title>
-      <link>https://example.org/tags/rag/</link>
+      <link>https://oshea00.github.io/tags/rag/</link>
       <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/rag/</guid>
+      <guid>https://oshea00.github.io/tags/rag/</guid>
       <description></description>
     </item>
     <item>
       <title>Agentic AI</title>
-      <link>https://example.org/tags/agentic-ai/</link>
+      <link>https://oshea00.github.io/tags/agentic-ai/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/agentic-ai/</guid>
+      <guid>https://oshea00.github.io/tags/agentic-ai/</guid>
       <description></description>
     </item>
     <item>
       <title>AI Tools</title>
-      <link>https://example.org/tags/ai-tools/</link>
+      <link>https://oshea00.github.io/tags/ai-tools/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/ai-tools/</guid>
+      <guid>https://oshea00.github.io/tags/ai-tools/</guid>
       <description></description>
     </item>
     <item>
       <title>Claude Desktop</title>
-      <link>https://example.org/tags/claude-desktop/</link>
+      <link>https://oshea00.github.io/tags/claude-desktop/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/claude-desktop/</guid>
+      <guid>https://oshea00.github.io/tags/claude-desktop/</guid>
       <description></description>
     </item>
     <item>
       <title>MCP</title>
-      <link>https://example.org/tags/mcp/</link>
+      <link>https://oshea00.github.io/tags/mcp/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/mcp/</guid>
+      <guid>https://oshea00.github.io/tags/mcp/</guid>
       <description></description>
     </item>
     <item>
       <title>AI Development</title>
-      <link>https://example.org/tags/ai-development/</link>
+      <link>https://oshea00.github.io/tags/ai-development/</link>
       <pubDate>Sun, 15 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/ai-development/</guid>
+      <guid>https://oshea00.github.io/tags/ai-development/</guid>
       <description></description>
     </item>
     <item>
       <title>Standardization</title>
-      <link>https://example.org/tags/standardization/</link>
+      <link>https://oshea00.github.io/tags/standardization/</link>
       <pubDate>Sun, 15 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/standardization/</guid>
+      <guid>https://oshea00.github.io/tags/standardization/</guid>
       <description></description>
     </item>
     <item>
       <title>Classification</title>
-      <link>https://example.org/tags/classification/</link>
+      <link>https://oshea00.github.io/tags/classification/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/classification/</guid>
+      <guid>https://oshea00.github.io/tags/classification/</guid>
       <description></description>
     </item>
     <item>
       <title>Openai</title>
-      <link>https://example.org/tags/openai/</link>
+      <link>https://oshea00.github.io/tags/openai/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/openai/</guid>
+      <guid>https://oshea00.github.io/tags/openai/</guid>
       <description></description>
     </item>
     <item>
       <title>Prompt Engineering</title>
-      <link>https://example.org/tags/prompt-engineering/</link>
+      <link>https://oshea00.github.io/tags/prompt-engineering/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/prompt-engineering/</guid>
+      <guid>https://oshea00.github.io/tags/prompt-engineering/</guid>
       <description></description>
     </item>
     <item>
       <title>Embedding</title>
-      <link>https://example.org/tags/embedding/</link>
+      <link>https://oshea00.github.io/tags/embedding/</link>
       <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/embedding/</guid>
+      <guid>https://oshea00.github.io/tags/embedding/</guid>
       <description></description>
     </item>
     <item>
       <title>Asyncopenai</title>
-      <link>https://example.org/tags/asyncopenai/</link>
+      <link>https://oshea00.github.io/tags/asyncopenai/</link>
       <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/asyncopenai/</guid>
+      <guid>https://oshea00.github.io/tags/asyncopenai/</guid>
       <description></description>
     </item>
     <item>
       <title>Torch</title>
-      <link>https://example.org/tags/torch/</link>
+      <link>https://oshea00.github.io/tags/torch/</link>
       <pubDate>Mon, 27 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/torch/</guid>
+      <guid>https://oshea00.github.io/tags/torch/</guid>
       <description></description>
     </item>
     <item>
       <title>Transformer</title>
-      <link>https://example.org/tags/transformer/</link>
+      <link>https://oshea00.github.io/tags/transformer/</link>
       <pubDate>Mon, 27 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/transformer/</guid>
+      <guid>https://oshea00.github.io/tags/transformer/</guid>
       <description></description>
     </item>
     <item>
       <title>Llama3</title>
-      <link>https://example.org/tags/llama3/</link>
+      <link>https://oshea00.github.io/tags/llama3/</link>
       <pubDate>Sat, 11 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/llama3/</guid>
+      <guid>https://oshea00.github.io/tags/llama3/</guid>
       <description></description>
     </item>
     <item>
       <title>Tuning</title>
-      <link>https://example.org/tags/tuning/</link>
+      <link>https://oshea00.github.io/tags/tuning/</link>
       <pubDate>Sat, 11 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/tuning/</guid>
+      <guid>https://oshea00.github.io/tags/tuning/</guid>
       <description></description>
     </item>
     <item>
       <title>Gguf</title>
-      <link>https://example.org/tags/gguf/</link>
+      <link>https://oshea00.github.io/tags/gguf/</link>
       <pubDate>Thu, 09 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/gguf/</guid>
+      <guid>https://oshea00.github.io/tags/gguf/</guid>
       <description></description>
     </item>
     <item>
       <title>Ollama</title>
-      <link>https://example.org/tags/ollama/</link>
+      <link>https://oshea00.github.io/tags/ollama/</link>
       <pubDate>Thu, 09 May 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/tags/ollama/</guid>
+      <guid>https://oshea00.github.io/tags/ollama/</guid>
       <description></description>
     </item>
   </channel>
