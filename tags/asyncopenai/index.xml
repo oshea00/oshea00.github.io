@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Asyncopenai on MikesBlog</title>
-    <link>https://oshea00.github.io/tags/asyncopenai/</link>
+    <link>https://example.org/tags/asyncopenai/</link>
     <description>Recent content in Asyncopenai on MikesBlog</description>
-    <generator>Hugo -- 0.141.0</generator>
+    <generator>Hugo -- 0.146.7</generator>
     <language>en</language>
     <lastBuildDate>Sun, 07 Jul 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://oshea00.github.io/tags/asyncopenai/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://example.org/tags/asyncopenai/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Scaling OpenAI With AsyncOpenAI</title>
-      <link>https://oshea00.github.io/posts/async-openai/</link>
+      <link>https://example.org/posts/async-openai/</link>
       <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/async-openai/</guid>
+      <guid>https://example.org/posts/async-openai/</guid>
       <description>&lt;p&gt;As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.&lt;/p&gt;</description>
     </item>
   </channel>
