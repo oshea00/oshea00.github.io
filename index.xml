@@ -4,10 +4,22 @@
     <title>MikesBlog</title>
     <link>https://oshea00.github.io/</link>
     <description>Recent content on MikesBlog</description>
-    <generator>Hugo -- 0.146.7</generator>
+    <generator>Hugo -- 0.147.0</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 18 Jan 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 27 Apr 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibecoding an Agentic Coder - Part 1</title>
+      <link>https://oshea00.github.io/posts/agentic-codegen-part1/</link>
+      <pubDate>Sun, 27 Apr 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/agentic-codegen-part1/</guid>
+      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentengineer_3_1_aspect_ratio.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+I&amp;rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &amp;ldquo;vibing&amp;rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.&lt;/p&gt;
+&lt;p&gt;I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>LLMs At The Command Line - Part 1</title>
       <link>https://oshea00.github.io/posts/aichat-part1/</link>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Claude Desktop on MikesBlog</title>
-    <link>https://oshea00.github.io/tags/claude-desktop/</link>
-    <description>Recent content in Claude Desktop on MikesBlog</description>
+    <title>Codegen on MikesBlog</title>
+    <link>https://oshea00.github.io/tags/codegen/</link>
+    <description>Recent content in Codegen on MikesBlog</description>
     <generator>Hugo -- 0.147.0</generator>
     <language>en</language>
     <lastBuildDate>Sun, 27 Apr 2025 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://oshea00.github.io/tags/claude-desktop/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://oshea00.github.io/tags/codegen/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Vibecoding an Agentic Coder - Part 1</title>
       <link>https://oshea00.github.io/posts/agentic-codegen-part1/</link>
@@ -19,17 +19,6 @@
 
 I&amp;rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &amp;ldquo;vibing&amp;rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.&lt;/p&gt;
 &lt;p&gt;I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge</title>
-      <link>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</link>
-      <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentengineer_3_1_aspect_ratio.png#center&#34;/&gt; 
-&lt;/figure&gt;
-
-&lt;p&gt;The first time I fired up an MCP (Model Context Protocol) server plugin, &amp;ldquo;Agent,&amp;rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&amp;rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&amp;rsquo;re in the early days, and there&amp;rsquo;s a lot of ground to cover before Agents become seamless collaborators.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
