@@ -6,8 +6,20 @@
     <description>Recent content in Claude Desktop on MikesBlog</description>
     <generator>Hugo -- 0.146.7</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 27 Apr 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 01 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/claude-desktop/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibecoding an Agentic Coder - Part 2</title>
+      <link>https://oshea00.github.io/posts/agentic-codegen-part2/</link>
+      <pubDate>Thu, 01 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/agentic-codegen-part2/</guid>
+      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentflock.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+In this segment, I&amp;rsquo;ll generate many candidate applications using my experimental framework, &lt;a href=&#34;https://github.com/oshea00&#34;&gt;CodeAgents&lt;/a&gt;, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I&amp;rsquo;ll compare and contrast the solutions. Along the way, I&amp;rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.&lt;/p&gt;
+&lt;p&gt;It isn&amp;rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would &amp;ldquo;maintainability,&amp;rdquo; as that&amp;rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Vibecoding an Agentic Coder - Part 1</title>
       <link>https://oshea00.github.io/posts/agentic-codegen-part1/</link>
