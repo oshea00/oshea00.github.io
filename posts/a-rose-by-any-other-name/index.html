@@ -261,118 +261,118 @@ $$</p>
 <p>If the two embedding vectors are identical, the angle between them will be 0, so the angle&rsquo;s cosine will be 1. The possible values range from -1 to 1, where -1 means opposite in meaning, 0 means no overlap in meaning, and 1 is identical. In practical terms, the values we are concerned with range from 0 to 1.</p>
 <p>For the following code examples, I will use Cosine similarity. Rather than roll my own from the above formula, I will use a helper function found in the<code>torch.nn</code>package, <code>nn.CosineSimilarity()</code>. This function will take advantage of the GPU, if present, and will also handle a few edge cases and singularities that may arise from comparing embedding vectors.</p>
 <p>Setting up a few functions to help generate prompt results and compare results:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
-</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_prompt_result</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top_p</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">      <span class="n">model</span><span class="o">=</span><span class="s2">&#34;gpt-4o&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">      <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
-</span></span><span class="line"><span class="cl">        <span class="p">{</span>
-</span></span><span class="line"><span class="cl">          <span class="s2">&#34;role&#34;</span><span class="p">:</span> <span class="s2">&#34;user&#34;</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">          <span class="s2">&#34;content&#34;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">        <span class="p">}</span>
-</span></span><span class="line"><span class="cl">      <span class="p">],</span>
-</span></span><span class="line"><span class="cl">      <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
-</span></span><span class="line"><span class="cl">      <span class="n">top_p</span><span class="o">=</span><span class="n">top_p</span>
-</span></span><span class="line"><span class="cl">    <span class="p">)</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_embedding</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;text-embedding-ada-002&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span></span><span class="line"><span class="cl">    <span class="nb">input</span><span class="o">=</span><span class="p">[</span><span class="n">text</span><span class="p">],</span>
-</span></span><span class="line"><span class="cl">    <span class="n">model</span><span class="o">=</span><span class="n">model</span> <span class="c1"># text-embedding-3-small</span>
-</span></span><span class="line"><span class="cl">  <span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_similarity</span><span class="p">(</span><span class="n">embedding1</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">embedding2</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">  <span class="n">cosine_similarity</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl">  <span class="n">similarity</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">embedding1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">embedding2</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">similarity</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">describe_similarity</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.99</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;identical&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.95</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;very similar&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;similar&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;somewhat similar&#34;</span>
-</span></span><span class="line"><span class="cl">  <span class="k">else</span><span class="p">:</span>
-</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;not similar&#34;</span>    
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">from</span> openai <span style="color:#f92672">import</span> OpenAI
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch
+</span></span><span style="display:flex;"><span><span style="color:#f92672">import</span> torch.nn <span style="color:#66d9ef">as</span> nn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_prompt_result</span>(prompt:str, temperature:float<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>, top_p:float <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> client<span style="color:#f92672">.</span>chat<span style="color:#f92672">.</span>completions<span style="color:#f92672">.</span>create(
+</span></span><span style="display:flex;"><span>      model<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;gpt-4o&#34;</span>,
+</span></span><span style="display:flex;"><span>      messages<span style="color:#f92672">=</span>[
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>          <span style="color:#e6db74">&#34;role&#34;</span>: <span style="color:#e6db74">&#34;user&#34;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#e6db74">&#34;content&#34;</span>: prompt,
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>      ],
+</span></span><span style="display:flex;"><span>      temperature<span style="color:#f92672">=</span>temperature,
+</span></span><span style="display:flex;"><span>      top_p<span style="color:#f92672">=</span>top_p
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> result<span style="color:#f92672">.</span>choices[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>message<span style="color:#f92672">.</span>content
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_embedding</span>(text:str, model:str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;text-embedding-ada-002&#39;</span>) <span style="color:#f92672">-&gt;</span> list[float]:
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> client<span style="color:#f92672">.</span>embeddings<span style="color:#f92672">.</span>create(
+</span></span><span style="display:flex;"><span>    input<span style="color:#f92672">=</span>[text],
+</span></span><span style="display:flex;"><span>    model<span style="color:#f92672">=</span>model <span style="color:#75715e"># text-embedding-3-small</span>
+</span></span><span style="display:flex;"><span>  )<span style="color:#f92672">.</span>data[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>embedding
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">get_similarity</span>(embedding1:list[float], embedding2:list[float]) <span style="color:#f92672">-&gt;</span> float:
+</span></span><span style="display:flex;"><span>  cosine_similarity <span style="color:#f92672">=</span> nn<span style="color:#f92672">.</span>CosineSimilarity(dim<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>)
+</span></span><span style="display:flex;"><span>  similarity <span style="color:#f92672">=</span> cosine_similarity(torch<span style="color:#f92672">.</span>tensor(embedding1), torch<span style="color:#f92672">.</span>tensor(embedding2))
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">return</span> similarity<span style="color:#f92672">.</span>item()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">describe_similarity</span>(value:float) <span style="color:#f92672">-&gt;</span> str:
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> value <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.99</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;identical&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">elif</span> value <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.95</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;very similar&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">elif</span> value <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.9</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;similar&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">elif</span> value <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0.8</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;somewhat similar&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;not similar&#34;</span>    
 </span></span></code></pre></div><p>Let&rsquo;s show how different prompts can produce different results even if the prompts themselves seem to be asking nearly the same question:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">baseline_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">current_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;Describe a few good places to visit in Paris?&#34;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>baseline_result_text <span style="color:#f92672">=</span> get_prompt_result(<span style="color:#e6db74">&#34;What are some nice places to visit in Paris?&#34;</span>)
+</span></span><span style="display:flex;"><span>current_result_text <span style="color:#f92672">=</span> get_prompt_result(<span style="color:#e6db74">&#34;Describe a few good places to visit in Paris?&#34;</span>)
 </span></span></code></pre></div><p>returns these results:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Paris is a city rich in history, culture, and beauty, offering a wide array of attractions for visitors. Here are some must-see places in Paris:
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">1. **Eiffel Tower**: The iconic symbol of Paris, offering stunning views of the city from its observation decks.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">3. **Notre-Dame Cathedral**: A masterpiece of Gothic architecture, though currently under restoration following the 2019 fire.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">4. **Champs-Élysées and Arc de Triomphe**: A famous avenue leading to the monumental arch, which offers panoramic views of Paris.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">5. **Montmartre and Sacré-Cœur Basilica**: A historic district known for its artistic history, charming streets, and the beautiful basilica with its stunning views.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">6. **Musée d&#39;Orsay**: An art museum housed in a former railway station, featuring an extensive collection of Impressionist and Post-Impressionist masterpieces.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">7. **Palace of Versailles**: Located just outside Paris, this opulent palace and its gardens are a testament to the grandeur of French royalty.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">8. **Seine River Cruise**: A boat tour along the Seine River offers a unique perspective of Paris&#39;s landmarks, especially beautiful at night.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">9. **Luxembourg Gardens**: A beautiful park perfect for a leisurely stroll, with statues, fountains, and the Luxembourg Palace.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">10. **Le Marais**: A historic district known for its narrow medieval streets, trendy boutiques, and vibrant nightlife.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">11. **Panthéon**: A neoclassical mausoleum containing the remains of distinguished French citizens, with impressive architecture and a crypt.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">12. **Centre Pompidou**: A modern art museum with a distinctive architectural design, housing a vast collection of contemporary art.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">13. **Sainte-Chapelle**: A stunning Gothic chapel known for its magnificent stained glass windows.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">14. **Opéra Garnier**: A grand opera house with opulent interiors, worth visiting for its architecture and performances.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">15. **Père Lachaise Cemetery**: The final resting place of many famous individuals, including Jim Morrison, Oscar Wilde, and Edith Piaf.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">These are just a few highlights, and Paris has much more to offer depending on your interests, from charming neighborhoods and cafes to world-class shopping and dining experiences.t
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Paris is a city rich in history, culture, and beauty, offering a wide array of attractions for visitors. Here are some must-see places in Paris:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>1. **Eiffel Tower**: The iconic symbol of Paris, offering stunning views of the city from its observation decks.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>3. **Notre-Dame Cathedral**: A masterpiece of Gothic architecture, though currently under restoration following the 2019 fire.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>4. **Champs-Élysées and Arc de Triomphe**: A famous avenue leading to the monumental arch, which offers panoramic views of Paris.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>5. **Montmartre and Sacré-Cœur Basilica**: A historic district known for its artistic history, charming streets, and the beautiful basilica with its stunning views.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>6. **Musée d&#39;Orsay**: An art museum housed in a former railway station, featuring an extensive collection of Impressionist and Post-Impressionist masterpieces.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>7. **Palace of Versailles**: Located just outside Paris, this opulent palace and its gardens are a testament to the grandeur of French royalty.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>8. **Seine River Cruise**: A boat tour along the Seine River offers a unique perspective of Paris&#39;s landmarks, especially beautiful at night.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>9. **Luxembourg Gardens**: A beautiful park perfect for a leisurely stroll, with statues, fountains, and the Luxembourg Palace.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>10. **Le Marais**: A historic district known for its narrow medieval streets, trendy boutiques, and vibrant nightlife.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>11. **Panthéon**: A neoclassical mausoleum containing the remains of distinguished French citizens, with impressive architecture and a crypt.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>12. **Centre Pompidou**: A modern art museum with a distinctive architectural design, housing a vast collection of contemporary art.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>13. **Sainte-Chapelle**: A stunning Gothic chapel known for its magnificent stained glass windows.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>14. **Opéra Garnier**: A grand opera house with opulent interiors, worth visiting for its architecture and performances.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>15. **Père Lachaise Cemetery**: The final resting place of many famous individuals, including Jim Morrison, Oscar Wilde, and Edith Piaf.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>These are just a few highlights, and Paris has much more to offer depending on your interests, from charming neighborhoods and cafes to world-class shopping and dining experiences.t
 </span></span></code></pre></div><p>and&hellip;</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Paris, often referred to as &#34;The City of Light,&#34; is renowned for its rich history, stunning architecture, and vibrant culture. Here are a few must-visit places in Paris:
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">1. **Eiffel Tower**: No trip to Paris is complete without visiting its most iconic landmark. You can take an elevator ride to the top for a breathtaking view of the city or enjoy a picnic on the Champ de Mars with the tower as your backdrop.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo, the Louvre is the world&#39;s largest art museum and a historic monument in Paris. The glass pyramid entrance is a modern architectural marvel.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">3. **Notre-Dame Cathedral**: This masterpiece of French Gothic architecture is famous for its stunning facade, intricate sculptures, and beautiful stained glass windows. Although it suffered damage from a fire in 2019, it remains a symbol of Parisian heritage.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">4. **Montmartre and the Basilica of the Sacré-Cœur**: Perched atop a hill, Montmartre is known for its bohemian atmosphere, artists, and charming streets. The Basilica of the Sacré-Cœur offers panoramic views of Paris and is a beautiful example of Romano-Byzantine architecture.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">5. **Champs-Élysées and Arc de Triomphe**: The Champs-Élysées is one of the most famous avenues in the world, lined with shops, theaters, and cafes. At its western end stands the Arc de Triomphe, a monument honoring those who fought and died for France.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">6. **Musée d&#39;Orsay**: Housed in a former railway station, this museum is renowned for its extensive collection of Impressionist and Post-Impressionist masterpieces by artists such as Monet, Van Gogh, and Degas.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">7. **Seine River Cruise**: A boat cruise on the Seine River offers a unique perspective of Paris&#39;s landmarks, including the Eiffel Tower, Notre-Dame Cathedral, and the Louvre. It&#39;s a relaxing way to see the city, especially at night when the buildings are illuminated.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">8. **Palace of Versailles**: Just a short trip from Paris, the Palace of Versailles is a UNESCO World Heritage site known for its opulent architecture, stunning gardens, and the Hall of Mirrors. It was the royal residence of Louis XIV.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">9. **Le Marais**: This historic district is known for its narrow medieval streets, trendy boutiques, art galleries, and vibrant nightlife. It&#39;s also home to the Jewish Quarter and the beautiful Place des Vosges.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">10. **Luxembourg Gardens**: These beautifully manicured gardens are perfect for a leisurely stroll or a relaxing afternoon. The gardens feature statues, fountains, and the Luxembourg Palace, which houses the French Senate.
-</span></span><span class="line"><span class="cl">
-</span></span><span class="line"><span class="cl">Each of these locations offers a unique glimpse into the rich tapestry of Parisian culture and history. Whether you&#39;re an art lover, history buff, or simply looking to soak in the city&#39;s ambiance, Paris has something to offer everyone.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Paris, often referred to as &#34;The City of Light,&#34; is renowned for its rich history, stunning architecture, and vibrant culture. Here are a few must-visit places in Paris:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>1. **Eiffel Tower**: No trip to Paris is complete without visiting its most iconic landmark. You can take an elevator ride to the top for a breathtaking view of the city or enjoy a picnic on the Champ de Mars with the tower as your backdrop.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo, the Louvre is the world&#39;s largest art museum and a historic monument in Paris. The glass pyramid entrance is a modern architectural marvel.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>3. **Notre-Dame Cathedral**: This masterpiece of French Gothic architecture is famous for its stunning facade, intricate sculptures, and beautiful stained glass windows. Although it suffered damage from a fire in 2019, it remains a symbol of Parisian heritage.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>4. **Montmartre and the Basilica of the Sacré-Cœur**: Perched atop a hill, Montmartre is known for its bohemian atmosphere, artists, and charming streets. The Basilica of the Sacré-Cœur offers panoramic views of Paris and is a beautiful example of Romano-Byzantine architecture.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>5. **Champs-Élysées and Arc de Triomphe**: The Champs-Élysées is one of the most famous avenues in the world, lined with shops, theaters, and cafes. At its western end stands the Arc de Triomphe, a monument honoring those who fought and died for France.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>6. **Musée d&#39;Orsay**: Housed in a former railway station, this museum is renowned for its extensive collection of Impressionist and Post-Impressionist masterpieces by artists such as Monet, Van Gogh, and Degas.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>7. **Seine River Cruise**: A boat cruise on the Seine River offers a unique perspective of Paris&#39;s landmarks, including the Eiffel Tower, Notre-Dame Cathedral, and the Louvre. It&#39;s a relaxing way to see the city, especially at night when the buildings are illuminated.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>8. **Palace of Versailles**: Just a short trip from Paris, the Palace of Versailles is a UNESCO World Heritage site known for its opulent architecture, stunning gardens, and the Hall of Mirrors. It was the royal residence of Louis XIV.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>9. **Le Marais**: This historic district is known for its narrow medieval streets, trendy boutiques, art galleries, and vibrant nightlife. It&#39;s also home to the Jewish Quarter and the beautiful Place des Vosges.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>10. **Luxembourg Gardens**: These beautifully manicured gardens are perfect for a leisurely stroll or a relaxing afternoon. The gardens feature statues, fountains, and the Luxembourg Palace, which houses the French Senate.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Each of these locations offers a unique glimpse into the rich tapestry of Parisian culture and history. Whether you&#39;re an art lover, history buff, or simply looking to soak in the city&#39;s ambiance, Paris has something to offer everyone.
 </span></span></code></pre></div><p>They are slightly different in that the first prompt returns fifteen locations and the second prompt only ten. Let&rsquo;s calculate the embeddings and compare them:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">similarity</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">baseline_embedding</span><span class="p">,</span> <span class="n">current_embedding</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span><span class="n">describe_similarity</span><span class="p">(</span><span class="n">similarity</span><span class="p">))</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>similarity <span style="color:#f92672">=</span> get_similarity(baseline_embedding, current_embedding)
+</span></span><span style="display:flex;"><span>print(similarity,describe_similarity(similarity))
 </span></span></code></pre></div><pre tabindex="0"><code>&gt; 0.9737002849578857 very similar
 </code></pre><p>So, not identical, but essentially the same. You might have some testing added to your code that uses this metric to determine if anticipated results are &ldquo;drifting&rdquo; beyond some pre-determined limit. In this case, the ranges I chose might alert for the need to look at possible model changes that have crept into the process, or perhaps a prompt was changed in a recent release.</p>
 <p>We can compare results using the same exact prompt twice. Notice that the default<code>temperature</code>for the prompt generation function<code>get_prompt_result()</code>is set to &ldquo;0&rdquo; - which should provide the most &ldquo;repeatable&rdquo; output from<code>gpt-4o</code>. In practice there is always a tiny bit of variablilty even with temperature set to the most stable value. This varies between different LLMs:</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">baseline_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">current_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
-</span></span><span class="line"><span class="cl"><span class="n">similarity</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">get_embedding</span><span class="p">(</span><span class="n">baseline_result_text</span><span class="p">),</span> <span class="n">get_embedding</span><span class="p">(</span><span class="n">current_result_text</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span> <span class="n">describe_similarity</span><span class="p">(</span><span class="n">similarity</span><span class="p">))</span>
-</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Is baseline_result_text == current_result_text? </span><span class="si">{</span><span class="n">baseline_result_text</span> <span class="o">==</span> <span class="n">current_result_text</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>baseline_result_text <span style="color:#f92672">=</span> get_prompt_result(<span style="color:#e6db74">&#34;What are some nice places to visit in Paris?&#34;</span>)
+</span></span><span style="display:flex;"><span>current_result_text <span style="color:#f92672">=</span> get_prompt_result(<span style="color:#e6db74">&#34;What are some nice places to visit in Paris?&#34;</span>)
+</span></span><span style="display:flex;"><span>similarity <span style="color:#f92672">=</span> get_similarity(get_embedding(baseline_result_text), get_embedding(current_result_text))
+</span></span><span style="display:flex;"><span>print(similarity, describe_similarity(similarity))
+</span></span><span style="display:flex;"><span>print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Is baseline_result_text == current_result_text? </span><span style="color:#e6db74">{</span>baseline_result_text <span style="color:#f92672">==</span> current_result_text<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>)
 </span></span></code></pre></div><p>However, by comparing the embeddings, we can determine them to be identical for practical purposes, even if they are not exactly identical as strings.</p>
 <pre tabindex="0"><code>&gt; 0.997055172920227 identical
 &gt; Is baseline_result_text == current_result_text? False

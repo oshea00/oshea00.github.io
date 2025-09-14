@@ -4,10 +4,38 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.146.7</generator>
+    <generator>Hugo -- 0.150.0</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 01 May 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Llm</title>
+      <link>https://oshea00.github.io/tags/llm/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Openai</title>
+      <link>https://oshea00.github.io/tags/openai/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/openai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Prompt Engineering</title>
+      <link>https://oshea00.github.io/tags/prompt-engineering/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/prompt-engineering/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Summarization</title>
+      <link>https://oshea00.github.io/tags/summarization/</link>
+      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/summarization/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Agentic AI</title>
       <link>https://oshea00.github.io/tags/agentic-ai/</link>
@@ -34,13 +62,6 @@
       <link>https://oshea00.github.io/tags/aichat/</link>
       <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/aichat/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Llm</title>
-      <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
@@ -83,20 +104,6 @@
       <link>https://oshea00.github.io/tags/classification/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/classification/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Openai</title>
-      <link>https://oshea00.github.io/tags/openai/</link>
-      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/openai/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Prompt Engineering</title>
-      <link>https://oshea00.github.io/tags/prompt-engineering/</link>
-      <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/prompt-engineering/</guid>
       <description></description>
     </item>
     <item>
