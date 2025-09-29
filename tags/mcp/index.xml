@@ -19,7 +19,7 @@
 
 &lt;p&gt;&lt;em&gt;As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;MCP is an &lt;strong&gt;open standard&lt;/strong&gt; (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
-It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with lived systems. [1]&lt;/p&gt;</description>
+It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]&lt;/p&gt;</description>
     </item>
     <item>
       <title>Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge</title>
