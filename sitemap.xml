@@ -2,6 +2,56 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oshea00.github.io/tags/agents/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/ai/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/interactive-hype-cycle/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/cloud/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/llm/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/mcp/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/mcp-practices/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/</loc>
+    <lastmod>2025-09-29T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://oshea00.github.io/tags/a2a/</loc>
     <lastmod>2025-09-28T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -12,32 +62,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://oshea00.github.io/tags/agents/</loc>
-    <lastmod>2025-09-28T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
     <loc>https://oshea00.github.io/tags/google/</loc>
-    <lastmod>2025-09-28T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/tags/llm/</loc>
-    <lastmod>2025-09-28T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/</loc>
-    <lastmod>2025-09-28T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/posts/</loc>
-    <lastmod>2025-09-28T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/tags/</loc>
     <lastmod>2025-09-28T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -108,11 +133,6 @@
     <priority>0.5</priority>
   </url><url>
     <loc>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</loc>
-    <lastmod>2024-12-30T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/tags/mcp/</loc>
     <lastmod>2024-12-30T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

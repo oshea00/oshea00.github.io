@@ -6,8 +6,292 @@
     <description>Recent content in Posts on MikesBlog</description>
     <generator>Hugo -- 0.150.1</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 28 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 29 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI Cloud Interactive Hype Cycle 2025</title>
+      <link>https://oshea00.github.io/posts/interactive-hype-cycle/</link>
+      <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/interactive-hype-cycle/</guid>
+      <description>&lt;html lang=&#34;en&#34;&gt;
+&lt;head&gt;
+    &lt;meta charset=&#34;UTF-8&#34;&gt;
+    &lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0&#34;&gt;
+    &lt;style&gt;
+         
+        #hype-cycle-widget {
+            font-family: -apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, sans-serif;
+            background: white;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #hype-cycle-widget * {
+            box-sizing: border-box;
+        }
+
+        #hype-cycle-widget .hype-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 0;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #hype-cycle-widget .hype-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        #hype-cycle-widget .hype-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        #hype-cycle-widget .hype-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 5px 0;
+        }
+
+        #hype-cycle-widget .hype-main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        #hype-cycle-widget .hype-chart-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        #hype-cycle-widget .hype-chart-container {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #hype-cycle-widget .hype-curve {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        #hype-cycle-widget .hype-table-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        #hype-cycle-widget .hype-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        #hype-cycle-widget .hype-search-box,
+        #hype-cycle-widget .hype-filter-select {
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        #hype-cycle-widget .hype-search-box:focus,
+        #hype-cycle-widget .hype-filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #hype-cycle-widget .hype-search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        #hype-cycle-widget .hype-filter-select {
+            min-width: 150px;
+        }
+
+        #hype-cycle-widget .hype-table-container {
+            overflow: auto;
+            max-height: 400px;
+            border-radius: 10px;
+            border: 1px solid #e1e5e9;
+        }
+
+        #hype-cycle-widget table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        #hype-cycle-widget th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: all 0.2s ease;
+        }
+
+        #hype-cycle-widget th:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+
+        #hype-cycle-widget td {
+            padding: 12px;
+            border-bottom: 1px solid #e1e5e9;
+            vertical-align: top;
+        }
+
+        #hype-cycle-widget tr:hover {
+            background: #f8f9ff;
+        }
+
+        #hype-cycle-widget .tech-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        #hype-cycle-widget .position {
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        #hype-cycle-widget .innovation-trigger { background: #e8f5e8; color: #2d5a2d; }
+        #hype-cycle-widget .peak-expectations { background: #fff3cd; color: #856404; }
+        #hype-cycle-widget .trough-disillusionment { background: #f8d7da; color: #721c24; }
+        #hype-cycle-widget .slope-enlightenment { background: #d4edda; color: #155724; }
+        #hype-cycle-widget .plateau-productivity { background: #d1ecf1; color: #0c5460; }
+
+        #hype-cycle-widget .time-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        #hype-cycle-widget .time-lt2 { background: #e3f2fd; color: #1565c0; }
+        #hype-cycle-widget .time-2-5 { background: #e8f5e8; color: #2e7d32; }
+        #hype-cycle-widget .time-5-10 { background: #fff3e0; color: #ef6c00; }
+        #hype-cycle-widget .time-gt10 { background: #fce4ec; color: #c2185b; }
+        #hype-cycle-widget .time-obsolete { background: #f3e5f5; color: #7b1fa2; }
+
+        #hype-cycle-widget .analysis-cell {
+            max-width: 300px;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        #hype-cycle-widget .hype-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        #hype-cycle-widget .hype-tooltip.show {
+            opacity: 1;
+        }
+
+        #hype-cycle-widget .tech-dot {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+
+        #hype-cycle-widget .tech-dot:hover {
+            transform: scale(1.5);
+            z-index: 6;
+        }
+
+        #hype-cycle-widget .tech-dot.innovation-trigger { background: #4caf50; }
+        #hype-cycle-widget .tech-dot.peak-expectations { background: #ff9800; }
+        #hype-cycle-widget .tech-dot.trough-disillusionment { background: #f44336; }
+        #hype-cycle-widget .tech-dot.slope-enlightenment { background: #2196f3; }
+        #hype-cycle-widget .tech-dot.plateau-productivity { background: #9c27b0; }
+
+        #hype-cycle-widget .sort-icon {
+            display: inline-block;
+            margin-left: 5px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            #hype-cycle-widget .hype-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            #hype-cycle-widget .hype-controls {
+                flex-direction: column;
+            }
+            
+            #hype-cycle-widget .hype-search-box,
+            #hype-cycle-widget .hype-filter-select {
+                width: 100%;
+            }
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    
+    &lt;div id=&#34;hype-cycle-widget&#34;&gt;
+        &lt;div class=&#34;hype-container&#34;&gt;
+            &lt;div class=&#34;hype-header&#34;&gt;
+                &lt;p style=&#34;font-size: 1rem; opacity: 0.8; margin-top: 10px;&#34;&gt;Based on Gartner Hype Cycle for Cloud Platform Services, 2025&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Model Context Protocol (MCP) Best Practices</title>
+      <link>https://oshea00.github.io/posts/mcp-practices/</link>
+      <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/mcp-practices/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cuteMCP.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;&lt;em&gt;As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;MCP is an &lt;strong&gt;open standard&lt;/strong&gt; (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
+It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with lived systems. [1]&lt;/p&gt;</description>
+    </item>
     <item>
       <title>A2A Doesn&#39;t need AI Agents</title>
       <link>https://oshea00.github.io/posts/a2a-thoughts/</link>

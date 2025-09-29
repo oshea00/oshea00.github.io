@@ -10,7 +10,7 @@
 <meta name="description" content="Posts - MikesBlog">
 <meta name="author" content="Mike OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.f49d66caae9ea0fd43f21f29e71a8d3e284517ed770f2aa86fa012953ad3c9ef.css" integrity="sha256-9J1myq6eoP1D8h8p5xqNPihFF&#43;13Dyqob6ASlTrTye8=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f88d9240b376f3d68f9cd54cd60409eb9002a70286d9e2cbb0d9618fe64b6b8b.css" integrity="sha256-&#43;I2SQLN289aPnNVM1gQJ65ACpwKG2eLLsNlhj&#43;ZLa4s=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -190,6 +190,34 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">LLMs At The Command Line - Part 1
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.
+There are many popular graphical front ends for working with LLMs, such as OpenAI’s ChatGPT, and Anthropic’s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.
+One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I’ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2025-01-18 00:00:00 +0000 UTC'>January 18, 2025</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to LLMs At The Command Line - Part 1" href="https://oshea00.github.io/posts/aichat-part1/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> The first time I fired up an MCP (Model Context Protocol) server plugin, “Agent,” I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn’t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we’re in the early days, and there’s a lot of ground to cover before Agents become seamless collaborators.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2024-12-30 00:00:00 +0000 UTC'>December 30, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge" href="https://oshea00.github.io/posts/agentic-ai-tooling-pains/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Navigating the Fragmented Landscape of Agentic AI Tools
     </h2>
   </header>
@@ -241,34 +269,6 @@ There are a few reasons why a generated prompt result will not exactly match a p
   </div>
   <footer class="entry-footer"><span title='2024-07-07 00:00:00 +0000 UTC'>July 7, 2024</span>&nbsp;·&nbsp;7 min&nbsp;·&nbsp;Michael OShea</footer>
   <a class="entry-link" aria-label="post link to Scaling OpenAI With AsyncOpenAI" href="https://oshea00.github.io/posts/async-openai/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Transformers -  Positional Encoding
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Since transformer input is processed in parallel rather than serially, it is necessary to encode the relative positions of the input sequence of tokens in some way. The positional encoding in the transformer model uses sinusoidal functions to create a unique encoding for each position.
-In working through the article on Transformers, as described in the original paper “Attention is All You Need” by Vaswani et al., the following formulas are used to encode the PE tensor values:
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2024-05-27 00:00:00 +0000 UTC'>May 27, 2024</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea</footer>
-  <a class="entry-link" aria-label="post link to Transformers -  Positional Encoding" href="https://oshea00.github.io/posts/transformers-positional-encoding/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Fine-tuning Llama3
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p>Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
-Prerequisites You’ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv. Install torchtune pip install torchtune Install EleutherAI’s Evaluation Harness pip install lm_eval==0.4.* Download Llama3-8B model You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2024-05-11 00:00:00 +0000 UTC'>May 11, 2024</span>&nbsp;·&nbsp;7 min&nbsp;·&nbsp;Michael OShea</footer>
-  <a class="entry-link" aria-label="post link to Fine-tuning Llama3" href="https://oshea00.github.io/posts/finetuning-llama3-8b/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">
