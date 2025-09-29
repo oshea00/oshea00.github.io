@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Google on MikesBlog</title>
+    <link>https://oshea00.github.io/tags/google/</link>
+    <description>Recent content in Google on MikesBlog</description>
+    <generator>Hugo -- 0.150.1</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 28 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://oshea00.github.io/tags/google/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A2A Doesn&#39;t need AI Agents</title>
+      <link>https://oshea00.github.io/posts/a2a-thoughts/</link>
+      <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/a2a-thoughts/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputeragentstalking.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;&lt;em&gt;Is this just distributed computing re-packaged for AI?&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&#34;what-is-a2a-without-ai-agents&#34;&gt;What is A2A Without AI Agents?&lt;/h2&gt;
+&lt;p&gt;I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini&amp;rsquo;s Creator) had &lt;a href=&#34;https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/&#34;&gt;announced A2A in April&lt;/a&gt;, and Gemini got a little &amp;ldquo;gushy&amp;rdquo; on how it was &amp;ldquo;a revolutionary new idea.&amp;rdquo; Also, perhaps &amp;ldquo;debate&amp;rdquo; is too strong a word. And I might want to consider getting out more often.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

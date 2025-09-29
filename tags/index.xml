@@ -4,14 +4,35 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.150.0</generator>
+    <generator>Hugo -- 0.150.1</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 28 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A2A</title>
+      <link>https://oshea00.github.io/tags/a2a/</link>
+      <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/a2a/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Agents</title>
+      <link>https://oshea00.github.io/tags/agents/</link>
+      <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/agents/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Google</title>
+      <link>https://oshea00.github.io/tags/google/</link>
+      <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/google/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Llm</title>
       <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+      <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
