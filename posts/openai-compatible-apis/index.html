@@ -28,34 +28,6 @@ Here are a few examples of how the OpenAI library is used with other open-source
         }
 
     </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
 
@@ -75,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
 
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
@@ -167,10 +140,6 @@ Here are a few examples of how the OpenAI library is used with other open-source
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
     }
 
 </script>
@@ -240,27 +209,27 @@ Here are a few examples of how the OpenAI library is used with other open-source
 <p>See the <a href="https://github.com/ollama/ollama">Ollama GitHub</a> repository.</p>
 <p>Here’s a quick start to run a small LLM model locally. If you have an Nvidia or AMD GPU, it will configure itself to use them automatically. If not, it defaults to CPU.</p>
 <p>Install Ollama</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl -fsSL https://ollama.com/install.sh | sh
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">curl -fsSL https://ollama.com/install.sh <span class="p">|</span> sh
 </span></span></code></pre></div><h3 id="manual-gguf-model-creation-procedure">Manual GGUF model creation procedure<a hidden class="anchor" aria-hidden="true" href="#manual-gguf-model-creation-procedure">#</a></h3>
 <p>The following steps show how to install a GGUF model file into Ollama. This is useful in cases where the model may not already be in the Ollama Hub list of models. It also tends to work well in cases where you are behind a proxy that is causing problems using the <code>ollama run &lt;model&gt;</code> command.</p>
 <p>You will need the HuggingFace CLI to download the Phi-2 LLM model manually.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>python3 -m pip install huggingface-cli
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">python3 -m pip install huggingface-cli
 </span></span></code></pre></div><p>Download the LLM model in GGUF format. Note: make sure to have your <a href="https://huggingface.co/settings/tokens">HF_TOKEN from here</a> setup as an enviroment variable, or run <code>huggingface-cli login</code> prior to this.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># If run from your home directory, this creates a ~/downloads directory if not already existing:</span>
-</span></span><span style="display:flex;"><span>huggingface-cli download <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  TheBloke/phi-2-GGUF <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  phi-2.Q4_K_M.gguf <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  --local-dir downloads <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>  --local-dir-use-symlinks False
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># If run from your home directory, this creates a ~/downloads directory if not already existing:</span>
+</span></span><span class="line"><span class="cl">huggingface-cli download <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  TheBloke/phi-2-GGUF <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  phi-2.Q4_K_M.gguf <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --local-dir downloads <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --local-dir-use-symlinks False
 </span></span></code></pre></div><p>Create a file named <code>Modelfile</code> (actually, any name is OK) with the following line in it.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>FROM ./downloads/phi-2.Q4_K_M.gguf
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">FROM ./downloads/phi-2.Q4_K_M.gguf
 </span></span></code></pre></div><p>Build the model using this file as input to Ollama create:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama create phi2 -f Modelfile
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ollama create phi2 -f Modelfile
 </span></span></code></pre></div><p>Now you can verify the model is present, then run it:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ollama list
-</span></span><span style="display:flex;"><span>ollama run phi2
-</span></span><span style="display:flex;"><span>&gt;&gt;&gt; in a sentence, why is the sky blue?
-</span></span><span style="display:flex;"><span> The sky is blue because of a phenomenon known as Rayleigh scattering....
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">ollama list
+</span></span><span class="line"><span class="cl">ollama run phi2
+</span></span><span class="line"><span class="cl">&gt;&gt;&gt; in a sentence, why is the sky blue?
+</span></span><span class="line"><span class="cl"> The sky is blue because of a phenomenon known as Rayleigh scattering....
 </span></span></code></pre></div><p>The response on my Surface with i7-1185G7 @ 3.00GHZ CPU (no GPU) takes about 30 seconds.</p>
 <p>By comparison, my RTX4090-equipped Corsair Vengeance i7400 liquid-cooled i9 12900X 64GB RAM box runs the Llama7 8B Model for the same query about the sky in less than a second.</p>
 <p>Here is an example of running a query using the OpenAI library against the local Ollama API referencing the PHI-2 model we loaded above.

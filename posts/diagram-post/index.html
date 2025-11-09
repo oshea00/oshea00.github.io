@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Draft Post | MikesBlog</title>
+<meta name="keywords" content="mermaid">
+<meta name="description" content="KafkaSend Protocol Specification
+This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.
+Overview
+KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB&#43;) through Kafka, which has message size limitations. The protocol supports:
+
+Multi-chunk file transfers with sequence ordering
+Job-based request/response correlation
+Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE)
+Custom headers and multipart file uploads
+CRC32 checksum validation for data integrity
+Error handling and status reporting
+
+Architecture
+graph LR
+    A[Client CLI] --&gt;|api-requests&lt;br/&gt;Kafka Topic| B[Portal Service&lt;br/&gt;Bridge]
+    B --&gt;|api-responses&lt;br/&gt;Kafka Topic| A
+    B --&gt;|HTTP/REST&lt;br/&gt;with OAuth2| C[REST API&lt;br/&gt;Server]
+    C --&gt;|HTTP Response&lt;br/&gt;JSON/Binary| B
+
+    style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+
+Message Types
+The protocol defines three message types:">
+<meta name="author" content="Michael OShea">
+<link rel="canonical" href="http://localhost:1313/posts/diagram-post/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.f88d9240b376f3d68f9cd54cd60409eb9002a70286d9e2cbb0d9618fe64b6b8b.css" integrity="sha256-&#43;I2SQLN289aPnNVM1gQJ65ACpwKG2eLLsNlhj&#43;ZLa4s=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/diagram-post/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+</script>
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( false ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-37B7H2GBCX');
+        }
+      </script><meta property="og:url" content="http://localhost:1313/posts/diagram-post/">
+  <meta property="og:site_name" content="MikesBlog">
+  <meta property="og:title" content="Draft Post">
+  <meta property="og:description" content="KafkaSend Protocol Specification This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.
+Overview KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB&#43;) through Kafka, which has message size limitations. The protocol supports:
+Multi-chunk file transfers with sequence ordering Job-based request/response correlation Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE) Custom headers and multipart file uploads CRC32 checksum validation for data integrity Error handling and status reporting Architecture graph LR A[Client CLI] --&gt;|api-requests&lt;br/&gt;Kafka Topic| B[Portal Service&lt;br/&gt;Bridge] B --&gt;|api-responses&lt;br/&gt;Kafka Topic| A B --&gt;|HTTP/REST&lt;br/&gt;with OAuth2| C[REST API&lt;br/&gt;Server] C --&gt;|HTTP Response&lt;br/&gt;JSON/Binary| B style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px style B fill:#fff3e0,stroke:#e65100,stroke-width:2px style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px Message Types The protocol defines three message types:">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-11-08T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-11-08T00:00:00+00:00">
+    <meta property="article:tag" content="Mermaid">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Draft Post">
+<meta name="twitter:description" content="KafkaSend Protocol Specification
+This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.
+Overview
+KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB&#43;) through Kafka, which has message size limitations. The protocol supports:
+
+Multi-chunk file transfers with sequence ordering
+Job-based request/response correlation
+Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE)
+Custom headers and multipart file uploads
+CRC32 checksum validation for data integrity
+Error handling and status reporting
+
+Architecture
+graph LR
+    A[Client CLI] --&gt;|api-requests&lt;br/&gt;Kafka Topic| B[Portal Service&lt;br/&gt;Bridge]
+    B --&gt;|api-responses&lt;br/&gt;Kafka Topic| A
+    B --&gt;|HTTP/REST&lt;br/&gt;with OAuth2| C[REST API&lt;br/&gt;Server]
+    C --&gt;|HTTP Response&lt;br/&gt;JSON/Binary| B
+
+    style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+
+
+Message Types
+The protocol defines three message types:">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Draft Post",
+      "item": "http://localhost:1313/posts/diagram-post/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Draft Post",
+  "name": "Draft Post",
+  "description": "KafkaSend Protocol Specification This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.\nOverview KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB+) through Kafka, which has message size limitations. The protocol supports:\nMulti-chunk file transfers with sequence ordering Job-based request/response correlation Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE) Custom headers and multipart file uploads CRC32 checksum validation for data integrity Error handling and status reporting Architecture graph LR A[Client CLI] --\u0026gt;|api-requests\u0026lt;br/\u0026gt;Kafka Topic| B[Portal Service\u0026lt;br/\u0026gt;Bridge] B --\u0026gt;|api-responses\u0026lt;br/\u0026gt;Kafka Topic| A B --\u0026gt;|HTTP/REST\u0026lt;br/\u0026gt;with OAuth2| C[REST API\u0026lt;br/\u0026gt;Server] C --\u0026gt;|HTTP Response\u0026lt;br/\u0026gt;JSON/Binary| B style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px style B fill:#fff3e0,stroke:#e65100,stroke-width:2px style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px Message Types The protocol defines three message types:\n",
+  "keywords": [
+    "mermaid"
+  ],
+  "articleBody": "KafkaSend Protocol Specification This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.\nOverview KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB+) through Kafka, which has message size limitations. The protocol supports:\nMulti-chunk file transfers with sequence ordering Job-based request/response correlation Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE) Custom headers and multipart file uploads CRC32 checksum validation for data integrity Error handling and status reporting Architecture graph LR A[Client CLI] --\u003e|api-requestsKafka Topic| B[Portal ServiceBridge] B --\u003e|api-responsesKafka Topic| A B --\u003e|HTTP/RESTwith OAuth2| C[REST APIServer] C --\u003e|HTTP ResponseJSON/Binary| B style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px style B fill:#fff3e0,stroke:#e65100,stroke-width:2px style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px Message Types The protocol defines three message types:\nType Purpose START Initiates a new job with metadata and configuration (never contains data) CHUNK Carries a chunk of data (base64 encoded for binary, plain text for text-based content) ERROR Reports errors during processing Bidirectional Chunking The KafkaSend protocol implements bidirectional chunking to handle large data in both directions:\nRequest Direction: Client → Portal Client responsibilities:\nCalculate chunk count based on file size Split large files into 650KB chunks Base64 encode each chunk Send START message followed by CHUNK messages Include sequence numbers and total chunk count Portal responsibilities:\nReceive and accumulate chunks in memory Track sequence numbers to ensure all chunks received Reassemble chunks in correct order Decode base64 back to binary Forward complete data to REST API Response Direction: Portal → Client Portal responsibilities:\nReceive HTTP response from REST API Check response size (\u003e 650KB requires chunking) Base64 encode binary responses Split large responses into 650KB chunks Send START message with metadata (status code, headers, CRC32, total_chunks) Send CHUNK messages with data only (no metadata) Client responsibilities:\nReceive START message to get metadata Receive and accumulate response chunks Track sequence numbers to ensure all chunks received Reassemble chunks in correct order Decode base64 back to binary/text Display or save the complete response Key Characteristics Aspect Request Chunking Response Chunking Who chunks? Client Portal Who reassembles? Portal Client Chunk size 650KB (before base64) 650KB (before base64) Message count START + 1 CHUNK (small)START + N CHUNKs (large) START + 1 CHUNK (small)START + N CHUNKs (large) Encoding Base64 Base64 Protocol START (metadata only) + CHUNK(s) with data START (metadata only) + CHUNK(s) with data graph TD subgraph \"Request Flow - Client Chunks\" A1[Large File2MB] --\u003e A2[Client: Split into 4 chunks] A2 --\u003e A3[Client: Base64 encode] A3 --\u003e A4[Send to Kafka] A4 --\u003e A5[Portal: Accumulate] A5 --\u003e A6[Portal: Reassemble] A6 --\u003e A7[Portal: Decode base64] A7 --\u003e A8[Send to REST API] end subgraph \"Response Flow - Portal Chunks\" B1[REST API Response5MB] --\u003e B2[Portal: Base64 encode] B2 --\u003e B3[Portal: Split into 8 chunks] B3 --\u003e B4[Send to Kafka] B4 --\u003e B5[Client: Accumulate] B5 --\u003e B6[Client: Reassemble] B6 --\u003e B7[Client: Decode base64] B7 --\u003e B8[Display/Save] end A8 -.-\u003e|HTTP Request| B1 style A2 fill:#e1f5ff,stroke:#01579b style A5 fill:#fff3e0,stroke:#e65100 style B3 fill:#fff3e0,stroke:#e65100 style B5 fill:#e1f5ff,stroke:#01579b Data Integrity with CRC32 Checksums KafkaSend implements bidirectional CRC32 checksum validation to ensure end-to-end data integrity during chunked transfers. This protects against data corruption that may occur during:\nMessage serialization/deserialization Network transmission through Kafka Chunk reassembly Base64 encoding/decoding Bidirectional Protection CRC32 validation works in both directions with clear responsibilities:\nDirection Who Calculates Who Verifies What Data When Request Client Portal File/upload data Before sending → After reassembly Response Portal Client REST API response After receiving → Before processing This ensures complete data integrity from client through Kafka to portal to REST API and back.\nRequest Direction: Client → Portal How It Works sequenceDiagram participant C as Client participant KReq as Kafkaapi-requests participant P as Portal participant A as REST API participant KResp as Kafkaapi-responses Note over C: Read complete file C-\u003e\u003eC: Calculate CRC32checksum C-\u003e\u003eKReq: START message(crc32=1234567890) C-\u003e\u003eKReq: CHUNK messages(sequence 0-3) KReq-\u003e\u003eP: Consume messages P-\u003e\u003eP: Accumulate chunks P-\u003e\u003eP: Reassemble data P-\u003e\u003eP: Calculate CRC32of reassembled data alt CRC32 matches Note over P: ✓ Data integrity verified P-\u003e\u003eA: HTTP POST(send complete data) else CRC32 mismatch Note over P: ✗ Data corruption detected P-\u003e\u003eKResp: ERROR message\"CRC32 checksum mismatch\" end Client Responsibilities (Request Direction) The client is responsible for calculating CRC32 before sending data:\n1. Calculate checksum of complete file:\n# In sender.py:86 crc = 0 with open(file_path, 'rb') as f: while chunk := f.read(65536): # Read in 64KB chunks crc = zlib.crc32(chunk, crc) file_crc32 = crc \u0026 0xffffffff # Unsigned 32-bit integer 2. Include CRC32 in START message:\nstart_message = KafkaRequestMessage( job_id=job_id, message_type=MessageType.START, method=HttpMethod.POST, endpoint=\"/api/upload\", filename=\"document.pdf\", content_type=\"application/pdf\", crc32=file_crc32, # ← CRC32 of complete file total_chunks=4 ) 3. Handle CRC32 validation errors:\nIf portal detects mismatch, receives ERROR message Client should log error and may retry upload Indicates data corruption during transmission Portal Responsibilities (Request Direction) The portal is responsible for verifying CRC32 after reassembling data:\n1. Store expected CRC32 from START message:\n# In job_manager.py:154 job = JobState( job_id=message.job_id, method=message.method, endpoint=message.endpoint, expected_crc32=message.crc32, # ← Store expected CRC32 total_chunks=message.total_chunks ) 2. Accumulate and reassemble chunks:\n# In job_manager.py:164-165 chunk_data = decode_chunk(message.data) job.add_chunk(message.sequence, chunk_data) 3. Verify CRC32 after complete reassembly:\n# In job_manager.py:85-105 def get_complete_data(self) -\u003e bytes: # Reassemble all chunks sorted_chunks = [self.chunks[i] for i in sorted(self.chunks.keys())] complete_data = reassemble_chunks(sorted_chunks) # Verify CRC32 if provided if self.expected_crc32 is not None: actual_crc32 = zlib.crc32(complete_data) \u0026 0xffffffff if actual_crc32 != self.expected_crc32: raise ValueError( f\"CRC32 checksum mismatch for job {self.job_id}: \" f\"expected {self.expected_crc32}, got {actual_crc32}\" ) return complete_data 4. Send error response on mismatch:\nPortal automatically sends ERROR message to response topic Job is cancelled and cleaned up Client receives detailed error message Response Direction: Portal → Client How It Works The portal calculates CRC32 checksums for all REST API responses and sends them back to the client for verification.\nsequenceDiagram participant C as Client participant KReq as Kafkaapi-requests participant P as Portal participant A as REST API participant KResp as Kafkaapi-responses C-\u003e\u003eKReq: Request message KReq-\u003e\u003eP: Consume request P-\u003e\u003eA: HTTP POST/GET A--\u003e\u003eP: HTTP Response(complete data) Note over P: Calculate CRC32of response data P-\u003e\u003eP: Encode/chunk response P-\u003e\u003eKResp: START message(metadata only + crc32) P-\u003e\u003eKResp: CHUNK message(s)(data only) KResp-\u003e\u003eC: Consume response C-\u003e\u003eC: Accumulate chunks C-\u003e\u003eC: Reassemble data C-\u003e\u003eC: Calculate CRC32of reassembled data alt CRC32 matches Note over C: ✓ Response integrity verified C-\u003e\u003eC: Process response else CRC32 mismatch Note over C: ✗ Data corruption detected C-\u003e\u003eC: Raise error end Portal Responsibilities (Response Direction) The portal is responsible for calculating CRC32 after receiving REST API response:\n1. Calculate CRC32 of complete HTTP response:\n# In service.py:268 response_data = response.content # Raw bytes from REST API response_crc32 = zlib.crc32(response_data) \u0026 0xffffffff 2. Include CRC32 in START message:\n# In service.py - START message (metadata only) start_message = KafkaResponseMessage( job_id=job_id, message_type=MessageType.START, sequence=0, total_chunks=data_chunks, status_code=response.status_code, headers=dict(response.headers), is_text=is_text, crc32=response_crc32 # ← CRC32 of complete response ) 3. Send CHUNK message(s) with data:\n# CHUNK message (data only, no metadata) chunk_message = KafkaResponseMessage( job_id=job_id, message_type=MessageType.CHUNK, sequence=i, total_chunks=data_chunks, data=chunk_data # ← Data only ) 4. Key points:\nCRC32 included in START message only (along with other metadata) CHUNK messages contain only data (no metadata) Checksum represents complete response before chunking Pattern is consistent regardless of response size 5. Log CRC32 for audit trail:\nlogger.info( \"Response sent\", job_id=job_id, status_code=response.status_code, crc32=response_crc32 # ← Logged for debugging ) Client Responsibilities (Response Direction) The client is responsible for verifying CRC32 after reassembling response:\n1. Store expected CRC32 from first response message:\n# In receiver.py:205-206 if response.crc32 is not None: state.expected_crc32 = response.crc32 # ← Store expected CRC32 2. Accumulate response chunks:\n# In receiver.py:212 if response.data: state.add_chunk(response.sequence, response.data) 3. Verify CRC32 after complete reassembly:\n# In receiver.py:57-79 def get_complete_data(self) -\u003e str: # Reassemble chunks sorted_data = [self.chunks[i] for i in sorted(self.chunks.keys())] complete_data = ''.join(sorted_data) # Verify CRC32 if provided if self.expected_crc32 is not None: # For JSON: calculate CRC32 of UTF-8 bytes if self.is_text: raw_bytes = complete_data.encode('utf-8') # For binary: decode base64 first, then calculate else: import base64 raw_bytes = base64.b64decode(complete_data) actual_crc32 = zlib.crc32(raw_bytes) \u0026 0xffffffff if actual_crc32 != self.expected_crc32: raise ValueError( f\"CRC32 checksum mismatch for response {self.job_id}: \" f\"expected {self.expected_crc32}, got {actual_crc32}\" ) return complete_data 4. Handle CRC32 validation errors:\nClient raises ValueError on mismatch Application should log error May indicate data corruption during transmission Summary of Responsibilities Complete Responsibility Matrix Component Request Direction (Upload) Response Direction (Download) Client ✓ Calculate CRC32 of file✓ Send in START message✓ Handle ERROR responses ✓ Store CRC32 from response✓ Verify after reassembly✓ Raise error on mismatch Portal ✓ Store CRC32 from START✓ Verify after reassembly✓ Send ERROR on mismatch ✓ Calculate CRC32 of REST response✓ Send in response message✓ Log for audit trail Key Differences Between Directions Aspect Request CRC32 (Client → Portal) Response CRC32 (Portal → Client) Calculated by Client (sender.py) Portal (service.py) Verified by Portal (job_manager.py) Client (receiver.py) Data type Always binary (files) JSON or binary CRC32 scope Original file bytes HTTP response content bytes In message START message First response message Error handling Portal sends ERROR message Client raises ValueError CRC32 Calculation Details Request (Client):\n# File bytes → CRC32 crc32 = zlib.crc32(file_bytes) \u0026 0xffffffff Response - JSON (Portal):\n# JSON text bytes → CRC32 json_bytes = '{\"status\": \"ok\"}'.encode('utf-8') crc32 = zlib.crc32(json_bytes) \u0026 0xffffffff Response - Binary (Portal):\n# Binary bytes → CRC32 (before base64 encoding) crc32 = zlib.crc32(binary_bytes) \u0026 0xffffffff Important Notes CRC32 calculated on raw data: Always calculated on the original bytes, not base64-encoded data Checksum covers complete data: Not individual chunks, but the complete file/response Included in first message only: START message for requests, first CHUNK/START for responses Backwards compatible: Optional field, works without CRC32 Performance: Minimal overhead (~100ms for 50MB file) Benefits and Error Handling Benefits End-to-end data integrity: Verifies data from client → portal → REST API → portal → client Corruption detection: Catches bit flips, truncation, or reassembly errors Bidirectional protection: Both uploads and downloads verified Debugging aid: Identifies where corruption occurred (transmission vs processing) Audit trail: All CRC32 values logged for investigation Optional: Backwards compatible with clients that don’t send CRC32 Error Messages Request Direction (Portal detects corruption):\n{ \"job_id\": \"abc-123\", \"message_type\": \"ERROR\", \"error_message\": \"CRC32 checksum mismatch for job abc-123: expected 1234567890, got 9876543210\" } Response Direction (Client detects corruption):\nValueError: CRC32 checksum mismatch for response abc-123: expected 1234567890, got 9876543210 Recovery Actions Scenario Action Request CRC32 mismatch Portal sends ERROR → Client logs error → Client may retry upload Response CRC32 mismatch Client raises exception → Application logs error → Application may retry request Network corruption CRC32 detects issue → Request/response rejected → Ensures data integrity Testing See comprehensive test coverage in:\ntests/test_crc32.py: Request and response CRC32 validation (12 tests) tests/test_portal_response_crc32.py: Portal response calculation logic (6 tests) Test coverage includes:\n✅ Valid CRC32 passes verification (requests and responses) ✅ Invalid CRC32 triggers error (requests and responses) ✅ Multi-chunk transfers verified correctly (requests and responses) ✅ JSON and binary responses handled correctly ✅ Large file chunking with CRC32 validation ✅ Empty responses and edge cases ✅ Unicode handling in JSON responses ✅ Jobs without CRC32 still work (backwards compatible) Multi-Instance Scaling with Partition Key Routing KafkaSend supports running multiple portal instances for high availability and load distribution. To prevent multiple portals from processing chunks of the same job, we use partition key routing based on the job ID.\nHow It Works graph TB subgraph \"Client\" C[Client CLIjob_id: abc-123] end subgraph \"Kafka Topics\" KR[api-requestsPartitions 0,1,2] KS[api-responsesPartitions 0,1,2] end subgraph \"Portal Instances\" P1[Portal 1Partition 0] P2[Portal 2Partition 1] P3[Portal 3Partition 2] end subgraph \"REST API\" API[REST API Server] end C --\u003e|key=job_id| KR KR --\u003e|Consumer GroupPartition Assignment| P2 P2 --\u003e API API --\u003e P2 P2 --\u003e|key=job_id→ Partition 1| KS KS --\u003e C style C fill:#e1f5ff,stroke:#01579b,stroke-width:2px style P2 fill:#fff3e0,stroke:#e65100,stroke-width:3px style P1 fill:#f5f5f5,stroke:#999,stroke-dasharray: 5 5 style P3 fill:#f5f5f5,stroke:#999,stroke-dasharray: 5 5 style API fill:#f3e5f5,stroke:#4a148c,stroke-width:2px Key Guarantees Job Affinity: All messages with the same job_id are routed to the same Kafka partition using the job ID as the partition key Single Consumer: Kafka’s consumer group mechanism ensures each partition is assigned to only one portal instance Message Ordering: Kafka guarantees message order within a partition, ensuring chunks arrive in sequence Load Distribution: Different jobs (with different job IDs) are distributed across partitions and portal instances Fault Tolerance: If a portal instance fails, Kafka rebalances partitions to surviving instances Implementation Details Client-side (sender.py):\nself._producer.send( self.kafka_config.request_topic, key=message.job_id.encode('utf-8'), # Partition key value=message.model_dump() ) Portal-side (service.py):\nself._producer.send( self.kafka_config.response_topic, key=message.job_id.encode('utf-8'), # Partition key value=message.model_dump() ) Benefits Prevents Race Conditions: No two portal instances will process chunks from the same job Scalability: Add more portal instances to handle increased load High Availability: Jobs automatically reassigned if an instance fails Performance: Jobs processed in parallel across multiple instances Configuration To enable multi-instance deployment, simply run multiple portal containers with the same consumer group ID:\n# docker-compose.yml portal-1: environment: KAFKA_CONSUMER_GROUP: portal-service-group # Same group portal-2: environment: KAFKA_CONSUMER_GROUP: portal-service-group # Same group Protocol Flow Single-Chunk Upload (Small File) sequenceDiagram participant C as Client CLI participant KR as Kafka(api-requests) participant P as Portal Service participant KS as Kafka(api-responses) participant A as REST API C-\u003e\u003eC: Read file (\u003c 650KB) C-\u003e\u003eC: Encode as base64 C-\u003e\u003eKR: START message(total_chunks=1, metadata only) C-\u003e\u003eKR: CHUNK message(seq=0, data) KR-\u003e\u003eP: Consume messages P-\u003e\u003eP: Job started P-\u003e\u003eP: Chunk 0 receivedAll chunks received P-\u003e\u003eP: Decode base64 P-\u003e\u003eA: HTTP POST (multipart) A--\u003e\u003eP: HTTP 200 Response P-\u003e\u003eP: Encode response P-\u003e\u003eKS: Response message(status=200, data) KS-\u003e\u003eC: Consume response C-\u003e\u003eC: Display result Multi-Chunk Upload (Large File) sequenceDiagram participant C as Client CLI participant KR as Kafka(api-requests) participant P as Portal Service participant A as REST API participant KS as Kafka(api-responses) C-\u003e\u003eC: Calculate chunks(file_size / 650KB) C-\u003e\u003eKR: START message(total_chunks=4) C-\u003e\u003eKR: CHUNK message(seq=0, data) C-\u003e\u003eKR: CHUNK message(seq=1, data) C-\u003e\u003eKR: CHUNK message(seq=2, data) C-\u003e\u003eKR: CHUNK message(seq=3, data) Note over P: Accumulating chunks... KR-\u003e\u003eP: Consume messages P-\u003e\u003eP: Job started P-\u003e\u003eP: Chunk 0 received P-\u003e\u003eP: Chunk 1 received P-\u003e\u003eP: Chunk 2 received P-\u003e\u003eP: Chunk 3 received P-\u003e\u003eP: All chunks complete! P-\u003e\u003eP: Reassemble chunks P-\u003e\u003eP: Decode base64 P-\u003e\u003eA: HTTP POST(multipart, 2MB file) A--\u003e\u003eP: HTTP 200 Response P-\u003e\u003eP: Check response size P-\u003e\u003eKS: Response message(single or chunked) Simple Request (No Body) sequenceDiagram participant C as Client CLI participant KR as Kafka(api-requests) participant P as Portal Service participant A as REST API participant KS as Kafka(api-responses) C-\u003e\u003eKR: START message(method=GET, total_chunks=0) KR-\u003e\u003eP: Consume message P-\u003e\u003eP: Job startedNo data expected P-\u003e\u003eA: HTTP GET request A--\u003e\u003eP: HTTP 200 JSON Response P-\u003e\u003eKS: Response message(is_text=true) Large Response Handling (Chunked by Portal) When the REST API returns a large response (\u003e 650KB), the portal automatically chunks it:\nsequenceDiagram participant C as Client CLI participant KR as Kafka(api-requests) participant P as Portal Service participant KS as Kafka(api-responses) participant A as REST API C-\u003e\u003eKR: START message(file upload) KR-\u003e\u003eP: Process request P-\u003e\u003eA: HTTP POST A--\u003e\u003eP: HTTP 200(Large response: 5MB) Note over P: Response \u003e 650KBChunking required! P-\u003e\u003eP: Calculate chunks(5MB / 650KB = 8) P-\u003e\u003eP: Encode as base64 P-\u003e\u003eKS: START message(metadata only, total=8) P-\u003e\u003eKS: CHUNK message(seq=0, data) P-\u003e\u003eKS: CHUNK message(seq=1, data) P-\u003e\u003eKS: CHUNK message(seq=2, data) P-\u003e\u003eKS: ... P-\u003e\u003eKS: CHUNK message(seq=7, data) Note over C: Accumulating response chunks... KS-\u003e\u003eC: Consume messages C-\u003e\u003eC: Chunk 0 received C-\u003e\u003eC: Chunk 1 received C-\u003e\u003eC: Chunk 2 received C-\u003e\u003eC: ...chunks 3-6... C-\u003e\u003eC: Chunk 7 received C-\u003e\u003eC: All chunks complete! C-\u003e\u003eC: Reassemble chunks C-\u003e\u003eC: Decode base64 C-\u003e\u003eC: Save to file or display Key Points:\nPortal responsibility: Chunk large responses (\u003e 650KB) before sending to Kafka Client responsibility: Reassemble response chunks in correct order Same chunking logic: Both request and response use 650KB chunks Base64 encoding: Applied to binary responses before chunking Symmetric protocol: Both directions use START message for metadata, CHUNK messages for data Error Handling sequenceDiagram participant C as Client CLI participant KR as Kafka(api-requests) participant P as Portal Service participant A as REST API participant KS as Kafka(api-responses) C-\u003e\u003eKR: START message C-\u003e\u003eKR: CHUNK message (seq=0) KR-\u003e\u003eP: Consume messages P-\u003e\u003eP: Job started P-\u003e\u003eP: Error: Invalid data P-\u003e\u003eKS: ERROR message(error_message) P-\u003e\u003eP: Job cancelled Message Formats Request Message Schema Clients send two types of messages to the api-requests topic: START and CHUNK.\nSTART Message - File Upload (POST/PUT with file) - Metadata Only:\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 4, \"method\": \"POST\", \"endpoint\": \"/api/upload\", \"headers\": { \"X-Custom-Header\": \"value\" }, \"filename\": \"document.pdf\", \"content_type\": \"application/pdf\", \"crc32\": 1234567890 } Note: START messages never contain data. Data is always sent in separate CHUNK messages, even for small files with total_chunks=1.\nSTART Message - Simple Request (GET/DELETE with no body):\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 0, \"method\": \"GET\", \"endpoint\": \"/api/documents/123\", \"headers\": { \"X-Custom-Header\": \"value\" } } CHUNK Message (data only, follows START):\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"CHUNK\", \"sequence\": 0, \"total_chunks\": 4, \"data\": \"base64-encoded-binary-data\" } Response Message Schema All response messages sent to the api-responses topic follow this schema:\nSTART Message (metadata only):\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 1, // Number of CHUNK messages to follow \"status_code\": 200, \"headers\": { \"Content-Type\": \"application/json\", \"Content-Length\": \"1234\" }, \"is_text\": true, \"crc32\": 9876543210, \"data\": null // Always null in START messages } CHUNK Message (data only):\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"CHUNK\", \"sequence\": 0, \"total_chunks\": 1, \"data\": \"base64-or-plain-text\" // Actual response data } ERROR Message:\n{ \"job_id\": \"uuid-v4\", \"message_type\": \"ERROR\", \"error_message\": \"Error description\" } Detailed Message Types START Message (Request) Initiates a new job and provides all metadata needed for the HTTP request.\nRequired Fields:\njob_id - Unique identifier (UUID v4) message_type = \"START\" sequence = 0 total_chunks - Number of chunks to expect (0 if no body) method - HTTP method endpoint - Target API path Optional Fields:\nheaders - HTTP headers (content-type, etc.) filename - Original filename for multipart uploads content_type - MIME type of the file crc32 - CRC32 checksum of complete data for integrity verification (unsigned 32-bit integer) data - Not used in START messages (always null/omitted; data sent in CHUNK messages) Example - Small File Upload (START message - metadata only):\n{ \"job_id\": \"a7cf937b-b8ca-41e5-a9d1-e380bc726dea\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 1, \"method\": \"POST\", \"endpoint\": \"/api/upload\", \"headers\": {}, \"filename\": \"test.txt\", \"content_type\": \"text/plain\", \"crc32\": 2870671212 } Followed by CHUNK message with data:\n{ \"job_id\": \"a7cf937b-b8ca-41e5-a9d1-e380bc726dea\", \"message_type\": \"CHUNK\", \"sequence\": 0, \"total_chunks\": 1, \"data\": \"VGhpcyBpcyBhIHRlc3QgZmlsZSBmb3IgZGVtb25zdHJhdGlvbiBwdXJwb3Nlcy4K\" } Example - Large File Upload (Start):\n{ \"job_id\": \"c51e5e4f-bba9-470e-956e-ba190bac31ad\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 4, \"method\": \"POST\", \"endpoint\": \"/api/upload\", \"headers\": {}, \"filename\": \"large-file.bin\", \"content_type\": \"application/octet-stream\", \"crc32\": 3456789012 } Example - GET Request (No Body):\n{ \"job_id\": \"def456...\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 0, \"method\": \"GET\", \"endpoint\": \"/api/status\", \"headers\": {} } CHUNK Message (Request) Carries a chunk of binary data, base64 encoded.\nRequired Fields:\njob_id - Matches the START message message_type = \"CHUNK\" sequence - Chunk sequence number (0-indexed) total_chunks - Same as START message data - Base64 encoded binary chunk Optional Fields:\nNone Example:\n{ \"job_id\": \"c51e5e4f-bba9-470e-956e-ba190bac31ad\", \"message_type\": \"CHUNK\", \"sequence\": 1, \"total_chunks\": 4, \"data\": \"iVBORw0KGgoAAAANSUhEUgAA...\" } Chunk Size Calculation:\nMaximum chunk size: 650 KB (before encoding) After base64 encoding: ~866 KB Plus JSON overhead: ~870 KB total message size Well under Kafka’s 1 MB default limit Response Messages The portal sends response messages back on the api-responses topic.\nExample - Success Response (2 messages):\nSTART message (metadata):\n{ \"job_id\": \"a7cf937b-b8ca-41e5-a9d1-e380bc726dea\", \"message_type\": \"START\", \"sequence\": 0, \"total_chunks\": 1, \"status_code\": 200, \"headers\": { \"Content-Type\": \"application/json\", \"Content-Length\": \"361\" }, \"is_text\": true, \"crc32\": 2847563921, \"data\": null } CHUNK message (data):\n{ \"job_id\": \"a7cf937b-b8ca-41e5-a9d1-e380bc726dea\", \"message_type\": \"CHUNK\", \"sequence\": 0, \"total_chunks\": 1, \"data\": \"{\\\"message\\\":\\\"File uploaded successfully\\\",\\\"filename\\\":\\\"test.txt\\\",\\\"size\\\":48}\" } Example - Error Response:\n{ \"job_id\": \"abc123...\", \"message_type\": \"ERROR\", \"error_message\": \"'str' object has no attribute 'value'\" } Job State Machine stateDiagram-v2 [*] --\u003e Started: START message Started --\u003e Accumulating: CHUNK messages Accumulating --\u003e Accumulating: More CHUNKs Accumulating --\u003e Complete: All chunks received Complete --\u003e Executing: Decode \u0026 reassemble Executing --\u003e Responding: HTTP request sent Responding --\u003e [*]: Response sent Started --\u003e Error: Invalid message Accumulating --\u003e Error: Missing chunk Executing --\u003e Error: HTTP error Error --\u003e [*]: Error response sent Portal Processing Logic Job Initialization Receive START message Validate required fields (method, endpoint) Create job state with metadata If total_chunks = 0: execute immediately If total_chunks \u003e 0: wait for chunks Chunk Accumulation Receive CHUNK messages Validate job exists Store chunk at sequence index Check if all chunks received When complete: proceed to execution Request Execution Decode all base64 chunks Reassemble into complete binary data Verify CRC32 checksum (if provided in START message): Calculate CRC32 of reassembled data Compare with expected CRC32 from START message If mismatch: reject request with error Build HTTP request: If filename present: multipart/form-data upload Otherwise: raw body data Add OAuth2 token (if configured) Send HTTP request to target API Wait for response (with timeout) Response Handling Portal responsibilities (chunking large responses):\nReceive HTTP response from REST API Determine content encoding: Text-based content types (sent as plain UTF-8 text): application/json text/plain text/html text/xml / application/xml text/css, text/javascript, application/javascript Binary content types (base64 encoded): application/pdf, application/octet-stream, image/*, etc. Calculate response size and send messages: Always send START message (metadata only: status code, headers, CRC32, total_chunks, is_text) Always send CHUNK message(s) with data Split into 650KB chunks if response \u003e 650KB Flush all messages to api-responses topic Complete job and cleanup Client responsibilities (reassembling responses):\nListen on api-responses topic for matching job_id Accumulate CHUNK messages by sequence number Track progress (chunks_received / total_chunks) When all chunks received: Sort chunks by sequence number Concatenate chunk data Decode base64 (if binary) Parse JSON (if is_text=true) Display or save complete response Close consumer connection Error Conditions Error Cause Recovery MessageSizeTooLargeError Chunk exceeds 1MB after encoding Reduce MAX_CHUNK_SIZE JobNotFound CHUNK received before START Client should retry MissingChunks Not all chunks received Timeout, send ERROR response InvalidData Base64 decode fails Send ERROR response CRC32Mismatch Data corruption during transfer Client should retry HTTPError Target API returns error Return error status to client Timeout Request takes too long Send ERROR response MaxJobsExceeded Too many concurrent jobs Client should retry later Configuration Kafka Topics Request Topic: api-requests (configurable via KAFKA_REQUEST_TOPIC) Response Topic: api-responses (configurable via KAFKA_RESPONSE_TOPIC) Size Limits Max Chunk Size: 650 KB (before base64 encoding) Max File Size: Unlimited (chunked automatically) Kafka Message Limit: 1 MB (default) Max Request Size: Configurable on producer (max_request_size) Timeouts KafkaSend implements multiple timeout layers to handle long-running REST API requests (up to 15 minutes) while maintaining Kafka consumer health.\nHTTP Request Timeout Default: 900 seconds (15 minutes) Environment Variable: PORTAL_JOB_TIMEOUT_SECONDS Purpose: Maximum time to wait for REST API response Behavior: If REST API doesn’t respond within this time, request fails with timeout error # config.py job_timeout_seconds: int = 900 # 15 minutes Job Cleanup Timeout Default: 900 seconds (15 minutes) Environment Variable: PORTAL_JOB_MAX_AGE_SECONDS Purpose: Maximum age of a job before it’s cleaned up as stale Behavior: Portal checks every 60 seconds and removes jobs older than this limit Response: Sends ERROR message back to client with timeout reason # config.py job_max_age_seconds: int = 900 # 15 minutes Kafka Consumer Timeouts Session Timeout:\nDefault: 300000 ms (5 minutes) Environment Variable: KAFKA_SESSION_TIMEOUT_MS Purpose: How long before consumer is considered dead by broker Requirement: Must send heartbeats within this interval Max Poll Interval:\nDefault: 1200000 ms (20 minutes) Environment Variable: KAFKA_MAX_POLL_INTERVAL_MS Purpose: Maximum time between poll() calls before consumer is kicked out Requirement: Must be longer than job_timeout_seconds to allow for long REST requests Why 20 minutes: Allows 15-minute request + 5-minute buffer Request Timeout:\nDefault: 120000 ms (2 minutes) Environment Variable: KAFKA_REQUEST_TIMEOUT_MS Purpose: Timeout for individual Kafka producer/consumer operations # config.py session_timeout_ms: int = 300000 # 5 minutes max_poll_interval_ms: int = 1200000 # 20 minutes request_timeout_ms: int = 120000 # 2 minutes Timeout Interaction sequenceDiagram participant C as Client participant KReq as Kafkaapi-requests participant P as Portal participant A as REST API participant KResp as Kafkaapi-responses Note over P: Job created at T=0 C-\u003e\u003eKReq: START message KReq-\u003e\u003eP: Consume (T=0) P-\u003e\u003eA: HTTP POST (timeout=900s) Note over P: Heartbeats sent every 3sto keep session alive rect rgb(255, 245, 230) Note over A: API processing...Takes 10 minutes end alt Request completes within 15 minutes A--\u003e\u003eP: Response (T=600s) P-\u003e\u003eKResp: Response message KResp-\u003e\u003eC: Consume response else Request exceeds 15 minutes A--\u003e\u003eP: Timeout (T=900s) P-\u003e\u003eKResp: ERROR message\"Request timeout\" end Note over P: Cleanup check at T=960sJob age = 960s \u003e 900s P-\u003e\u003eP: Remove stale job P-\u003e\u003eKResp: ERROR message\"Job timeout: exceeded max age\" Configuration Guidelines For long-running REST APIs:\nSet HTTP timeout based on expected API response time:\nPORTAL_JOB_TIMEOUT_SECONDS=900 # 15 minutes Set job cleanup timeout same or slightly higher than HTTP timeout:\nPORTAL_JOB_MAX_AGE_SECONDS=900 # 15 minutes Set max poll interval higher than job timeout:\nKAFKA_MAX_POLL_INTERVAL_MS=1200000 # 20 minutes (15 min + buffer) Keep session timeout reasonable for failure detection:\nKAFKA_SESSION_TIMEOUT_MS=300000 # 5 minutes Timeout Error Messages Clients may receive timeout errors in the following scenarios:\nScenario Error Message Cause HTTP timeout Request timeout: The read operation timed out REST API didn’t respond within job_timeout_seconds Job cleanup Job timeout: Job exceeded max age: 905.3s \u003e 900s Job existed longer than job_max_age_seconds Network issue Connection timeout Unable to connect to REST API Best Practices For Clients Generate unique job IDs using UUID v4 Calculate chunks correctly using calculate_chunk_count() Send START message first before any CHUNKs Sequence chunks properly starting from 0 Handle timeouts gracefully and retry if needed For Portal Validate all incoming messages before processing Track job state carefully to detect missing chunks Clean up completed jobs to prevent memory leaks Log all operations for debugging Handle OAuth token refresh proactively For API Servers Support multipart/form-data for file uploads Return JSON responses when possible (easier to handle) Include proper status codes (200, 400, 500, etc.) Handle large files efficiently (streaming, etc.) Implement authentication (Bearer tokens, etc.) Security Considerations KafkaSend implements multiple security layers to prevent abuse of the portal service by compromised or malicious clients.\nThreat Model The primary security concerns are:\nSSRF (Server-Side Request Forgery): Malicious clients using the portal to access internal services, cloud metadata endpoints, or perform network scanning Header Injection: Clients injecting malicious headers or overriding OAuth headers Endpoint Abuse: Clients accessing unintended API endpoints Data Exfiltration: Using the portal to proxy requests to arbitrary destinations Security Controls 1. Endpoint Whitelisting The portal validates all requested endpoints against a configurable whitelist.\nConfiguration:\n# Comma-separated list of allowed endpoint patterns (supports wildcards) PORTAL_ALLOWED_ENDPOINTS=\"/api/upload,/api/documents/*,/v1/*/process\" Behavior:\nExact matches: /api/upload allows only that specific endpoint Wildcard patterns: /api/documents/* allows /api/documents/123, /api/documents/xyz/view Empty string in strict mode: Blocks all requests (secure default) Empty string in permissive mode: Allows all (NOT RECOMMENDED for production) Example:\n# Valid requests /api/upload # Exact match /api/documents/123 # Wildcard match /api/documents/abc/metadata # Wildcard match # Blocked requests /admin/users # Not in whitelist /api/delete-all # Not in whitelist 2. Header Whitelisting The portal filters client headers, only allowing specific headers through to the target API.\nConfiguration:\n# Comma-separated list of allowed header names (case-insensitive) PORTAL_ALLOWED_HEADERS=\"Content-Type,Accept,X-Request-ID,X-Correlation-ID\" Forbidden Headers (Always Blocked):\nAuthorization - OAuth tokens managed by portal, not clients Proxy-Authorization - Proxy auth should not be controllable by clients Cookie - Session cookies should not be forwarded X-Forwarded-For - Network routing headers X-Real-IP - Network routing headers Host - Target host controlled by portal configuration Behavior:\nCase-insensitive matching: Content-Type, content-type, CONTENT-TYPE all match Forbidden headers always blocked regardless of whitelist Unknown headers silently removed Empty whitelist: Blocks all client headers (recommended default) 3. SSRF Protection The portal automatically blocks known SSRF target patterns:\nBlocked Patterns:\n127.0.0.1 / localhost / ::1 - Loopback addresses 169.254.169.254 - AWS/Azure/GCP metadata endpoints 0.0.0.0 - Any address 10.*.*.* - Private network (Class A) 172.16.*.* through 172.31.*.* - Private network (Class B) 192.168.*.* - Private network (Class C) *.local / *.internal - Internal DNS names Note: SSRF checks are applied to the endpoint path, not the target API base URL (which is controlled by PORTAL_TARGET_API_URL).\n4. Strict Mode Controls whether validation failures block requests or only log warnings.\nConfiguration:\nPORTAL_STRICT_SECURITY=true # Recommended for production Strict Mode (true):\nInvalid endpoints → Request rejected with error No whitelist configured → All requests rejected Security violation → Logged and blocked Permissive Mode (false):\nInvalid endpoints → Logged as warning, request allowed No whitelist → Logged as warning, all requests allowed Use only for development/testing Security Configuration Examples Production (Secure) # Strict whitelist for specific endpoints PORTAL_ALLOWED_ENDPOINTS=\"/api/v1/upload,/api/v1/documents/*\" PORTAL_ALLOWED_HEADERS=\"Content-Type,X-Request-ID\" PORTAL_STRICT_SECURITY=true Development (Less Strict) # Broader whitelist for testing PORTAL_ALLOWED_ENDPOINTS=\"/api/*\" PORTAL_ALLOWED_HEADERS=\"Content-Type,Accept,X-Debug-*\" PORTAL_STRICT_SECURITY=true Testing (Permissive - NOT for Production) # Allow all endpoints and headers (insecure) PORTAL_ALLOWED_ENDPOINTS=\"\" PORTAL_ALLOWED_HEADERS=\"\" PORTAL_STRICT_SECURITY=false Security Logging All security events are logged with structured logging:\n{ \"event\": \"security_validation\", \"job_id\": \"abc-123\", \"endpoint\": \"/admin/users\", \"result\": \"blocked\", \"reason\": \"Endpoint '/admin/users' not in whitelist: ['/api/upload', '/api/documents/*']\" } Logged Events:\nEndpoint validation failures Header filtering (removed headers) SSRF attempt detection Forbidden header blocking Security configuration warnings Additional Security Best Practices Job IDs are UUIDs: Hard to guess, provides isolation between jobs OAuth2 tokens: Managed by portal, clients cannot override No data persistence: Chunks stored in memory only, no disk traces Kafka ACLs: Configure Kafka topic ACLs for production TLS/SSL: Enable for production Kafka and HTTP traffic Network isolation: Run portal in isolated network segment Rate limiting: Consider implementing rate limits per client Audit logging: Enable comprehensive audit logs for compliance Security Testing Test security controls before production deployment:\n# Test 1: Attempt to access blocked endpoint # Expected: Request rejected # Test 2: Send forbidden headers (Authorization, Cookie) # Expected: Headers silently removed # Test 3: Try SSRF targets (localhost, 169.254.169.254) # Expected: Request rejected with SSRF warning # Test 4: Verify whitelist patterns work correctly # Expected: Only whitelisted endpoints succeed See tests/test_security.py for comprehensive security test cases.\nPerformance Characteristics Throughput Small files (\u003c 650KB): Single message, low latency Large files (2-50MB): Multiple chunks, higher latency Chunk processing: ~100ms per chunk HTTP request: Depends on target API Scalability Concurrent jobs: Limited by PORTAL_MAX_CONCURRENT_JOBS (default: 10) Kafka partitions: Can parallelize across multiple portal instances Consumer groups: Each portal joins same group for load balancing Limitations Consumer offset timing: Response waiting may fail due to consumer group coordination In-memory storage: Large files consume portal memory No persistence: Failed jobs are lost Synchronous processing: One job at a time per portal instance Future Enhancements Async response handling: Decouple request and response processing Persistent storage: Store chunks in Redis/S3 for large files Retry logic: Automatic retry on transient failures Compression: Compress chunks before base64 encoding Streaming: Stream large responses back without accumulation ",
+  "wordCount" : "4936",
+  "inLanguage": "en",
+  "datePublished": "2025-11-08T00:00:00Z",
+  "dateModified": "2025-11-08T00:00:00Z",
+  "author":[{
+    "@type": "Person",
+    "name": "Michael OShea"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/diagram-post/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MikesBlog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="MikesBlog (Alt + H)">MikesBlog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Draft Post
+    </h1>
+    <div class="post-meta"><span title='2025-11-08 00:00:00 +0000 UTC'>November 8, 2025</span>&nbsp;·&nbsp;24 min&nbsp;·&nbsp;Michael OShea
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="kafkasend-protocol-specification">KafkaSend Protocol Specification<a hidden class="anchor" aria-hidden="true" href="#kafkasend-protocol-specification">#</a></h1>
+<p>This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.</p>
+<h2 id="overview">Overview<a hidden class="anchor" aria-hidden="true" href="#overview">#</a></h2>
+<p>KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB+) through Kafka, which has message size limitations. The protocol supports:</p>
+<ul>
+<li>Multi-chunk file transfers with sequence ordering</li>
+<li>Job-based request/response correlation</li>
+<li>Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE)</li>
+<li>Custom headers and multipart file uploads</li>
+<li>CRC32 checksum validation for data integrity</li>
+<li>Error handling and status reporting</li>
+</ul>
+<h2 id="architecture">Architecture<a hidden class="anchor" aria-hidden="true" href="#architecture">#</a></h2>
+<pre class="mermaid">graph LR
+    A[Client CLI] --&gt;|api-requests&lt;br/&gt;Kafka Topic| B[Portal Service&lt;br/&gt;Bridge]
+    B --&gt;|api-responses&lt;br/&gt;Kafka Topic| A
+    B --&gt;|HTTP/REST&lt;br/&gt;with OAuth2| C[REST API&lt;br/&gt;Server]
+    C --&gt;|HTTP Response&lt;br/&gt;JSON/Binary| B
+
+    style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+</pre>
+
+<h2 id="message-types">Message Types<a hidden class="anchor" aria-hidden="true" href="#message-types">#</a></h2>
+<p>The protocol defines three message types:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Type</th>
+          <th>Purpose</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>START</code></td>
+          <td>Initiates a new job with metadata and configuration (never contains data)</td>
+      </tr>
+      <tr>
+          <td><code>CHUNK</code></td>
+          <td>Carries a chunk of data (base64 encoded for binary, plain text for text-based content)</td>
+      </tr>
+      <tr>
+          <td><code>ERROR</code></td>
+          <td>Reports errors during processing</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="bidirectional-chunking">Bidirectional Chunking<a hidden class="anchor" aria-hidden="true" href="#bidirectional-chunking">#</a></h2>
+<p>The KafkaSend protocol implements <strong>bidirectional chunking</strong> to handle large data in both directions:</p>
+<h3 id="request-direction-client--portal">Request Direction: Client → Portal<a hidden class="anchor" aria-hidden="true" href="#request-direction-client--portal">#</a></h3>
+<p><strong>Client responsibilities:</strong></p>
+<ul>
+<li>Calculate chunk count based on file size</li>
+<li>Split large files into 650KB chunks</li>
+<li>Base64 encode each chunk</li>
+<li>Send START message followed by CHUNK messages</li>
+<li>Include sequence numbers and total chunk count</li>
+</ul>
+<p><strong>Portal responsibilities:</strong></p>
+<ul>
+<li>Receive and accumulate chunks in memory</li>
+<li>Track sequence numbers to ensure all chunks received</li>
+<li>Reassemble chunks in correct order</li>
+<li>Decode base64 back to binary</li>
+<li>Forward complete data to REST API</li>
+</ul>
+<h3 id="response-direction-portal--client">Response Direction: Portal → Client<a hidden class="anchor" aria-hidden="true" href="#response-direction-portal--client">#</a></h3>
+<p><strong>Portal responsibilities:</strong></p>
+<ul>
+<li>Receive HTTP response from REST API</li>
+<li>Check response size (&gt; 650KB requires chunking)</li>
+<li>Base64 encode binary responses</li>
+<li>Split large responses into 650KB chunks</li>
+<li>Send START message with metadata (status code, headers, CRC32, total_chunks)</li>
+<li>Send CHUNK messages with data only (no metadata)</li>
+</ul>
+<p><strong>Client responsibilities:</strong></p>
+<ul>
+<li>Receive START message to get metadata</li>
+<li>Receive and accumulate response chunks</li>
+<li>Track sequence numbers to ensure all chunks received</li>
+<li>Reassemble chunks in correct order</li>
+<li>Decode base64 back to binary/text</li>
+<li>Display or save the complete response</li>
+</ul>
+<h3 id="key-characteristics">Key Characteristics<a hidden class="anchor" aria-hidden="true" href="#key-characteristics">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Request Chunking</th>
+          <th>Response Chunking</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Who chunks?</strong></td>
+          <td>Client</td>
+          <td>Portal</td>
+      </tr>
+      <tr>
+          <td><strong>Who reassembles?</strong></td>
+          <td>Portal</td>
+          <td>Client</td>
+      </tr>
+      <tr>
+          <td><strong>Chunk size</strong></td>
+          <td>650KB (before base64)</td>
+          <td>650KB (before base64)</td>
+      </tr>
+      <tr>
+          <td><strong>Message count</strong></td>
+          <td>START + 1 CHUNK (small)<!-- raw HTML omitted -->START + N CHUNKs (large)</td>
+          <td>START + 1 CHUNK (small)<!-- raw HTML omitted -->START + N CHUNKs (large)</td>
+      </tr>
+      <tr>
+          <td><strong>Encoding</strong></td>
+          <td>Base64</td>
+          <td>Base64</td>
+      </tr>
+      <tr>
+          <td><strong>Protocol</strong></td>
+          <td>START (metadata only) + CHUNK(s) with data</td>
+          <td>START (metadata only) + CHUNK(s) with data</td>
+      </tr>
+  </tbody>
+</table>
+<pre class="mermaid">graph TD
+    subgraph &#34;Request Flow - Client Chunks&#34;
+        A1[Large File&lt;br/&gt;2MB] --&gt; A2[Client: Split into 4 chunks]
+        A2 --&gt; A3[Client: Base64 encode]
+        A3 --&gt; A4[Send to Kafka]
+        A4 --&gt; A5[Portal: Accumulate]
+        A5 --&gt; A6[Portal: Reassemble]
+        A6 --&gt; A7[Portal: Decode base64]
+        A7 --&gt; A8[Send to REST API]
+    end
+
+    subgraph &#34;Response Flow - Portal Chunks&#34;
+        B1[REST API Response&lt;br/&gt;5MB] --&gt; B2[Portal: Base64 encode]
+        B2 --&gt; B3[Portal: Split into 8 chunks]
+        B3 --&gt; B4[Send to Kafka]
+        B4 --&gt; B5[Client: Accumulate]
+        B5 --&gt; B6[Client: Reassemble]
+        B6 --&gt; B7[Client: Decode base64]
+        B7 --&gt; B8[Display/Save]
+    end
+
+    A8 -.-&gt;|HTTP Request| B1
+
+    style A2 fill:#e1f5ff,stroke:#01579b
+    style A5 fill:#fff3e0,stroke:#e65100
+    style B3 fill:#fff3e0,stroke:#e65100
+    style B5 fill:#e1f5ff,stroke:#01579b
+</pre>
+
+<h2 id="data-integrity-with-crc32-checksums">Data Integrity with CRC32 Checksums<a hidden class="anchor" aria-hidden="true" href="#data-integrity-with-crc32-checksums">#</a></h2>
+<p>KafkaSend implements <strong>bidirectional CRC32 checksum validation</strong> to ensure end-to-end data integrity during chunked transfers. This protects against data corruption that may occur during:</p>
+<ul>
+<li>Message serialization/deserialization</li>
+<li>Network transmission through Kafka</li>
+<li>Chunk reassembly</li>
+<li>Base64 encoding/decoding</li>
+</ul>
+<h3 id="bidirectional-protection">Bidirectional Protection<a hidden class="anchor" aria-hidden="true" href="#bidirectional-protection">#</a></h3>
+<p>CRC32 validation works in <strong>both directions</strong> with clear responsibilities:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Direction</th>
+          <th>Who Calculates</th>
+          <th>Who Verifies</th>
+          <th>What Data</th>
+          <th>When</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Request</strong></td>
+          <td>Client</td>
+          <td>Portal</td>
+          <td>File/upload data</td>
+          <td>Before sending → After reassembly</td>
+      </tr>
+      <tr>
+          <td><strong>Response</strong></td>
+          <td>Portal</td>
+          <td>Client</td>
+          <td>REST API response</td>
+          <td>After receiving → Before processing</td>
+      </tr>
+  </tbody>
+</table>
+<p>This ensures <strong>complete data integrity</strong> from client through Kafka to portal to REST API and back.</p>
+<hr>
+<h2 id="request-direction-client--portal-1">Request Direction: Client → Portal<a hidden class="anchor" aria-hidden="true" href="#request-direction-client--portal-1">#</a></h2>
+<h3 id="how-it-works">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works">#</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client
+    participant KReq as Kafka&lt;br/&gt;api-requests
+    participant P as Portal
+    participant A as REST API
+    participant KResp as Kafka&lt;br/&gt;api-responses
+
+    Note over C: Read complete file
+    C-&gt;&gt;C: Calculate CRC32&lt;br/&gt;checksum
+    C-&gt;&gt;KReq: START message&lt;br/&gt;(crc32=1234567890)
+    C-&gt;&gt;KReq: CHUNK messages&lt;br/&gt;(sequence 0-3)
+
+    KReq-&gt;&gt;P: Consume messages
+    P-&gt;&gt;P: Accumulate chunks
+    P-&gt;&gt;P: Reassemble data
+    P-&gt;&gt;P: Calculate CRC32&lt;br/&gt;of reassembled data
+
+    alt CRC32 matches
+        Note over P: ✓ Data integrity verified
+        P-&gt;&gt;A: HTTP POST&lt;br/&gt;(send complete data)
+    else CRC32 mismatch
+        Note over P: ✗ Data corruption detected
+        P-&gt;&gt;KResp: ERROR message&lt;br/&gt;&#34;CRC32 checksum mismatch&#34;
+    end
+</pre>
+
+<h3 id="client-responsibilities-request-direction">Client Responsibilities (Request Direction)<a hidden class="anchor" aria-hidden="true" href="#client-responsibilities-request-direction">#</a></h3>
+<p>The client is responsible for calculating CRC32 <strong>before</strong> sending data:</p>
+<p><strong>1. Calculate checksum of complete file:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In sender.py:86</span>
+</span></span><span class="line"><span class="cl"><span class="n">crc</span> <span class="o">=</span> <span class="mi">0</span>
+</span></span><span class="line"><span class="cl"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">while</span> <span class="n">chunk</span> <span class="o">:=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">65536</span><span class="p">):</span>  <span class="c1"># Read in 64KB chunks</span>
+</span></span><span class="line"><span class="cl">        <span class="n">crc</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">crc</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">file_crc32</span> <span class="o">=</span> <span class="n">crc</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>  <span class="c1"># Unsigned 32-bit integer</span>
+</span></span></code></pre></div><p><strong>2. Include CRC32 in START message:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">start_message</span> <span class="o">=</span> <span class="n">KafkaRequestMessage</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">START</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">method</span><span class="o">=</span><span class="n">HttpMethod</span><span class="o">.</span><span class="n">POST</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&#34;/api/upload&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">filename</span><span class="o">=</span><span class="s2">&#34;document.pdf&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">content_type</span><span class="o">=</span><span class="s2">&#34;application/pdf&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">crc32</span><span class="o">=</span><span class="n">file_crc32</span><span class="p">,</span>  <span class="c1"># ← CRC32 of complete file</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_chunks</span><span class="o">=</span><span class="mi">4</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p><strong>3. Handle CRC32 validation errors:</strong></p>
+<ul>
+<li>If portal detects mismatch, receives ERROR message</li>
+<li>Client should log error and may retry upload</li>
+<li>Indicates data corruption during transmission</li>
+</ul>
+<h3 id="portal-responsibilities-request-direction">Portal Responsibilities (Request Direction)<a hidden class="anchor" aria-hidden="true" href="#portal-responsibilities-request-direction">#</a></h3>
+<p>The portal is responsible for verifying CRC32 <strong>after</strong> reassembling data:</p>
+<p><strong>1. Store expected CRC32 from START message:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In job_manager.py:154</span>
+</span></span><span class="line"><span class="cl"><span class="n">job</span> <span class="o">=</span> <span class="n">JobState</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">job_id</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">method</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">endpoint</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">endpoint</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">expected_crc32</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">crc32</span><span class="p">,</span>  <span class="c1"># ← Store expected CRC32</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_chunks</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">total_chunks</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p><strong>2. Accumulate and reassemble chunks:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In job_manager.py:164-165</span>
+</span></span><span class="line"><span class="cl"><span class="n">chunk_data</span> <span class="o">=</span> <span class="n">decode_chunk</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">job</span><span class="o">.</span><span class="n">add_chunk</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">sequence</span><span class="p">,</span> <span class="n">chunk_data</span><span class="p">)</span>
+</span></span></code></pre></div><p><strong>3. Verify CRC32 after complete reassembly:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In job_manager.py:85-105</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_complete_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Reassemble all chunks</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sorted_chunks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">chunks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chunks</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">complete_data</span> <span class="o">=</span> <span class="n">reassemble_chunks</span><span class="p">(</span><span class="n">sorted_chunks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Verify CRC32 if provided</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">actual_crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">complete_data</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">actual_crc32</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="sa">f</span><span class="s2">&#34;CRC32 checksum mismatch for job </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="si">}</span><span class="s2">: &#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="sa">f</span><span class="s2">&#34;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">actual_crc32</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">complete_data</span>
+</span></span></code></pre></div><p><strong>4. Send error response on mismatch:</strong></p>
+<ul>
+<li>Portal automatically sends ERROR message to response topic</li>
+<li>Job is cancelled and cleaned up</li>
+<li>Client receives detailed error message</li>
+</ul>
+<hr>
+<h2 id="response-direction-portal--client-1">Response Direction: Portal → Client<a hidden class="anchor" aria-hidden="true" href="#response-direction-portal--client-1">#</a></h2>
+<h3 id="how-it-works-1">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works-1">#</a></h3>
+<p>The portal calculates CRC32 checksums for <strong>all</strong> REST API responses and sends them back to the client for verification.</p>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client
+    participant KReq as Kafka&lt;br/&gt;api-requests
+    participant P as Portal
+    participant A as REST API
+    participant KResp as Kafka&lt;br/&gt;api-responses
+
+    C-&gt;&gt;KReq: Request message
+    KReq-&gt;&gt;P: Consume request
+    P-&gt;&gt;A: HTTP POST/GET
+    A--&gt;&gt;P: HTTP Response&lt;br/&gt;(complete data)
+
+    Note over P: Calculate CRC32&lt;br/&gt;of response data
+    P-&gt;&gt;P: Encode/chunk response
+    P-&gt;&gt;KResp: START message&lt;br/&gt;(metadata only + crc32)
+    P-&gt;&gt;KResp: CHUNK message(s)&lt;br/&gt;(data only)
+
+    KResp-&gt;&gt;C: Consume response
+    C-&gt;&gt;C: Accumulate chunks
+    C-&gt;&gt;C: Reassemble data
+    C-&gt;&gt;C: Calculate CRC32&lt;br/&gt;of reassembled data
+
+    alt CRC32 matches
+        Note over C: ✓ Response integrity verified
+        C-&gt;&gt;C: Process response
+    else CRC32 mismatch
+        Note over C: ✗ Data corruption detected
+        C-&gt;&gt;C: Raise error
+    end
+</pre>
+
+<h3 id="portal-responsibilities-response-direction">Portal Responsibilities (Response Direction)<a hidden class="anchor" aria-hidden="true" href="#portal-responsibilities-response-direction">#</a></h3>
+<p>The portal is responsible for calculating CRC32 <strong>after</strong> receiving REST API response:</p>
+<p><strong>1. Calculate CRC32 of complete HTTP response:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In service.py:268</span>
+</span></span><span class="line"><span class="cl"><span class="n">response_data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span>  <span class="c1"># Raw bytes from REST API</span>
+</span></span><span class="line"><span class="cl"><span class="n">response_crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">response_data</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span></code></pre></div><p><strong>2. Include CRC32 in START message:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In service.py - START message (metadata only)</span>
+</span></span><span class="line"><span class="cl"><span class="n">start_message</span> <span class="o">=</span> <span class="n">KafkaResponseMessage</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">START</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sequence</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_chunks</span><span class="o">=</span><span class="n">data_chunks</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">headers</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">    <span class="n">is_text</span><span class="o">=</span><span class="n">is_text</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">crc32</span><span class="o">=</span><span class="n">response_crc32</span>  <span class="c1"># ← CRC32 of complete response</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p><strong>3. Send CHUNK message(s) with data:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># CHUNK message (data only, no metadata)</span>
+</span></span><span class="line"><span class="cl"><span class="n">chunk_message</span> <span class="o">=</span> <span class="n">KafkaResponseMessage</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">message_type</span><span class="o">=</span><span class="n">MessageType</span><span class="o">.</span><span class="n">CHUNK</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sequence</span><span class="o">=</span><span class="n">i</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">total_chunks</span><span class="o">=</span><span class="n">data_chunks</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span><span class="o">=</span><span class="n">chunk_data</span>  <span class="c1"># ← Data only</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p><strong>4. Key points:</strong></p>
+<ul>
+<li>CRC32 included in <strong>START message only</strong> (along with other metadata)</li>
+<li>CHUNK messages contain only data (no metadata)</li>
+<li>Checksum represents complete response before chunking</li>
+<li>Pattern is consistent regardless of response size</li>
+</ul>
+<p><strong>5. Log CRC32 for audit trail:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;Response sent&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">job_id</span><span class="o">=</span><span class="n">job_id</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">status_code</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">crc32</span><span class="o">=</span><span class="n">response_crc32</span>  <span class="c1"># ← Logged for debugging</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><h3 id="client-responsibilities-response-direction">Client Responsibilities (Response Direction)<a hidden class="anchor" aria-hidden="true" href="#client-responsibilities-response-direction">#</a></h3>
+<p>The client is responsible for verifying CRC32 <strong>after</strong> reassembling response:</p>
+<p><strong>1. Store expected CRC32 from first response message:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In receiver.py:205-206</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">crc32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">state</span><span class="o">.</span><span class="n">expected_crc32</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">crc32</span>  <span class="c1"># ← Store expected CRC32</span>
+</span></span></code></pre></div><p><strong>2. Accumulate response chunks:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In receiver.py:212</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">state</span><span class="o">.</span><span class="n">add_chunk</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">sequence</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</span></span></code></pre></div><p><strong>3. Verify CRC32 after complete reassembly:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># In receiver.py:57-79</span>
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_complete_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Reassemble chunks</span>
+</span></span><span class="line"><span class="cl">    <span class="n">sorted_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">chunks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">chunks</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">complete_data</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sorted_data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Verify CRC32 if provided</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># For JSON: calculate CRC32 of UTF-8 bytes</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_text</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">raw_bytes</span> <span class="o">=</span> <span class="n">complete_data</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># For binary: decode base64 first, then calculate</span>
+</span></span><span class="line"><span class="cl">        <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="kn">import</span> <span class="nn">base64</span>
+</span></span><span class="line"><span class="cl">            <span class="n">raw_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">complete_data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="n">actual_crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">raw_bytes</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="n">actual_crc32</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">                <span class="sa">f</span><span class="s2">&#34;CRC32 checksum mismatch for response </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="si">}</span><span class="s2">: &#34;</span>
+</span></span><span class="line"><span class="cl">                <span class="sa">f</span><span class="s2">&#34;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_crc32</span><span class="si">}</span><span class="s2">, got </span><span class="si">{</span><span class="n">actual_crc32</span><span class="si">}</span><span class="s2">&#34;</span>
+</span></span><span class="line"><span class="cl">            <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">complete_data</span>
+</span></span></code></pre></div><p><strong>4. Handle CRC32 validation errors:</strong></p>
+<ul>
+<li>Client raises <code>ValueError</code> on mismatch</li>
+<li>Application should log error</li>
+<li>May indicate data corruption during transmission</li>
+</ul>
+<hr>
+<h2 id="summary-of-responsibilities">Summary of Responsibilities<a hidden class="anchor" aria-hidden="true" href="#summary-of-responsibilities">#</a></h2>
+<h3 id="complete-responsibility-matrix">Complete Responsibility Matrix<a hidden class="anchor" aria-hidden="true" href="#complete-responsibility-matrix">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Component</th>
+          <th>Request Direction (Upload)</th>
+          <th>Response Direction (Download)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Client</strong></td>
+          <td>✓ Calculate CRC32 of file<!-- raw HTML omitted -->✓ Send in START message<!-- raw HTML omitted -->✓ Handle ERROR responses</td>
+          <td>✓ Store CRC32 from response<!-- raw HTML omitted -->✓ Verify after reassembly<!-- raw HTML omitted -->✓ Raise error on mismatch</td>
+      </tr>
+      <tr>
+          <td><strong>Portal</strong></td>
+          <td>✓ Store CRC32 from START<!-- raw HTML omitted -->✓ Verify after reassembly<!-- raw HTML omitted -->✓ Send ERROR on mismatch</td>
+          <td>✓ Calculate CRC32 of REST response<!-- raw HTML omitted -->✓ Send in response message<!-- raw HTML omitted -->✓ Log for audit trail</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="key-differences-between-directions">Key Differences Between Directions<a hidden class="anchor" aria-hidden="true" href="#key-differences-between-directions">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Aspect</th>
+          <th>Request CRC32 (Client → Portal)</th>
+          <th>Response CRC32 (Portal → Client)</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>Calculated by</strong></td>
+          <td>Client (sender.py)</td>
+          <td>Portal (service.py)</td>
+      </tr>
+      <tr>
+          <td><strong>Verified by</strong></td>
+          <td>Portal (job_manager.py)</td>
+          <td>Client (receiver.py)</td>
+      </tr>
+      <tr>
+          <td><strong>Data type</strong></td>
+          <td>Always binary (files)</td>
+          <td>JSON or binary</td>
+      </tr>
+      <tr>
+          <td><strong>CRC32 scope</strong></td>
+          <td>Original file bytes</td>
+          <td>HTTP response content bytes</td>
+      </tr>
+      <tr>
+          <td><strong>In message</strong></td>
+          <td>START message</td>
+          <td>First response message</td>
+      </tr>
+      <tr>
+          <td><strong>Error handling</strong></td>
+          <td>Portal sends ERROR message</td>
+          <td>Client raises ValueError</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="crc32-calculation-details">CRC32 Calculation Details<a hidden class="anchor" aria-hidden="true" href="#crc32-calculation-details">#</a></h3>
+<p><strong>Request (Client):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># File bytes → CRC32</span>
+</span></span><span class="line"><span class="cl"><span class="n">crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">file_bytes</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span></code></pre></div><p><strong>Response - JSON (Portal):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># JSON text bytes → CRC32</span>
+</span></span><span class="line"><span class="cl"><span class="n">json_bytes</span> <span class="o">=</span> <span class="s1">&#39;{&#34;status&#34;: &#34;ok&#34;}&#39;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">json_bytes</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span></code></pre></div><p><strong>Response - Binary (Portal):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Binary bytes → CRC32 (before base64 encoding)</span>
+</span></span><span class="line"><span class="cl"><span class="n">crc32</span> <span class="o">=</span> <span class="n">zlib</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">binary_bytes</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mh">0xffffffff</span>
+</span></span></code></pre></div><h3 id="important-notes">Important Notes<a hidden class="anchor" aria-hidden="true" href="#important-notes">#</a></h3>
+<ol>
+<li><strong>CRC32 calculated on raw data</strong>: Always calculated on the original bytes, not base64-encoded data</li>
+<li><strong>Checksum covers complete data</strong>: Not individual chunks, but the complete file/response</li>
+<li><strong>Included in first message only</strong>: START message for requests, first CHUNK/START for responses</li>
+<li><strong>Backwards compatible</strong>: Optional field, works without CRC32</li>
+<li><strong>Performance</strong>: Minimal overhead (~100ms for 50MB file)</li>
+</ol>
+<hr>
+<h2 id="benefits-and-error-handling">Benefits and Error Handling<a hidden class="anchor" aria-hidden="true" href="#benefits-and-error-handling">#</a></h2>
+<h3 id="benefits">Benefits<a hidden class="anchor" aria-hidden="true" href="#benefits">#</a></h3>
+<ul>
+<li><strong>End-to-end data integrity</strong>: Verifies data from client → portal → REST API → portal → client</li>
+<li><strong>Corruption detection</strong>: Catches bit flips, truncation, or reassembly errors</li>
+<li><strong>Bidirectional protection</strong>: Both uploads and downloads verified</li>
+<li><strong>Debugging aid</strong>: Identifies where corruption occurred (transmission vs processing)</li>
+<li><strong>Audit trail</strong>: All CRC32 values logged for investigation</li>
+<li><strong>Optional</strong>: Backwards compatible with clients that don&rsquo;t send CRC32</li>
+</ul>
+<h3 id="error-messages">Error Messages<a hidden class="anchor" aria-hidden="true" href="#error-messages">#</a></h3>
+<p><strong>Request Direction (Portal detects corruption):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;abc-123&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;ERROR&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;error_message&#34;</span><span class="p">:</span> <span class="s2">&#34;CRC32 checksum mismatch for job abc-123: expected 1234567890, got 9876543210&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Response Direction (Client detects corruption):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="ne">ValueError</span><span class="p">:</span> <span class="n">CRC32</span> <span class="n">checksum</span> <span class="n">mismatch</span> <span class="k">for</span> <span class="n">response</span> <span class="n">abc</span><span class="o">-</span><span class="mi">123</span><span class="p">:</span> <span class="n">expected</span> <span class="mi">1234567890</span><span class="p">,</span> <span class="n">got</span> <span class="mi">9876543210</span>
+</span></span></code></pre></div><h3 id="recovery-actions">Recovery Actions<a hidden class="anchor" aria-hidden="true" href="#recovery-actions">#</a></h3>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Action</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Request CRC32 mismatch</td>
+          <td>Portal sends ERROR → Client logs error → Client may retry upload</td>
+      </tr>
+      <tr>
+          <td>Response CRC32 mismatch</td>
+          <td>Client raises exception → Application logs error → Application may retry request</td>
+      </tr>
+      <tr>
+          <td>Network corruption</td>
+          <td>CRC32 detects issue → Request/response rejected → Ensures data integrity</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="testing">Testing<a hidden class="anchor" aria-hidden="true" href="#testing">#</a></h3>
+<p>See comprehensive test coverage in:</p>
+<ul>
+<li><strong><code>tests/test_crc32.py</code></strong>: Request and response CRC32 validation (12 tests)</li>
+<li><strong><code>tests/test_portal_response_crc32.py</code></strong>: Portal response calculation logic (6 tests)</li>
+</ul>
+<p>Test coverage includes:</p>
+<ul>
+<li>✅ Valid CRC32 passes verification (requests and responses)</li>
+<li>✅ Invalid CRC32 triggers error (requests and responses)</li>
+<li>✅ Multi-chunk transfers verified correctly (requests and responses)</li>
+<li>✅ JSON and binary responses handled correctly</li>
+<li>✅ Large file chunking with CRC32 validation</li>
+<li>✅ Empty responses and edge cases</li>
+<li>✅ Unicode handling in JSON responses</li>
+<li>✅ Jobs without CRC32 still work (backwards compatible)</li>
+</ul>
+<h2 id="multi-instance-scaling-with-partition-key-routing">Multi-Instance Scaling with Partition Key Routing<a hidden class="anchor" aria-hidden="true" href="#multi-instance-scaling-with-partition-key-routing">#</a></h2>
+<p>KafkaSend supports running multiple portal instances for high availability and load distribution. To prevent multiple portals from processing chunks of the same job, we use <strong>partition key routing</strong> based on the job ID.</p>
+<h3 id="how-it-works-2">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works-2">#</a></h3>
+<pre class="mermaid">graph TB
+    subgraph &#34;Client&#34;
+        C[Client CLI&lt;br/&gt;job_id: abc-123]
+    end
+
+    subgraph &#34;Kafka Topics&#34;
+        KR[api-requests&lt;br/&gt;Partitions 0,1,2]
+        KS[api-responses&lt;br/&gt;Partitions 0,1,2]
+    end
+
+    subgraph &#34;Portal Instances&#34;
+        P1[Portal 1&lt;br/&gt;Partition 0]
+        P2[Portal 2&lt;br/&gt;Partition 1]
+        P3[Portal 3&lt;br/&gt;Partition 2]
+    end
+
+    subgraph &#34;REST API&#34;
+        API[REST API Server]
+    end
+
+    C --&gt;|key=job_id| KR
+    KR --&gt;|Consumer Group&lt;br/&gt;Partition Assignment| P2
+    P2 --&gt; API
+    API --&gt; P2
+    P2 --&gt;|key=job_id&lt;br/&gt;→ Partition 1| KS
+    KS --&gt; C
+
+    style C fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style P2 fill:#fff3e0,stroke:#e65100,stroke-width:3px
+    style P1 fill:#f5f5f5,stroke:#999,stroke-dasharray: 5 5
+    style P3 fill:#f5f5f5,stroke:#999,stroke-dasharray: 5 5
+    style API fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+</pre>
+
+<h3 id="key-guarantees">Key Guarantees<a hidden class="anchor" aria-hidden="true" href="#key-guarantees">#</a></h3>
+<ol>
+<li><strong>Job Affinity</strong>: All messages with the same <code>job_id</code> are routed to the same Kafka partition using the job ID as the partition key</li>
+<li><strong>Single Consumer</strong>: Kafka&rsquo;s consumer group mechanism ensures each partition is assigned to only one portal instance</li>
+<li><strong>Message Ordering</strong>: Kafka guarantees message order within a partition, ensuring chunks arrive in sequence</li>
+<li><strong>Load Distribution</strong>: Different jobs (with different job IDs) are distributed across partitions and portal instances</li>
+<li><strong>Fault Tolerance</strong>: If a portal instance fails, Kafka rebalances partitions to surviving instances</li>
+</ol>
+<h3 id="implementation-details">Implementation Details<a hidden class="anchor" aria-hidden="true" href="#implementation-details">#</a></h3>
+<p><strong>Client-side</strong> (<code>sender.py</code>):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">kafka_config</span><span class="o">.</span><span class="n">request_topic</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">key</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">job_id</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>  <span class="c1"># Partition key</span>
+</span></span><span class="line"><span class="cl">    <span class="n">value</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><p><strong>Portal-side</strong> (<code>service.py</code>):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">_producer</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">kafka_config</span><span class="o">.</span><span class="n">response_topic</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">key</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">job_id</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span>  <span class="c1"># Partition key</span>
+</span></span><span class="line"><span class="cl">    <span class="n">value</span><span class="o">=</span><span class="n">message</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span></code></pre></div><h3 id="benefits-1">Benefits<a hidden class="anchor" aria-hidden="true" href="#benefits-1">#</a></h3>
+<ul>
+<li><strong>Prevents Race Conditions</strong>: No two portal instances will process chunks from the same job</li>
+<li><strong>Scalability</strong>: Add more portal instances to handle increased load</li>
+<li><strong>High Availability</strong>: Jobs automatically reassigned if an instance fails</li>
+<li><strong>Performance</strong>: Jobs processed in parallel across multiple instances</li>
+</ul>
+<h3 id="configuration">Configuration<a hidden class="anchor" aria-hidden="true" href="#configuration">#</a></h3>
+<p>To enable multi-instance deployment, simply run multiple portal containers with the same consumer group ID:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="c"># docker-compose.yml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">portal-1</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">KAFKA_CONSUMER_GROUP</span><span class="p">:</span><span class="w"> </span><span class="l">portal-service-group </span><span class="w"> </span><span class="c"># Same group</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">portal-2</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">KAFKA_CONSUMER_GROUP</span><span class="p">:</span><span class="w"> </span><span class="l">portal-service-group </span><span class="w"> </span><span class="c"># Same group</span><span class="w">
+</span></span></span></code></pre></div><h2 id="protocol-flow">Protocol Flow<a hidden class="anchor" aria-hidden="true" href="#protocol-flow">#</a></h2>
+<h3 id="single-chunk-upload-small-file">Single-Chunk Upload (Small File)<a hidden class="anchor" aria-hidden="true" href="#single-chunk-upload-small-file">#</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client CLI
+    participant KR as Kafka&lt;br/&gt;(api-requests)
+    participant P as Portal Service
+    participant KS as Kafka&lt;br/&gt;(api-responses)
+    participant A as REST API
+
+    C-&gt;&gt;C: Read file (&lt; 650KB)
+    C-&gt;&gt;C: Encode as base64
+    C-&gt;&gt;KR: START message&lt;br/&gt;(total_chunks=1, metadata only)
+    C-&gt;&gt;KR: CHUNK message&lt;br/&gt;(seq=0, data)
+    KR-&gt;&gt;P: Consume messages
+    P-&gt;&gt;P: Job started
+    P-&gt;&gt;P: Chunk 0 received&lt;br/&gt;All chunks received
+    P-&gt;&gt;P: Decode base64
+    P-&gt;&gt;A: HTTP POST (multipart)
+    A--&gt;&gt;P: HTTP 200 Response
+    P-&gt;&gt;P: Encode response
+    P-&gt;&gt;KS: Response message&lt;br/&gt;(status=200, data)
+    KS-&gt;&gt;C: Consume response
+    C-&gt;&gt;C: Display result
+</pre>
+
+<h3 id="multi-chunk-upload-large-file">Multi-Chunk Upload (Large File)<a hidden class="anchor" aria-hidden="true" href="#multi-chunk-upload-large-file">#</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client CLI
+    participant KR as Kafka&lt;br/&gt;(api-requests)
+    participant P as Portal Service
+    participant A as REST API
+    participant KS as Kafka&lt;br/&gt;(api-responses)
+
+    C-&gt;&gt;C: Calculate chunks&lt;br/&gt;(file_size / 650KB)
+    C-&gt;&gt;KR: START message&lt;br/&gt;(total_chunks=4)
+    C-&gt;&gt;KR: CHUNK message&lt;br/&gt;(seq=0, data)
+    C-&gt;&gt;KR: CHUNK message&lt;br/&gt;(seq=1, data)
+    C-&gt;&gt;KR: CHUNK message&lt;br/&gt;(seq=2, data)
+    C-&gt;&gt;KR: CHUNK message&lt;br/&gt;(seq=3, data)
+
+    Note over P: Accumulating chunks...
+    KR-&gt;&gt;P: Consume messages
+    P-&gt;&gt;P: Job started
+    P-&gt;&gt;P: Chunk 0 received
+    P-&gt;&gt;P: Chunk 1 received
+    P-&gt;&gt;P: Chunk 2 received
+    P-&gt;&gt;P: Chunk 3 received
+    P-&gt;&gt;P: All chunks complete!
+
+    P-&gt;&gt;P: Reassemble chunks
+    P-&gt;&gt;P: Decode base64
+    P-&gt;&gt;A: HTTP POST&lt;br/&gt;(multipart, 2MB file)
+    A--&gt;&gt;P: HTTP 200 Response
+    P-&gt;&gt;P: Check response size
+    P-&gt;&gt;KS: Response message&lt;br/&gt;(single or chunked)
+</pre>
+
+<h3 id="simple-request-no-body">Simple Request (No Body)<a hidden class="anchor" aria-hidden="true" href="#simple-request-no-body">#</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client CLI
+    participant KR as Kafka&lt;br/&gt;(api-requests)
+    participant P as Portal Service
+    participant A as REST API
+    participant KS as Kafka&lt;br/&gt;(api-responses)
+
+    C-&gt;&gt;KR: START message&lt;br/&gt;(method=GET, total_chunks=0)
+    KR-&gt;&gt;P: Consume message
+    P-&gt;&gt;P: Job started&lt;br/&gt;No data expected
+    P-&gt;&gt;A: HTTP GET request
+    A--&gt;&gt;P: HTTP 200 JSON Response
+    P-&gt;&gt;KS: Response message&lt;br/&gt;(is_text=true)
+</pre>
+
+<h3 id="large-response-handling-chunked-by-portal">Large Response Handling (Chunked by Portal)<a hidden class="anchor" aria-hidden="true" href="#large-response-handling-chunked-by-portal">#</a></h3>
+<p>When the REST API returns a large response (&gt; 650KB), the portal automatically chunks it:</p>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client CLI
+    participant KR as Kafka&lt;br/&gt;(api-requests)
+    participant P as Portal Service
+    participant KS as Kafka&lt;br/&gt;(api-responses)
+    participant A as REST API
+
+    C-&gt;&gt;KR: START message&lt;br/&gt;(file upload)
+    KR-&gt;&gt;P: Process request
+    P-&gt;&gt;A: HTTP POST
+    A--&gt;&gt;P: HTTP 200&lt;br/&gt;(Large response: 5MB)
+
+    Note over P: Response &gt; 650KB&lt;br/&gt;Chunking required!
+
+    P-&gt;&gt;P: Calculate chunks&lt;br/&gt;(5MB / 650KB = 8)
+    P-&gt;&gt;P: Encode as base64
+    P-&gt;&gt;KS: START message&lt;br/&gt;(metadata only, total=8)
+    P-&gt;&gt;KS: CHUNK message&lt;br/&gt;(seq=0, data)
+    P-&gt;&gt;KS: CHUNK message&lt;br/&gt;(seq=1, data)
+    P-&gt;&gt;KS: CHUNK message&lt;br/&gt;(seq=2, data)
+    P-&gt;&gt;KS: ...
+    P-&gt;&gt;KS: CHUNK message&lt;br/&gt;(seq=7, data)
+
+    Note over C: Accumulating response chunks...
+    KS-&gt;&gt;C: Consume messages
+    C-&gt;&gt;C: Chunk 0 received
+    C-&gt;&gt;C: Chunk 1 received
+    C-&gt;&gt;C: Chunk 2 received
+    C-&gt;&gt;C: ...chunks 3-6...
+    C-&gt;&gt;C: Chunk 7 received
+    C-&gt;&gt;C: All chunks complete!
+
+    C-&gt;&gt;C: Reassemble chunks
+    C-&gt;&gt;C: Decode base64
+    C-&gt;&gt;C: Save to file or display
+</pre>
+
+<p><strong>Key Points:</strong></p>
+<ul>
+<li><strong>Portal responsibility</strong>: Chunk large responses (&gt; 650KB) before sending to Kafka</li>
+<li><strong>Client responsibility</strong>: Reassemble response chunks in correct order</li>
+<li><strong>Same chunking logic</strong>: Both request and response use 650KB chunks</li>
+<li><strong>Base64 encoding</strong>: Applied to binary responses before chunking</li>
+<li><strong>Symmetric protocol</strong>: Both directions use START message for metadata, CHUNK messages for data</li>
+</ul>
+<h3 id="error-handling">Error Handling<a hidden class="anchor" aria-hidden="true" href="#error-handling">#</a></h3>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client CLI
+    participant KR as Kafka&lt;br/&gt;(api-requests)
+    participant P as Portal Service
+    participant A as REST API
+    participant KS as Kafka&lt;br/&gt;(api-responses)
+
+    C-&gt;&gt;KR: START message
+    C-&gt;&gt;KR: CHUNK message (seq=0)
+    KR-&gt;&gt;P: Consume messages
+    P-&gt;&gt;P: Job started
+    P-&gt;&gt;P: Error: Invalid data
+    P-&gt;&gt;KS: ERROR message&lt;br/&gt;(error_message)
+    P-&gt;&gt;P: Job cancelled
+</pre>
+
+<h2 id="message-formats">Message Formats<a hidden class="anchor" aria-hidden="true" href="#message-formats">#</a></h2>
+<h3 id="request-message-schema">Request Message Schema<a hidden class="anchor" aria-hidden="true" href="#request-message-schema">#</a></h3>
+<p>Clients send two types of messages to the <code>api-requests</code> topic: <strong>START</strong> and <strong>CHUNK</strong>.</p>
+<p><strong>START Message - File Upload (POST/PUT with file) - Metadata Only:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;method&#34;</span><span class="p">:</span> <span class="s2">&#34;POST&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/api/upload&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;X-Custom-Header&#34;</span><span class="p">:</span> <span class="s2">&#34;value&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;document.pdf&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;content_type&#34;</span><span class="p">:</span> <span class="s2">&#34;application/pdf&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;crc32&#34;</span><span class="p">:</span> <span class="mi">1234567890</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Note:</strong> START messages never contain data. Data is always sent in separate CHUNK messages, even for small files with <code>total_chunks=1</code>.</p>
+<p><strong>START Message - Simple Request (GET/DELETE with no body):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;method&#34;</span><span class="p">:</span> <span class="s2">&#34;GET&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/api/documents/123&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;X-Custom-Header&#34;</span><span class="p">:</span> <span class="s2">&#34;value&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>CHUNK Message (data only, follows START):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CHUNK&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;base64-encoded-binary-data&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="response-message-schema">Response Message Schema<a hidden class="anchor" aria-hidden="true" href="#response-message-schema">#</a></h3>
+<p>All response messages sent to the <code>api-responses</code> topic follow this schema:</p>
+<p><strong>START Message (metadata only):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>  <span class="c1">// Number of CHUNK messages to follow
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nt">&#34;status_code&#34;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Content-Type&#34;</span><span class="p">:</span> <span class="s2">&#34;application/json&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Content-Length&#34;</span><span class="p">:</span> <span class="s2">&#34;1234&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;is_text&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;crc32&#34;</span><span class="p">:</span> <span class="mi">9876543210</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="kc">null</span>  <span class="c1">// Always null in START messages
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p><strong>CHUNK Message (data only):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CHUNK&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;base64-or-plain-text&#34;</span>  <span class="c1">// Actual response data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><p><strong>ERROR Message:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;uuid-v4&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;ERROR&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;error_message&#34;</span><span class="p">:</span> <span class="s2">&#34;Error description&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="detailed-message-types">Detailed Message Types<a hidden class="anchor" aria-hidden="true" href="#detailed-message-types">#</a></h2>
+<h3 id="start-message-request">START Message (Request)<a hidden class="anchor" aria-hidden="true" href="#start-message-request">#</a></h3>
+<p>Initiates a new job and provides all metadata needed for the HTTP request.</p>
+<p><strong>Required Fields:</strong></p>
+<ul>
+<li><code>job_id</code> - Unique identifier (UUID v4)</li>
+<li><code>message_type</code> = <code>&quot;START&quot;</code></li>
+<li><code>sequence</code> = <code>0</code></li>
+<li><code>total_chunks</code> - Number of chunks to expect (0 if no body)</li>
+<li><code>method</code> - HTTP method</li>
+<li><code>endpoint</code> - Target API path</li>
+</ul>
+<p><strong>Optional Fields:</strong></p>
+<ul>
+<li><code>headers</code> - HTTP headers (content-type, etc.)</li>
+<li><code>filename</code> - Original filename for multipart uploads</li>
+<li><code>content_type</code> - MIME type of the file</li>
+<li><code>crc32</code> - CRC32 checksum of complete data for integrity verification (unsigned 32-bit integer)</li>
+<li><code>data</code> - Not used in START messages (always null/omitted; data sent in CHUNK messages)</li>
+</ul>
+<p><strong>Example - Small File Upload (START message - metadata only):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;a7cf937b-b8ca-41e5-a9d1-e380bc726dea&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;method&#34;</span><span class="p">:</span> <span class="s2">&#34;POST&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/api/upload&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;test.txt&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;content_type&#34;</span><span class="p">:</span> <span class="s2">&#34;text/plain&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;crc32&#34;</span><span class="p">:</span> <span class="mi">2870671212</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Followed by CHUNK message with data:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;a7cf937b-b8ca-41e5-a9d1-e380bc726dea&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CHUNK&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;VGhpcyBpcyBhIHRlc3QgZmlsZSBmb3IgZGVtb25zdHJhdGlvbiBwdXJwb3Nlcy4K&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Example - Large File Upload (Start):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;c51e5e4f-bba9-470e-956e-ba190bac31ad&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;method&#34;</span><span class="p">:</span> <span class="s2">&#34;POST&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/api/upload&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;filename&#34;</span><span class="p">:</span> <span class="s2">&#34;large-file.bin&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;content_type&#34;</span><span class="p">:</span> <span class="s2">&#34;application/octet-stream&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;crc32&#34;</span><span class="p">:</span> <span class="mi">3456789012</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Example - GET Request (No Body):</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;def456...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;method&#34;</span><span class="p">:</span> <span class="s2">&#34;GET&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/api/status&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="chunk-message-request">CHUNK Message (Request)<a hidden class="anchor" aria-hidden="true" href="#chunk-message-request">#</a></h3>
+<p>Carries a chunk of binary data, base64 encoded.</p>
+<p><strong>Required Fields:</strong></p>
+<ul>
+<li><code>job_id</code> - Matches the START message</li>
+<li><code>message_type</code> = <code>&quot;CHUNK&quot;</code></li>
+<li><code>sequence</code> - Chunk sequence number (0-indexed)</li>
+<li><code>total_chunks</code> - Same as START message</li>
+<li><code>data</code> - Base64 encoded binary chunk</li>
+</ul>
+<p><strong>Optional Fields:</strong></p>
+<ul>
+<li>None</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;c51e5e4f-bba9-470e-956e-ba190bac31ad&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CHUNK&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;iVBORw0KGgoAAAANSUhEUgAA...&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Chunk Size Calculation:</strong></p>
+<ul>
+<li>Maximum chunk size: <strong>650 KB</strong> (before encoding)</li>
+<li>After base64 encoding: ~866 KB</li>
+<li>Plus JSON overhead: ~870 KB total message size</li>
+<li>Well under Kafka&rsquo;s 1 MB default limit</li>
+</ul>
+<h3 id="response-messages">Response Messages<a hidden class="anchor" aria-hidden="true" href="#response-messages">#</a></h3>
+<p>The portal sends response messages back on the <code>api-responses</code> topic.</p>
+<p><strong>Example - Success Response (2 messages):</strong></p>
+<p>START message (metadata):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;a7cf937b-b8ca-41e5-a9d1-e380bc726dea&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;START&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;status_code&#34;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;headers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Content-Type&#34;</span><span class="p">:</span> <span class="s2">&#34;application/json&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;Content-Length&#34;</span><span class="p">:</span> <span class="s2">&#34;361&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;is_text&#34;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;crc32&#34;</span><span class="p">:</span> <span class="mi">2847563921</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="kc">null</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>CHUNK message (data):</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;a7cf937b-b8ca-41e5-a9d1-e380bc726dea&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;CHUNK&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;sequence&#34;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total_chunks&#34;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="s2">&#34;{\&#34;message\&#34;:\&#34;File uploaded successfully\&#34;,\&#34;filename\&#34;:\&#34;test.txt\&#34;,\&#34;size\&#34;:48}&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Example - Error Response:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;abc123...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;message_type&#34;</span><span class="p">:</span> <span class="s2">&#34;ERROR&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;error_message&#34;</span><span class="p">:</span> <span class="s2">&#34;&#39;str&#39; object has no attribute &#39;value&#39;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="job-state-machine">Job State Machine<a hidden class="anchor" aria-hidden="true" href="#job-state-machine">#</a></h2>
+<pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Started: START message
+    Started --&gt; Accumulating: CHUNK messages
+    Accumulating --&gt; Accumulating: More CHUNKs
+    Accumulating --&gt; Complete: All chunks received
+    Complete --&gt; Executing: Decode &amp; reassemble
+    Executing --&gt; Responding: HTTP request sent
+    Responding --&gt; [*]: Response sent
+
+    Started --&gt; Error: Invalid message
+    Accumulating --&gt; Error: Missing chunk
+    Executing --&gt; Error: HTTP error
+    Error --&gt; [*]: Error response sent
+</pre>
+
+<h2 id="portal-processing-logic">Portal Processing Logic<a hidden class="anchor" aria-hidden="true" href="#portal-processing-logic">#</a></h2>
+<h3 id="job-initialization">Job Initialization<a hidden class="anchor" aria-hidden="true" href="#job-initialization">#</a></h3>
+<ol>
+<li>Receive START message</li>
+<li>Validate required fields (method, endpoint)</li>
+<li>Create job state with metadata</li>
+<li>If <code>total_chunks</code> = 0: execute immediately</li>
+<li>If <code>total_chunks</code> &gt; 0: wait for chunks</li>
+</ol>
+<h3 id="chunk-accumulation">Chunk Accumulation<a hidden class="anchor" aria-hidden="true" href="#chunk-accumulation">#</a></h3>
+<ol>
+<li>Receive CHUNK messages</li>
+<li>Validate job exists</li>
+<li>Store chunk at sequence index</li>
+<li>Check if all chunks received</li>
+<li>When complete: proceed to execution</li>
+</ol>
+<h3 id="request-execution">Request Execution<a hidden class="anchor" aria-hidden="true" href="#request-execution">#</a></h3>
+<ol>
+<li>Decode all base64 chunks</li>
+<li>Reassemble into complete binary data</li>
+<li><strong>Verify CRC32 checksum</strong> (if provided in START message):
+<ul>
+<li>Calculate CRC32 of reassembled data</li>
+<li>Compare with expected CRC32 from START message</li>
+<li>If mismatch: reject request with error</li>
+</ul>
+</li>
+<li>Build HTTP request:
+<ul>
+<li>If <code>filename</code> present: multipart/form-data upload</li>
+<li>Otherwise: raw body data</li>
+</ul>
+</li>
+<li>Add OAuth2 token (if configured)</li>
+<li>Send HTTP request to target API</li>
+<li>Wait for response (with timeout)</li>
+</ol>
+<h3 id="response-handling">Response Handling<a hidden class="anchor" aria-hidden="true" href="#response-handling">#</a></h3>
+<p><strong>Portal responsibilities (chunking large responses):</strong></p>
+<ol>
+<li>Receive HTTP response from REST API</li>
+<li><strong>Determine content encoding:</strong>
+<ul>
+<li>Text-based content types (sent as plain UTF-8 text):
+<ul>
+<li><code>application/json</code></li>
+<li><code>text/plain</code></li>
+<li><code>text/html</code></li>
+<li><code>text/xml</code> / <code>application/xml</code></li>
+<li><code>text/css</code>, <code>text/javascript</code>, <code>application/javascript</code></li>
+</ul>
+</li>
+<li>Binary content types (base64 encoded):
+<ul>
+<li><code>application/pdf</code>, <code>application/octet-stream</code>, <code>image/*</code>, etc.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Calculate response size and send messages:</strong>
+<ul>
+<li>Always send START message (metadata only: status code, headers, CRC32, total_chunks, is_text)</li>
+<li>Always send CHUNK message(s) with data</li>
+<li>Split into 650KB chunks if response &gt; 650KB</li>
+</ul>
+</li>
+<li>Flush all messages to <code>api-responses</code> topic</li>
+<li>Complete job and cleanup</li>
+</ol>
+<p><strong>Client responsibilities (reassembling responses):</strong></p>
+<ol>
+<li>Listen on <code>api-responses</code> topic for matching job_id</li>
+<li>Accumulate CHUNK messages by sequence number</li>
+<li>Track progress (chunks_received / total_chunks)</li>
+<li>When all chunks received:
+<ul>
+<li>Sort chunks by sequence number</li>
+<li>Concatenate chunk data</li>
+<li>Decode base64 (if binary)</li>
+<li>Parse JSON (if is_text=true)</li>
+</ul>
+</li>
+<li>Display or save complete response</li>
+<li>Close consumer connection</li>
+</ol>
+<h2 id="error-conditions">Error Conditions<a hidden class="anchor" aria-hidden="true" href="#error-conditions">#</a></h2>
+<table>
+  <thead>
+      <tr>
+          <th>Error</th>
+          <th>Cause</th>
+          <th>Recovery</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>MessageSizeTooLargeError</code></td>
+          <td>Chunk exceeds 1MB after encoding</td>
+          <td>Reduce <code>MAX_CHUNK_SIZE</code></td>
+      </tr>
+      <tr>
+          <td><code>JobNotFound</code></td>
+          <td>CHUNK received before START</td>
+          <td>Client should retry</td>
+      </tr>
+      <tr>
+          <td><code>MissingChunks</code></td>
+          <td>Not all chunks received</td>
+          <td>Timeout, send ERROR response</td>
+      </tr>
+      <tr>
+          <td><code>InvalidData</code></td>
+          <td>Base64 decode fails</td>
+          <td>Send ERROR response</td>
+      </tr>
+      <tr>
+          <td><code>CRC32Mismatch</code></td>
+          <td>Data corruption during transfer</td>
+          <td>Client should retry</td>
+      </tr>
+      <tr>
+          <td><code>HTTPError</code></td>
+          <td>Target API returns error</td>
+          <td>Return error status to client</td>
+      </tr>
+      <tr>
+          <td><code>Timeout</code></td>
+          <td>Request takes too long</td>
+          <td>Send ERROR response</td>
+      </tr>
+      <tr>
+          <td><code>MaxJobsExceeded</code></td>
+          <td>Too many concurrent jobs</td>
+          <td>Client should retry later</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="configuration-1">Configuration<a hidden class="anchor" aria-hidden="true" href="#configuration-1">#</a></h2>
+<h3 id="kafka-topics">Kafka Topics<a hidden class="anchor" aria-hidden="true" href="#kafka-topics">#</a></h3>
+<ul>
+<li><strong>Request Topic</strong>: <code>api-requests</code> (configurable via <code>KAFKA_REQUEST_TOPIC</code>)</li>
+<li><strong>Response Topic</strong>: <code>api-responses</code> (configurable via <code>KAFKA_RESPONSE_TOPIC</code>)</li>
+</ul>
+<h3 id="size-limits">Size Limits<a hidden class="anchor" aria-hidden="true" href="#size-limits">#</a></h3>
+<ul>
+<li><strong>Max Chunk Size</strong>: 650 KB (before base64 encoding)</li>
+<li><strong>Max File Size</strong>: Unlimited (chunked automatically)</li>
+<li><strong>Kafka Message Limit</strong>: 1 MB (default)</li>
+<li><strong>Max Request Size</strong>: Configurable on producer (<code>max_request_size</code>)</li>
+</ul>
+<h3 id="timeouts">Timeouts<a hidden class="anchor" aria-hidden="true" href="#timeouts">#</a></h3>
+<p>KafkaSend implements multiple timeout layers to handle long-running REST API requests (up to 15 minutes) while maintaining Kafka consumer health.</p>
+<h4 id="http-request-timeout">HTTP Request Timeout<a hidden class="anchor" aria-hidden="true" href="#http-request-timeout">#</a></h4>
+<ul>
+<li><strong>Default</strong>: 900 seconds (15 minutes)</li>
+<li><strong>Environment Variable</strong>: <code>PORTAL_JOB_TIMEOUT_SECONDS</code></li>
+<li><strong>Purpose</strong>: Maximum time to wait for REST API response</li>
+<li><strong>Behavior</strong>: If REST API doesn&rsquo;t respond within this time, request fails with timeout error</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># config.py</span>
+</span></span><span class="line"><span class="cl"><span class="n">job_timeout_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">900</span>  <span class="c1"># 15 minutes</span>
+</span></span></code></pre></div><h4 id="job-cleanup-timeout">Job Cleanup Timeout<a hidden class="anchor" aria-hidden="true" href="#job-cleanup-timeout">#</a></h4>
+<ul>
+<li><strong>Default</strong>: 900 seconds (15 minutes)</li>
+<li><strong>Environment Variable</strong>: <code>PORTAL_JOB_MAX_AGE_SECONDS</code></li>
+<li><strong>Purpose</strong>: Maximum age of a job before it&rsquo;s cleaned up as stale</li>
+<li><strong>Behavior</strong>: Portal checks every 60 seconds and removes jobs older than this limit</li>
+<li><strong>Response</strong>: Sends ERROR message back to client with timeout reason</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># config.py</span>
+</span></span><span class="line"><span class="cl"><span class="n">job_max_age_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">900</span>  <span class="c1"># 15 minutes</span>
+</span></span></code></pre></div><h4 id="kafka-consumer-timeouts">Kafka Consumer Timeouts<a hidden class="anchor" aria-hidden="true" href="#kafka-consumer-timeouts">#</a></h4>
+<p><strong>Session Timeout:</strong></p>
+<ul>
+<li><strong>Default</strong>: 300000 ms (5 minutes)</li>
+<li><strong>Environment Variable</strong>: <code>KAFKA_SESSION_TIMEOUT_MS</code></li>
+<li><strong>Purpose</strong>: How long before consumer is considered dead by broker</li>
+<li><strong>Requirement</strong>: Must send heartbeats within this interval</li>
+</ul>
+<p><strong>Max Poll Interval:</strong></p>
+<ul>
+<li><strong>Default</strong>: 1200000 ms (20 minutes)</li>
+<li><strong>Environment Variable</strong>: <code>KAFKA_MAX_POLL_INTERVAL_MS</code></li>
+<li><strong>Purpose</strong>: Maximum time between poll() calls before consumer is kicked out</li>
+<li><strong>Requirement</strong>: Must be longer than <code>job_timeout_seconds</code> to allow for long REST requests</li>
+<li><strong>Why 20 minutes</strong>: Allows 15-minute request + 5-minute buffer</li>
+</ul>
+<p><strong>Request Timeout:</strong></p>
+<ul>
+<li><strong>Default</strong>: 120000 ms (2 minutes)</li>
+<li><strong>Environment Variable</strong>: <code>KAFKA_REQUEST_TIMEOUT_MS</code></li>
+<li><strong>Purpose</strong>: Timeout for individual Kafka producer/consumer operations</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># config.py</span>
+</span></span><span class="line"><span class="cl"><span class="n">session_timeout_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300000</span>        <span class="c1"># 5 minutes</span>
+</span></span><span class="line"><span class="cl"><span class="n">max_poll_interval_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1200000</span>     <span class="c1"># 20 minutes</span>
+</span></span><span class="line"><span class="cl"><span class="n">request_timeout_ms</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">120000</span>        <span class="c1"># 2 minutes</span>
+</span></span></code></pre></div><h4 id="timeout-interaction">Timeout Interaction<a hidden class="anchor" aria-hidden="true" href="#timeout-interaction">#</a></h4>
+<pre class="mermaid">sequenceDiagram
+    participant C as Client
+    participant KReq as Kafka&lt;br/&gt;api-requests
+    participant P as Portal
+    participant A as REST API
+    participant KResp as Kafka&lt;br/&gt;api-responses
+
+    Note over P: Job created at T=0
+    C-&gt;&gt;KReq: START message
+    KReq-&gt;&gt;P: Consume (T=0)
+    P-&gt;&gt;A: HTTP POST (timeout=900s)
+
+    Note over P: Heartbeats sent every 3s&lt;br/&gt;to keep session alive
+
+    rect rgb(255, 245, 230)
+        Note over A: API processing...&lt;br/&gt;Takes 10 minutes
+    end
+
+    alt Request completes within 15 minutes
+        A--&gt;&gt;P: Response (T=600s)
+        P-&gt;&gt;KResp: Response message
+        KResp-&gt;&gt;C: Consume response
+    else Request exceeds 15 minutes
+        A--&gt;&gt;P: Timeout (T=900s)
+        P-&gt;&gt;KResp: ERROR message&lt;br/&gt;&#34;Request timeout&#34;
+    end
+
+    Note over P: Cleanup check at T=960s&lt;br/&gt;Job age = 960s &gt; 900s
+    P-&gt;&gt;P: Remove stale job
+    P-&gt;&gt;KResp: ERROR message&lt;br/&gt;&#34;Job timeout: exceeded max age&#34;
+</pre>
+
+<h4 id="configuration-guidelines">Configuration Guidelines<a hidden class="anchor" aria-hidden="true" href="#configuration-guidelines">#</a></h4>
+<p>For long-running REST APIs:</p>
+<ol>
+<li>
+<p><strong>Set HTTP timeout</strong> based on expected API response time:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">PORTAL_JOB_TIMEOUT_SECONDS</span><span class="o">=</span><span class="m">900</span>  <span class="c1"># 15 minutes</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Set job cleanup timeout</strong> same or slightly higher than HTTP timeout:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">PORTAL_JOB_MAX_AGE_SECONDS</span><span class="o">=</span><span class="m">900</span>  <span class="c1"># 15 minutes</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Set max poll interval</strong> higher than job timeout:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">KAFKA_MAX_POLL_INTERVAL_MS</span><span class="o">=</span><span class="m">1200000</span>  <span class="c1"># 20 minutes (15 min + buffer)</span>
+</span></span></code></pre></div></li>
+<li>
+<p><strong>Keep session timeout reasonable</strong> for failure detection:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">KAFKA_SESSION_TIMEOUT_MS</span><span class="o">=</span><span class="m">300000</span>  <span class="c1"># 5 minutes</span>
+</span></span></code></pre></div></li>
+</ol>
+<h4 id="timeout-error-messages">Timeout Error Messages<a hidden class="anchor" aria-hidden="true" href="#timeout-error-messages">#</a></h4>
+<p>Clients may receive timeout errors in the following scenarios:</p>
+<table>
+  <thead>
+      <tr>
+          <th>Scenario</th>
+          <th>Error Message</th>
+          <th>Cause</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>HTTP timeout</td>
+          <td><code>Request timeout: The read operation timed out</code></td>
+          <td>REST API didn&rsquo;t respond within <code>job_timeout_seconds</code></td>
+      </tr>
+      <tr>
+          <td>Job cleanup</td>
+          <td><code>Job timeout: Job exceeded max age: 905.3s &gt; 900s</code></td>
+          <td>Job existed longer than <code>job_max_age_seconds</code></td>
+      </tr>
+      <tr>
+          <td>Network issue</td>
+          <td><code>Connection timeout</code></td>
+          <td>Unable to connect to REST API</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="best-practices">Best Practices<a hidden class="anchor" aria-hidden="true" href="#best-practices">#</a></h2>
+<h3 id="for-clients">For Clients<a hidden class="anchor" aria-hidden="true" href="#for-clients">#</a></h3>
+<ol>
+<li><strong>Generate unique job IDs</strong> using UUID v4</li>
+<li><strong>Calculate chunks correctly</strong> using <code>calculate_chunk_count()</code></li>
+<li><strong>Send START message first</strong> before any CHUNKs</li>
+<li><strong>Sequence chunks properly</strong> starting from 0</li>
+<li><strong>Handle timeouts gracefully</strong> and retry if needed</li>
+</ol>
+<h3 id="for-portal">For Portal<a hidden class="anchor" aria-hidden="true" href="#for-portal">#</a></h3>
+<ol>
+<li><strong>Validate all incoming messages</strong> before processing</li>
+<li><strong>Track job state carefully</strong> to detect missing chunks</li>
+<li><strong>Clean up completed jobs</strong> to prevent memory leaks</li>
+<li><strong>Log all operations</strong> for debugging</li>
+<li><strong>Handle OAuth token refresh</strong> proactively</li>
+</ol>
+<h3 id="for-api-servers">For API Servers<a hidden class="anchor" aria-hidden="true" href="#for-api-servers">#</a></h3>
+<ol>
+<li><strong>Support multipart/form-data</strong> for file uploads</li>
+<li><strong>Return JSON responses</strong> when possible (easier to handle)</li>
+<li><strong>Include proper status codes</strong> (200, 400, 500, etc.)</li>
+<li><strong>Handle large files efficiently</strong> (streaming, etc.)</li>
+<li><strong>Implement authentication</strong> (Bearer tokens, etc.)</li>
+</ol>
+<h2 id="security-considerations">Security Considerations<a hidden class="anchor" aria-hidden="true" href="#security-considerations">#</a></h2>
+<p>KafkaSend implements multiple security layers to prevent abuse of the portal service by compromised or malicious clients.</p>
+<h3 id="threat-model">Threat Model<a hidden class="anchor" aria-hidden="true" href="#threat-model">#</a></h3>
+<p>The primary security concerns are:</p>
+<ol>
+<li><strong>SSRF (Server-Side Request Forgery)</strong>: Malicious clients using the portal to access internal services, cloud metadata endpoints, or perform network scanning</li>
+<li><strong>Header Injection</strong>: Clients injecting malicious headers or overriding OAuth headers</li>
+<li><strong>Endpoint Abuse</strong>: Clients accessing unintended API endpoints</li>
+<li><strong>Data Exfiltration</strong>: Using the portal to proxy requests to arbitrary destinations</li>
+</ol>
+<h3 id="security-controls">Security Controls<a hidden class="anchor" aria-hidden="true" href="#security-controls">#</a></h3>
+<h4 id="1-endpoint-whitelisting">1. Endpoint Whitelisting<a hidden class="anchor" aria-hidden="true" href="#1-endpoint-whitelisting">#</a></h4>
+<p>The portal validates all requested endpoints against a configurable whitelist.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Comma-separated list of allowed endpoint patterns (supports wildcards)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_ENDPOINTS</span><span class="o">=</span><span class="s2">&#34;/api/upload,/api/documents/*,/v1/*/process&#34;</span>
+</span></span></code></pre></div><p><strong>Behavior:</strong></p>
+<ul>
+<li>Exact matches: <code>/api/upload</code> allows only that specific endpoint</li>
+<li>Wildcard patterns: <code>/api/documents/*</code> allows <code>/api/documents/123</code>, <code>/api/documents/xyz/view</code></li>
+<li>Empty string in strict mode: Blocks all requests (secure default)</li>
+<li>Empty string in permissive mode: Allows all (NOT RECOMMENDED for production)</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Valid requests</span>
+</span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">upload</span>                    <span class="c1"># Exact match</span>
+</span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">documents</span><span class="o">/</span><span class="mi">123</span>             <span class="c1"># Wildcard match</span>
+</span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">documents</span><span class="o">/</span><span class="n">abc</span><span class="o">/</span><span class="n">metadata</span>    <span class="c1"># Wildcard match</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Blocked requests</span>
+</span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">admin</span><span class="o">/</span><span class="n">users</span>                   <span class="c1"># Not in whitelist</span>
+</span></span><span class="line"><span class="cl"><span class="o">/</span><span class="n">api</span><span class="o">/</span><span class="n">delete</span><span class="o">-</span><span class="nb">all</span>                <span class="c1"># Not in whitelist</span>
+</span></span></code></pre></div><h4 id="2-header-whitelisting">2. Header Whitelisting<a hidden class="anchor" aria-hidden="true" href="#2-header-whitelisting">#</a></h4>
+<p>The portal filters client headers, only allowing specific headers through to the target API.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Comma-separated list of allowed header names (case-insensitive)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_HEADERS</span><span class="o">=</span><span class="s2">&#34;Content-Type,Accept,X-Request-ID,X-Correlation-ID&#34;</span>
+</span></span></code></pre></div><p><strong>Forbidden Headers (Always Blocked):</strong></p>
+<ul>
+<li><code>Authorization</code> - OAuth tokens managed by portal, not clients</li>
+<li><code>Proxy-Authorization</code> - Proxy auth should not be controllable by clients</li>
+<li><code>Cookie</code> - Session cookies should not be forwarded</li>
+<li><code>X-Forwarded-For</code> - Network routing headers</li>
+<li><code>X-Real-IP</code> - Network routing headers</li>
+<li><code>Host</code> - Target host controlled by portal configuration</li>
+</ul>
+<p><strong>Behavior:</strong></p>
+<ul>
+<li>Case-insensitive matching: <code>Content-Type</code>, <code>content-type</code>, <code>CONTENT-TYPE</code> all match</li>
+<li>Forbidden headers always blocked regardless of whitelist</li>
+<li>Unknown headers silently removed</li>
+<li>Empty whitelist: Blocks all client headers (recommended default)</li>
+</ul>
+<h4 id="3-ssrf-protection">3. SSRF Protection<a hidden class="anchor" aria-hidden="true" href="#3-ssrf-protection">#</a></h4>
+<p>The portal automatically blocks known SSRF target patterns:</p>
+<p><strong>Blocked Patterns:</strong></p>
+<ul>
+<li><code>127.0.0.1</code> / <code>localhost</code> / <code>::1</code> - Loopback addresses</li>
+<li><code>169.254.169.254</code> - AWS/Azure/GCP metadata endpoints</li>
+<li><code>0.0.0.0</code> - Any address</li>
+<li><code>10.*.*.*</code> - Private network (Class A)</li>
+<li><code>172.16.*.*</code> through <code>172.31.*.*</code> - Private network (Class B)</li>
+<li><code>192.168.*.*</code> - Private network (Class C)</li>
+<li><code>*.local</code> / <code>*.internal</code> - Internal DNS names</li>
+</ul>
+<p><strong>Note:</strong> SSRF checks are applied to the endpoint path, not the target API base URL (which is controlled by <code>PORTAL_TARGET_API_URL</code>).</p>
+<h4 id="4-strict-mode">4. Strict Mode<a hidden class="anchor" aria-hidden="true" href="#4-strict-mode">#</a></h4>
+<p>Controls whether validation failures block requests or only log warnings.</p>
+<p><strong>Configuration:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">PORTAL_STRICT_SECURITY</span><span class="o">=</span><span class="nb">true</span>  <span class="c1"># Recommended for production</span>
+</span></span></code></pre></div><p><strong>Strict Mode (true):</strong></p>
+<ul>
+<li>Invalid endpoints → Request rejected with error</li>
+<li>No whitelist configured → All requests rejected</li>
+<li>Security violation → Logged and blocked</li>
+</ul>
+<p><strong>Permissive Mode (false):</strong></p>
+<ul>
+<li>Invalid endpoints → Logged as warning, request allowed</li>
+<li>No whitelist → Logged as warning, all requests allowed</li>
+<li><strong>Use only for development/testing</strong></li>
+</ul>
+<h3 id="security-configuration-examples">Security Configuration Examples<a hidden class="anchor" aria-hidden="true" href="#security-configuration-examples">#</a></h3>
+<h4 id="production-secure">Production (Secure)<a hidden class="anchor" aria-hidden="true" href="#production-secure">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Strict whitelist for specific endpoints</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_ENDPOINTS</span><span class="o">=</span><span class="s2">&#34;/api/v1/upload,/api/v1/documents/*&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_HEADERS</span><span class="o">=</span><span class="s2">&#34;Content-Type,X-Request-ID&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_STRICT_SECURITY</span><span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></div><h4 id="development-less-strict">Development (Less Strict)<a hidden class="anchor" aria-hidden="true" href="#development-less-strict">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Broader whitelist for testing</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_ENDPOINTS</span><span class="o">=</span><span class="s2">&#34;/api/*&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_HEADERS</span><span class="o">=</span><span class="s2">&#34;Content-Type,Accept,X-Debug-*&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_STRICT_SECURITY</span><span class="o">=</span><span class="nb">true</span>
+</span></span></code></pre></div><h4 id="testing-permissive---not-for-production">Testing (Permissive - NOT for Production)<a hidden class="anchor" aria-hidden="true" href="#testing-permissive---not-for-production">#</a></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Allow all endpoints and headers (insecure)</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_ENDPOINTS</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_ALLOWED_HEADERS</span><span class="o">=</span><span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nv">PORTAL_STRICT_SECURITY</span><span class="o">=</span><span class="nb">false</span>
+</span></span></code></pre></div><h3 id="security-logging">Security Logging<a hidden class="anchor" aria-hidden="true" href="#security-logging">#</a></h3>
+<p>All security events are logged with structured logging:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;event&#34;</span><span class="p">:</span> <span class="s2">&#34;security_validation&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;job_id&#34;</span><span class="p">:</span> <span class="s2">&#34;abc-123&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;endpoint&#34;</span><span class="p">:</span> <span class="s2">&#34;/admin/users&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;result&#34;</span><span class="p">:</span> <span class="s2">&#34;blocked&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;reason&#34;</span><span class="p">:</span> <span class="s2">&#34;Endpoint &#39;/admin/users&#39; not in whitelist: [&#39;/api/upload&#39;, &#39;/api/documents/*&#39;]&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>Logged Events:</strong></p>
+<ul>
+<li>Endpoint validation failures</li>
+<li>Header filtering (removed headers)</li>
+<li>SSRF attempt detection</li>
+<li>Forbidden header blocking</li>
+<li>Security configuration warnings</li>
+</ul>
+<h3 id="additional-security-best-practices">Additional Security Best Practices<a hidden class="anchor" aria-hidden="true" href="#additional-security-best-practices">#</a></h3>
+<ul>
+<li><strong>Job IDs are UUIDs</strong>: Hard to guess, provides isolation between jobs</li>
+<li><strong>OAuth2 tokens</strong>: Managed by portal, clients cannot override</li>
+<li><strong>No data persistence</strong>: Chunks stored in memory only, no disk traces</li>
+<li><strong>Kafka ACLs</strong>: Configure Kafka topic ACLs for production</li>
+<li><strong>TLS/SSL</strong>: Enable for production Kafka and HTTP traffic</li>
+<li><strong>Network isolation</strong>: Run portal in isolated network segment</li>
+<li><strong>Rate limiting</strong>: Consider implementing rate limits per client</li>
+<li><strong>Audit logging</strong>: Enable comprehensive audit logs for compliance</li>
+</ul>
+<h3 id="security-testing">Security Testing<a hidden class="anchor" aria-hidden="true" href="#security-testing">#</a></h3>
+<p>Test security controls before production deployment:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Test 1: Attempt to access blocked endpoint</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Expected: Request rejected</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test 2: Send forbidden headers (Authorization, Cookie)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Expected: Headers silently removed</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test 3: Try SSRF targets (localhost, 169.254.169.254)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Expected: Request rejected with SSRF warning</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test 4: Verify whitelist patterns work correctly</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Expected: Only whitelisted endpoints succeed</span>
+</span></span></code></pre></div><p>See <code>tests/test_security.py</code> for comprehensive security test cases.</p>
+<h2 id="performance-characteristics">Performance Characteristics<a hidden class="anchor" aria-hidden="true" href="#performance-characteristics">#</a></h2>
+<h3 id="throughput">Throughput<a hidden class="anchor" aria-hidden="true" href="#throughput">#</a></h3>
+<ul>
+<li><strong>Small files (&lt; 650KB)</strong>: Single message, low latency</li>
+<li><strong>Large files (2-50MB)</strong>: Multiple chunks, higher latency</li>
+<li><strong>Chunk processing</strong>: ~100ms per chunk</li>
+<li><strong>HTTP request</strong>: Depends on target API</li>
+</ul>
+<h3 id="scalability">Scalability<a hidden class="anchor" aria-hidden="true" href="#scalability">#</a></h3>
+<ul>
+<li><strong>Concurrent jobs</strong>: Limited by <code>PORTAL_MAX_CONCURRENT_JOBS</code> (default: 10)</li>
+<li><strong>Kafka partitions</strong>: Can parallelize across multiple portal instances</li>
+<li><strong>Consumer groups</strong>: Each portal joins same group for load balancing</li>
+</ul>
+<h2 id="limitations">Limitations<a hidden class="anchor" aria-hidden="true" href="#limitations">#</a></h2>
+<ul>
+<li><strong>Consumer offset timing</strong>: Response waiting may fail due to consumer group coordination</li>
+<li><strong>In-memory storage</strong>: Large files consume portal memory</li>
+<li><strong>No persistence</strong>: Failed jobs are lost</li>
+<li><strong>Synchronous processing</strong>: One job at a time per portal instance</li>
+</ul>
+<h2 id="future-enhancements">Future Enhancements<a hidden class="anchor" aria-hidden="true" href="#future-enhancements">#</a></h2>
+<ul>
+<li><strong>Async response handling</strong>: Decouple request and response processing</li>
+<li><strong>Persistent storage</strong>: Store chunks in Redis/S3 for large files</li>
+<li><strong>Retry logic</strong>: Automatic retry on transient failures</li>
+<li><strong>Compression</strong>: Compress chunks before base64 encoding</li>
+<li><strong>Streaming</strong>: Stream large responses back without accumulation</li>
+</ul>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/mermaid/">Mermaid</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="http://localhost:1313/posts/interactive-hype-cycle/">
+    <span class="title">Next »</span>
+    <br>
+    <span>AI Cloud Interactive Hype Cycle 2025</span>
+  </a>
+</nav>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on x"
+            href="https://x.com/intent/tweet/?text=Draft%20Post&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f&amp;hashtags=mermaid">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f&amp;title=Draft%20Post&amp;summary=Draft%20Post&amp;source=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on reddit"
+            href="https://reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f&title=Draft%20Post">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on whatsapp"
+            href="https://api.whatsapp.com/send?text=Draft%20Post%20-%20http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on telegram"
+            href="https://telegram.me/share/url?text=Draft%20Post&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Draft Post on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=Draft%20Post&u=http%3a%2f%2flocalhost%3a1313%2fposts%2fdiagram-post%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">MikesBlog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

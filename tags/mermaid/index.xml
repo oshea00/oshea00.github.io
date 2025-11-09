@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Mermaid on MikesBlog</title>
+    <link>http://localhost:1313/tags/mermaid/</link>
+    <description>Recent content in Mermaid on MikesBlog</description>
+    <generator>Hugo -- 0.152.2</generator>
+    <language>en</language>
+    <lastBuildDate>Sat, 08 Nov 2025 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/mermaid/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Draft Post</title>
+      <link>http://localhost:1313/posts/draft-post/</link>
+      <pubDate>Sat, 08 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/posts/draft-post/</guid>
+      <description>&lt;h1 id=&#34;kafkasend-protocol-specification&#34;&gt;KafkaSend Protocol Specification&lt;/h1&gt;
+&lt;p&gt;This document describes the message protocol used by KafkaSend to transmit files and HTTP requests through Kafka topics.&lt;/p&gt;
+&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
+&lt;p&gt;KafkaSend uses a chunked message protocol to enable large file transfers (up to 50MB+) through Kafka, which has message size limitations. The protocol supports:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Multi-chunk file transfers with sequence ordering&lt;/li&gt;
+&lt;li&gt;Job-based request/response correlation&lt;/li&gt;
+&lt;li&gt;Multiple HTTP methods (GET, POST, PUT, PATCH, DELETE)&lt;/li&gt;
+&lt;li&gt;Custom headers and multipart file uploads&lt;/li&gt;
+&lt;li&gt;CRC32 checksum validation for data integrity&lt;/li&gt;
+&lt;li&gt;Error handling and status reporting&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;architecture&#34;&gt;Architecture&lt;/h2&gt;
+&lt;pre class=&#34;mermaid&#34;&gt;graph LR
+    A[Client CLI] --&amp;gt;|api-requests&amp;lt;br/&amp;gt;Kafka Topic| B[Portal Service&amp;lt;br/&amp;gt;Bridge]
+    B --&amp;gt;|api-responses&amp;lt;br/&amp;gt;Kafka Topic| A
+    B --&amp;gt;|HTTP/REST&amp;lt;br/&amp;gt;with OAuth2| C[REST API&amp;lt;br/&amp;gt;Server]
+    C --&amp;gt;|HTTP Response&amp;lt;br/&amp;gt;JSON/Binary| B
+
+    style A fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    style B fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    style C fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+&lt;/pre&gt;
+
+&lt;h2 id=&#34;message-types&#34;&gt;Message Types&lt;/h2&gt;
+&lt;p&gt;The protocol defines three message types:&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

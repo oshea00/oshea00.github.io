@@ -40,34 +40,6 @@ You will need to get access to Llama3 via instructions on the official Meta Llam
         }
 
     </style>
-    <style>
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --theme: rgb(29, 30, 32);
-                --entry: rgb(46, 46, 51);
-                --primary: rgb(218, 218, 219);
-                --secondary: rgb(155, 156, 157);
-                --tertiary: rgb(65, 66, 68);
-                --content: rgb(196, 196, 197);
-                --code-block-bg: rgb(46, 46, 51);
-                --code-bg: rgb(55, 56, 62);
-                --border: rgb(51, 51, 51);
-            }
-
-            .list {
-                background: var(--theme);
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-track {
-                background: 0 0;
-            }
-
-            .list:not(.dark)::-webkit-scrollbar-thumb {
-                border-color: var(--theme);
-            }
-        }
-
-    </style>
 </noscript>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
 
@@ -87,6 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
+
 
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
@@ -191,10 +164,6 @@ You will need to get access to Llama3 via instructions on the official Meta Llam
 <script>
     if (localStorage.getItem("pref-theme") === "dark") {
         document.body.classList.add('dark');
-    } else if (localStorage.getItem("pref-theme") === "light") {
-        document.body.classList.remove('dark')
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.body.classList.add('dark');
     }
 
 </script>
@@ -264,24 +233,24 @@ wrote this article to bring everything together.</p>
 <li>You&rsquo;ll want to use Python 3.11 <a href="https://github.com/pytorch/pytorch/issues/120233">until Torch compile supports Python 3.12</a> , and I recommend setting up a virtual environment for this using <code>venv</code> or <code>pipenv</code>.</li>
 <li>Install <a href="https://pytorch.org/torchtune/stable/install.html#install-label">torchtune</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install torchtune
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pip install torchtune
 </span></span></code></pre></div><ul>
 <li>Install <a href="https://github.com/EleutherAI/lm-evaluation-harness">EleutherAI&rsquo;s Evaluation Harness</a></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>pip install lm_eval<span style="color:#f92672">==</span>0.4.*
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">pip install <span class="nv">lm_eval</span><span class="o">==</span>0.4.*
 </span></span></code></pre></div><h2 id="download-llama3-8b-model">Download Llama3-8B model<a hidden class="anchor" aria-hidden="true" href="#download-llama3-8b-model">#</a></h2>
 <p>You will need to get access to Llama3 via instructions on the <a href="https://github.com/meta-llama/llama3/blob/main/README.md">official Meta Llama3</a> page. You will also need your Hugging Face token setup from <a href="https://huggingface.co/settings/tokens">here</a>.</p>
 <p>Note: some examples here reference &ldquo;checkpoint-directory&rdquo;. This will be the directory where your downloaded model weights are stored. In the following examples we&rsquo;ll use <code>/tmp/Meta-Llama-3-8B</code> for the checkpoint directory.</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune download meta-llama/Meta-Llama-3-8B <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>--output-dir /tmp/Meta-Llama-3-8B <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>--hf-token $HF_TOKEN
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune download meta-llama/Meta-Llama-3-8B <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--output-dir /tmp/Meta-Llama-3-8B <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>--hf-token <span class="nv">$HF_TOKEN</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="fine-tune-the-model">Fine-tune the model<a hidden class="anchor" aria-hidden="true" href="#fine-tune-the-model">#</a></h2>
@@ -290,18 +259,18 @@ provide your own data, but for now, we&rsquo;ll use the default recipe.</p>
 <p>Get some coffee. This process will take, depending on your GPU, at least a couple of hours on a single-GPU. I&rsquo;m running a 24GB NVIDIA RTX 4090, and this process took three hours.</p>
 <p>With less VRAM and a lighter-weight GPU, this could take up to 16 hours or more. There are instructions on the <a href="https://llama.meta.com/docs/how-to-guides/fine-tuning">Meta Llama3</a>, and
 the <a href="https://pytorch.org/torchtune/stable/tutorials/llama3.html">Llama3 PyTorch torchtune</a> site that discuss running on multiple-GPU systems and tuning for smaller GPUs.</p>
-<div class="highlight"><div style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
-<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
-</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
 </span></code></pre></td>
-<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
-<pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run lora_finetune_single_device --config llama3/8B_lora_single_device <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    checkpointer.checkpoint_dir<span style="color:#f92672">=</span>/tmp/Meta-Llama-3-8B/original <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    tokenizer.path<span style="color:#f92672">=</span>/tmp/Meta-Llama-3-8B/original/tokenizer.model <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>    checkpointer.output_dir<span style="color:#f92672">=</span>/tmp/Meta-Llama-3-8B
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run lora_finetune_single_device --config llama3/8B_lora_single_device <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    checkpointer.checkpoint_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B/original <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    tokenizer.path<span class="o">=</span>/tmp/Meta-Llama-3-8B/original/tokenizer.model <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span>    checkpointer.output_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="tuning-run-results">Tuning run results<a hidden class="anchor" aria-hidden="true" href="#tuning-run-results">#</a></h3>
@@ -310,91 +279,91 @@ the <a href="https://pytorch.org/torchtune/stable/tutorials/llama3.html">Llama3 
 <h2 id="evaluating-the-tuned-model">Evaluating the tuned model<a hidden class="anchor" aria-hidden="true" href="#evaluating-the-tuned-model">#</a></h2>
 <p>To run evaluations, you can use torchtune to make copies of the various elleuther_evaluation config files, then edit them to reflect where to look for models and which merics to run.</p>
 <p>For example</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune cp eleuther_evaluation ./custom_eval_config.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune cp eleuther_evaluation ./custom_eval_config.yaml
 </span></span></code></pre></div><p>However, the instructions I found on the <a href="https://pytorch.org/torchtune/stable/tutorials/e2e_flow.html">PyTorch end-to-end workflow</a> needed fixing, so I have provided already edited copies of these files for our use here.</p>
 <h3 id="baseline-evaluation-of-un-tuned-llama3-8b">Baseline Evaluation of Un-tuned Llama3-8B<a hidden class="anchor" aria-hidden="true" href="#baseline-evaluation-of-un-tuned-llama3-8b">#</a></h3>
 <p><code>custom_eval_config_orig.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelMetaCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B/original
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    consolidated.00.pth
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B/original
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># EleutherAI specific eval args</span>
-</span></span><span style="display:flex;"><span>tasks: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;truthfulqa_mc2&#34;</span><span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>limit: null
-</span></span><span style="display:flex;"><span>max_seq_length: <span style="color:#ae81ff">4096</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Quantization specific args</span>
-</span></span><span style="display:flex;"><span>quantizer: null
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelMetaCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B/original
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    consolidated.00.pth
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B/original
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># EleutherAI specific eval args</span>
+</span></span><span class="line"><span class="cl">tasks: <span class="o">[</span><span class="s2">&#34;truthfulqa_mc2&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">limit: null
+</span></span><span class="line"><span class="cl">max_seq_length: <span class="m">4096</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Quantization specific args</span>
+</span></span><span class="line"><span class="cl">quantizer: null
 </span></span></code></pre></div><p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run eleuther_eval --config ./custom_eval_config_orig.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run eleuther_eval --config ./custom_eval_config_orig.yaml
 </span></span></code></pre></div><p>On the 24GB RTX 4090 this takes about four minutes, and the output looks like this. We get about 43.9% accuracy.
 <img alt="untrained eval" loading="lazy" src="/posts/finetuning-llama3-8b/images/eleuther_llama3_eval.png"></p>
 <h3 id="fine-tuned-llama-8b-evaluation">Fine-Tuned Llama 8B Evaluation<a hidden class="anchor" aria-hidden="true" href="#fine-tuned-llama-8b-evaluation">#</a></h3>
 <p><code>custom_eval_config.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelMetaCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    meta_model_0.pt
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># EleutherAI specific eval args</span>
-</span></span><span style="display:flex;"><span>tasks: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;truthfulqa_mc2&#34;</span><span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>limit: null
-</span></span><span style="display:flex;"><span>max_seq_length: <span style="color:#ae81ff">4096</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Quantization specific args</span>
-</span></span><span style="display:flex;"><span>quantizer: null
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-shell" data-lang="shell"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelMetaCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    meta_model_0.pt
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># EleutherAI specific eval args</span>
+</span></span><span class="line"><span class="cl">tasks: <span class="o">[</span><span class="s2">&#34;truthfulqa_mc2&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">limit: null
+</span></span><span class="line"><span class="cl">max_seq_length: <span class="m">4096</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Quantization specific args</span>
+</span></span><span class="line"><span class="cl">quantizer: null
 </span></span></code></pre></div><p>Note in the above config we are now pointing at the location of the fine-tuned weights <code>meta_model_0.pt</code></p>
 <p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run eleuther_eval --config ./custom_eval_config.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run eleuther_eval --config ./custom_eval_config.yaml
 </span></span></code></pre></div><p>The output looks like this. We get 55.3% accuracy. An increase of about 11.4%!
 <img alt="untrained eval" loading="lazy" src="/posts/finetuning-llama3-8b/images/eleuther_llama3_finetuned_eval.png"></p>
 <h2 id="model-generation">Model Generation<a hidden class="anchor" aria-hidden="true" href="#model-generation">#</a></h2>
@@ -402,181 +371,181 @@ the <a href="https://pytorch.org/torchtune/stable/tutorials/llama3.html">Llama3 
 We will use a <code>top_k=300</code> and a <code>temperature=0.6</code> for these tests. I noticed that <code>temperature=0.8</code> definitely produces hallucinatory output.</p>
 <h3 id="fine-tuned-llama-8b-generation">Fine-tuned Llama-8B Generation<a hidden class="anchor" aria-hidden="true" href="#fine-tuned-llama-8b-generation">#</a></h3>
 <p><code>custom_generation_config.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelMetaCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    meta_model_0.pt
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Quantization specific args</span>
-</span></span><span style="display:flex;"><span>quantizer: null
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Generation arguments; defaults taken from gpt-fast</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># prompt: &#34;Hello, my name is&#34;</span>
-</span></span><span style="display:flex;"><span>max_new_tokens: <span style="color:#ae81ff">600</span>
-</span></span><span style="display:flex;"><span>temperature: 0.6 <span style="color:#75715e"># 0.8 and 0.6 are popular values to try</span>
-</span></span><span style="display:flex;"><span>top_k: <span style="color:#ae81ff">300</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelMetaCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    meta_model_0.pt
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Quantization specific args</span>
+</span></span><span class="line"><span class="cl">quantizer: null
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Generation arguments; defaults taken from gpt-fast</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># prompt: &#34;Hello, my name is&#34;</span>
+</span></span><span class="line"><span class="cl">max_new_tokens: <span class="m">600</span>
+</span></span><span class="line"><span class="cl">temperature: 0.6 <span class="c1"># 0.8 and 0.6 are popular values to try</span>
+</span></span><span class="line"><span class="cl">top_k: <span class="m">300</span>
 </span></span></code></pre></div><p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run generate --config ./custom_generation_config.yaml <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run generate --config ./custom_generation_config.yaml <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
 </span></span></code></pre></div><p>So, this works, but we still have to load up 16GB worth of weights and run inference, which takes about 60 seconds on my rig. Your mileage may vary. Let&rsquo;s see if we can &ldquo;quantize&rdquo; our weights to speed up load time, and the inference time.</p>
 <h2 id="quantization">Quantization<a hidden class="anchor" aria-hidden="true" href="#quantization">#</a></h2>
 <p>Quantizing the model weights involves reducing the weights to smaller integer types. There are many algorithms, but we will use one of the standard torchtune recipes using <a href="https://github.com/pytorch/ao">TORCHAO</a> to produce an &lsquo;INT4&rsquo; quantization.</p>
 <h3 id="int4-config">INT4 config<a hidden class="anchor" aria-hidden="true" href="#int4-config">#</a></h3>
 <p><code>custom_quantization_config.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelMetaCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    meta_model_0.pt
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>quantizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
-</span></span><span style="display:flex;"><span>  groupsize: <span style="color:#ae81ff">256</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelMetaCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    meta_model_0.pt
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">quantizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
+</span></span><span class="line"><span class="cl">  groupsize: <span class="m">256</span>
 </span></span></code></pre></div><p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run quantize --config ./custom_quantization_config.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run quantize --config ./custom_quantization_config.yaml
 </span></span></code></pre></div><p>This runs fairly quickly, producing a <code>meta_model_0-4w.pt</code> weights file of only 4.92GB in the checkpoint directory.
 <img alt="quantized run" loading="lazy" src="/posts/finetuning-llama3-8b/images/llama3_quantize_4k.png"></p>
 <h2 id="generation-using-the-quantized-model">Generation using the quantized model<a hidden class="anchor" aria-hidden="true" href="#generation-using-the-quantized-model">#</a></h2>
 <p>OK! Let&rsquo;s see how much faster we can run things, but keep in mind that the INT4 version of the weights will reduce the model&rsquo;s language performance somewhat.</p>
 <h3 id="quantized-generation-configuration">Quantized generation configuration<a hidden class="anchor" aria-hidden="true" href="#quantized-generation-configuration">#</a></h3>
 <p><code>custom_generation_4w_config.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelTorchTuneCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    meta_model_0-4w.pt
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Quantization specific args</span>
-</span></span><span style="display:flex;"><span>quantizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
-</span></span><span style="display:flex;"><span>  groupsize: <span style="color:#ae81ff">256</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Generation arguments; defaults taken from gpt-fast</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># prompt: &#34;Hello, my name is&#34;</span>
-</span></span><span style="display:flex;"><span>max_new_tokens: <span style="color:#ae81ff">600</span>
-</span></span><span style="display:flex;"><span>temperature: 0.6 <span style="color:#75715e"># 0.8 and 0.6 are popular values to try</span>
-</span></span><span style="display:flex;"><span>top_k: <span style="color:#ae81ff">300</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelTorchTuneCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    meta_model_0-4w.pt
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Quantization specific args</span>
+</span></span><span class="line"><span class="cl">quantizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
+</span></span><span class="line"><span class="cl">  groupsize: <span class="m">256</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Generation arguments; defaults taken from gpt-fast</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># prompt: &#34;Hello, my name is&#34;</span>
+</span></span><span class="line"><span class="cl">max_new_tokens: <span class="m">600</span>
+</span></span><span class="line"><span class="cl">temperature: 0.6 <span class="c1"># 0.8 and 0.6 are popular values to try</span>
+</span></span><span class="line"><span class="cl">top_k: <span class="m">300</span>
 </span></span></code></pre></div><p>Note there are some key differences in this generation configuration file with the non-quantized generation file we used earlier on the fine-tuned model. Namely, we are pointing at the <code>meta_model_0-4w.pt</code> weights now. Also, we must provide the quantizer details matching the ones we used in the quantization step.</p>
 <p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run generate --config ./custom_generation_4w_config.yaml <span style="color:#ae81ff">\
-</span></span></span><span style="display:flex;"><span><span style="color:#ae81ff"></span>prompt<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run generate --config ./custom_generation_4w_config.yaml <span class="se">\
+</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
 </span></span></code></pre></div><p>Here is what I got
 <img alt="quantized gen" loading="lazy" src="/posts/finetuning-llama3-8b/images/llama3_quantized_gen.png"></p>
 <p>It takes about 22 seconds to load up the model, and a mere 7 seconds to run the inference. This is about a 300% improvement over the un-quantized generation run, and the output also looks pretty good.</p>
 <p>However, let&rsquo;s see if we can evaluate this quantized model&rsquo;s performance on instruction following to see if the quantization has affected the accuracy of the model.</p>
 <h3 id="quantized-evaluation-configuration">Quantized evaluation configuration<a hidden class="anchor" aria-hidden="true" href="#quantized-evaluation-configuration">#</a></h3>
 <p><code>custom_eval_4w_config.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># To launch, run the following command from root torchtune directory:</span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Model Arguments</span>
-</span></span><span style="display:flex;"><span>model:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_8b
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>checkpointer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.FullModelTorchTuneCheckpointer
-</span></span><span style="display:flex;"><span>  checkpoint_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  checkpoint_files: <span style="color:#f92672">[</span>
-</span></span><span style="display:flex;"><span>    meta_model_0-4w.pt
-</span></span><span style="display:flex;"><span>  <span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>  recipe_checkpoint: null
-</span></span><span style="display:flex;"><span>  output_dir: /tmp/Meta-Llama-3-8B
-</span></span><span style="display:flex;"><span>  model_type: LLAMA3
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Tokenizer</span>
-</span></span><span style="display:flex;"><span>tokenizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.models.llama3.llama3_tokenizer
-</span></span><span style="display:flex;"><span>  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Environment</span>
-</span></span><span style="display:flex;"><span>device: cuda
-</span></span><span style="display:flex;"><span>dtype: bf16
-</span></span><span style="display:flex;"><span>seed: <span style="color:#ae81ff">217</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># EleutherAI specific eval args</span>
-</span></span><span style="display:flex;"><span>tasks: <span style="color:#f92672">[</span><span style="color:#e6db74">&#34;truthfulqa_mc2&#34;</span><span style="color:#f92672">]</span>
-</span></span><span style="display:flex;"><span>limit: null
-</span></span><span style="display:flex;"><span>max_seq_length: <span style="color:#ae81ff">4096</span>
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#75715e"># Quantization specific args</span>
-</span></span><span style="display:flex;"><span>quantizer:
-</span></span><span style="display:flex;"><span>  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
-</span></span><span style="display:flex;"><span>  groupsize: <span style="color:#ae81ff">256</span>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Config for EleutherEvalRecipe in eleuther_eval.py</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># To launch, run the following command from root torchtune directory:</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#    tune run eleuther_eval --config eleuther_evaluation tasks=[&#34;truthfulqa_mc2&#34;,&#34;hellaswag&#34;]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Model Arguments</span>
+</span></span><span class="line"><span class="cl">model:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_8b
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">checkpointer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.FullModelTorchTuneCheckpointer
+</span></span><span class="line"><span class="cl">  checkpoint_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  checkpoint_files: <span class="o">[</span>
+</span></span><span class="line"><span class="cl">    meta_model_0-4w.pt
+</span></span><span class="line"><span class="cl">  <span class="o">]</span>
+</span></span><span class="line"><span class="cl">  recipe_checkpoint: null
+</span></span><span class="line"><span class="cl">  output_dir: /tmp/Meta-Llama-3-8B
+</span></span><span class="line"><span class="cl">  model_type: LLAMA3
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Tokenizer</span>
+</span></span><span class="line"><span class="cl">tokenizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.models.llama3.llama3_tokenizer
+</span></span><span class="line"><span class="cl">  path: /tmp/Meta-Llama-3-8B/original/tokenizer.model
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Environment</span>
+</span></span><span class="line"><span class="cl">device: cuda
+</span></span><span class="line"><span class="cl">dtype: bf16
+</span></span><span class="line"><span class="cl">seed: <span class="m">217</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># EleutherAI specific eval args</span>
+</span></span><span class="line"><span class="cl">tasks: <span class="o">[</span><span class="s2">&#34;truthfulqa_mc2&#34;</span><span class="o">]</span>
+</span></span><span class="line"><span class="cl">limit: null
+</span></span><span class="line"><span class="cl">max_seq_length: <span class="m">4096</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Quantization specific args</span>
+</span></span><span class="line"><span class="cl">quantizer:
+</span></span><span class="line"><span class="cl">  _component_: torchtune.utils.quantization.Int4WeightOnlyQuantizer
+</span></span><span class="line"><span class="cl">  groupsize: <span class="m">256</span>
 </span></span></code></pre></div><p>Note in the above config we have changed the checkpointer to <code>FullModelTorchTuneCheckpointer</code>, as this checkpointer can support the <code>weights_only=true</code> checkpoint file we created with the <code>Int4WeightOnlyQuantizer</code> when we quantized the model. We have also added the quantizer details.</p>
 <p>Run</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>tune run eleuther_eval --config ./custom_eval_4w_config.yaml
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run eleuther_eval --config ./custom_eval_4w_config.yaml
 </span></span></code></pre></div><p>Here are the results showing we got an accuracy of 49% with the quantized, fine-tuned, model. This is a net increase of 5% over the baseline non-finetuned Llama3 model. By quantizing, we &ldquo;took back&rdquo; about 6% of the accuracy we gained in the fine-tuning of the model.</p>
 <p><img alt="quantized eval" loading="lazy" src="/posts/finetuning-llama3-8b/images/llama3_quantized_eval.png"></p>
 <p>So, we traded some accuracy for performance, but we still ended up with an overall improvement. This shows the importance of adding evaluation benchmarking when fine-tuning LLM models.</p>
