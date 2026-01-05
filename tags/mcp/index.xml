@@ -6,8 +6,19 @@
     <description>Recent content in MCP on MikesBlog</description>
     <generator>Hugo -- 0.152.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 29 Sep 2025 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 04 Jan 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/mcp/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MCP Tools Integration Hands-On</title>
+      <link>https://oshea00.github.io/posts/chat-with-tools/</link>
+      <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/chat-with-tools/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerchat.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Model Context Protocol (MCP) Best Practices</title>
       <link>https://oshea00.github.io/posts/mcp-practices/</link>
