@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function() {
   <meta property="og:title" content="OpenAI Python API Compatibility">
   <meta property="og:description" content="An increasing number of open-sourced generative AI large language models (LLM) are being hosted behind an OpenAI API-compatible endpoint or have tools that offer an OpenAI API. The Python library for accessing OpenAI is just a REST client, and the library provides a way to specify the URL and an API key, as well as the model being offered by the provider.
 Here are a few examples of how the OpenAI library is used with other open-source models.">
-  <meta property="og:locale" content="en">
+  <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2024-05-09T00:00:00+00:00">
@@ -217,10 +217,10 @@ Here are a few examples of how the OpenAI library is used with other open-source
 </span></span></code></pre></div><p>Download the LLM model in GGUF format. Note: make sure to have your <a href="https://huggingface.co/settings/tokens">HF_TOKEN from here</a> setup as an enviroment variable, or run <code>huggingface-cli login</code> prior to this.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># If run from your home directory, this creates a ~/downloads directory if not already existing:</span>
 </span></span><span class="line"><span class="cl">huggingface-cli download <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>  TheBloke/phi-2-GGUF <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>  phi-2.Q4_K_M.gguf <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --local-dir downloads <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>  --local-dir-use-symlinks False
+</span></span></span><span class="line"><span class="cl">  TheBloke/phi-2-GGUF <span class="se">\
+</span></span></span><span class="line"><span class="cl">  phi-2.Q4_K_M.gguf <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --local-dir downloads <span class="se">\
+</span></span></span><span class="line"><span class="cl">  --local-dir-use-symlinks False
 </span></span></code></pre></div><p>Create a file named <code>Modelfile</code> (actually, any name is OK) with the following line in it.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">FROM ./downloads/phi-2.Q4_K_M.gguf
 </span></span></code></pre></div><p>Build the model using this file as input to Ollama create:</p>

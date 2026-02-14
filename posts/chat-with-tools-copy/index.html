@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>MCP Tools Integration Hands-On | MikesBlog</title>
+<meta name="keywords" content="llm, openai, mcp">
+<meta name="description" content="
+     
+
+
+The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.">
+<meta name="author" content="Michael OShea">
+<link rel="canonical" href="http://localhost:1313/posts/chat-with-tools-copy/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.4997c86cdc3165a43745858554a5b14aaf4d3769db9f06a36b0c69ef98eb2927.css" integrity="sha256-SZfIbNwxZaQ3RYWFVKWxSq9NN2nbnwajawxp75jrKSc=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/chat-with-tools-copy/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+</script>
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-37B7H2GBCX');
+        }
+      </script><meta property="og:url" content="http://localhost:1313/posts/chat-with-tools-copy/">
+  <meta property="og:site_name" content="MikesBlog">
+  <meta property="og:title" content="MCP Tools Integration Hands-On">
+  <meta property="og:description" content=" The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-01-04T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-01-04T00:00:00+00:00">
+    <meta property="article:tag" content="Llm">
+    <meta property="article:tag" content="Openai">
+    <meta property="article:tag" content="Mcp">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MCP Tools Integration Hands-On">
+<meta name="twitter:description" content="
+     
+
+
+The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "http://localhost:1313/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "MCP Tools Integration Hands-On",
+      "item": "http://localhost:1313/posts/chat-with-tools-copy/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "MCP Tools Integration Hands-On",
+  "name": "MCP Tools Integration Hands-On",
+  "description": " The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.\n",
+  "keywords": [
+    "llm", "openai", "mcp"
+  ],
+  "articleBody": " The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.\nWith that in mind, I’ve put together an example that shows how the pieces fit together, including a simple mcp server, to illustrate what it takes to use these MCP tools using OpenAI-compatible API calls. I wanted to create an example with a minimum of dependencies (FastMCP, OpenAI) so that the major ideas are not obfuscated behind too many abstractions.\nThe code can be found here mcp-chatwithtools project repo.\nOverview chatwithtools.py demonstrates how to integrate MCP (Model Context Protocol) into a “tools with chat” application.\nArchitecture The system consists of four main participants:\nUser - Interacts via command-line interface ChatSession - Orchestrates conversation flow and OpenAI API communication MCPToolExecutor - Translates between OpenAI tool calls and MCP server protocol MCP Servers - External processes providing tools via stdio (e.g., weather, calculator) Component Description ChatSession Class The ChatSession class implements the “tools with chat” pattern, orchestrating the complete conversation flow with OpenAI.\nResponsibilities:\nChat Orchestration: Manages conversation history and sends requests to OpenAI with tools array Tool Array Preparation: Calls MCPToolExecutor.initialize_tools() to get MCP tools formatted for OpenAI Tool Call Detection: Monitors OpenAI responses for tool_calls array Tool Execution Coordination: Delegates tool execution to MCPToolExecutor and adds results to conversation Response Synthesis: Sends tool results back to OpenAI for final response generation Key Methods:\ninitialize() - Loads MCP tools via tool_executor.initialize_tools() for the tools array send_message(user_message) - Orchestrates the full chat completion cycle including tool calls run() - Interactive command-line loop Key Pattern:\n# Phase 1: Chat with tools array response = openai.chat.completions.create( model=self.model, messages=self.messages, tools=self.tools, # Formatted by MCPToolExecutor tool_choice=\"auto\" ) # Phase 2: Execute tools if requested if response.tool_calls: for tool_call in response.tool_calls: result = await tool_executor.execute_tool(...) # Add result to messages # Phase 3: Get final response with tool results response = openai.chat.completions.create(...) MCPToolExecutor Class The MCPToolExecutor class acts as a translation layer between OpenAI’s function calling format and MCP’s protocol:\nResponsibilities:\nTool Discovery: Uses get_tools() from get_mcp_tools.py to fetch tools from all MCP servers Format Translation: Converts MCP tool schemas to OpenAI function calling format (tools array) Tool Routing: Maps tool names to their source MCP servers Call Translation: Translates OpenAI tool call format into MCP call_tool requests Connection Management: Establishes stdio connections to MCP servers for each tool execution Key Methods:\ninitialize_tools() - Calls get_tools(config_path) and transforms schemas to OpenAI format execute_tool(tool_name, arguments) - Translates and executes tool call on appropriate MCP server Translation Process:\n# MCP Format (from server) { \"name\": \"get_weather\", \"description\": \"Get weather for location\", \"inputSchema\": { \"type\": \"object\", \"properties\": {...} } } # OpenAI Format (for chat completions) { \"type\": \"function\", \"function\": { \"name\": \"get_weather\", \"description\": \"Get weather for location\", \"parameters\": { \"type\": \"object\", \"properties\": {...} } } } get_tools() Function (from get_mcp_tools.py) Utility function used by MCPToolExecutor during initialization:\nResponsibilities:\nLoads mcp.json configuration Connects to each MCP server via stdio Calls session.list_tools() to retrieve tool definitions Returns array of tools with their schemas in MCP format Returns:\n[ { \"server\": \"utilities\", \"tools\": [ { \"name\": \"get_weather\", \"description\": \"...\", \"inputSchema\": {...} } ], \"tool_count\": 2 } ] Configuration The system uses a json configuration file that defines the MCP servers you want to include mcp configuration reference. You can use any file name you want, but mcp.json is what I’m using. The code accepts this as a parameter.\n{ \"mcpServers\": { \"utilities\": { \"command\": \"python3\", \"args\": [\"server.py\"], \"env\": {} } } } Interaction Flow Initialization Sequence This diagram shows how MCP tools are discovered and formatted for OpenAI during startup. The main purpose of this flow is to create the “tools array” content that you pass as a parameter to the LLM.\nsequenceDiagram participant Main as main() participant Chat as ChatSession participant Executor as MCPToolExecutor participant GetTools as get_tools() participant MCP1 as MCP Server 1 participant MCP2 as MCP Server 2 Main-\u003e\u003eChat: ChatSession(config_path, model) Chat-\u003e\u003eExecutor: MCPToolExecutor(config_path) Executor-\u003e\u003eExecutor: Load mcp.json Main-\u003e\u003eChat: await chat.initialize() Chat-\u003e\u003eExecutor: await initialize_tools() Note over Executor,GetTools: Tool Discovery Phase Executor-\u003e\u003eGetTools: await get_tools(config_path) GetTools-\u003e\u003eGetTools: Load mcp.json par Connect to all servers GetTools-\u003e\u003eMCP1: stdio_client() connection GetTools-\u003e\u003eMCP1: session.initialize() GetTools-\u003e\u003eMCP1: session.list_tools() MCP1-\u003e\u003eGetTools: [tool1, tool2] (MCP format) and GetTools-\u003e\u003eMCP2: stdio_client() connection GetTools-\u003e\u003eMCP2: session.initialize() GetTools-\u003e\u003eMCP2: session.list_tools() MCP2-\u003e\u003eGetTools: [tool3] (MCP format) end GetTools-\u003e\u003eExecutor: [{server: \"srv1\", tools: [...]}, ...] Note over Executor: Translation Phase loop For each server's tools Executor-\u003e\u003eExecutor: Convert MCP schema → OpenAI format Executor-\u003e\u003eExecutor: Map tool_name → server_name end Executor-\u003e\u003eChat: [OpenAI formatted tools array] Chat-\u003e\u003eMain: Ready with tools Note over Chat: Now ready to send chat.completionswith tools parameter Standard Message Flows If the prompt being evaluated by the LLM doesn’t contain any “trigger” words or phrases that might indicate the need to look for a tool - things like “query for that latest…’, “calculate xyx…”, “what is the weather like in…”, etc., then it simply responds as normal. Otherwise, one or more tools calls will be requested by the LLM.\nsequenceDiagram participant User participant Chat as ChatSession participant LLM as OpenAI LLM User-\u003e\u003eChat: Enter message Chat-\u003e\u003eLLM: Send message + available tools LLM-\u003e\u003eChat: Response (no tool calls) Chat-\u003e\u003eUser: Display response Tool-Assisted Message Flow This diagram shows the complete sequence when OpenAI requests tool execution (tool_calls will be presented by the LLM).\nsequenceDiagram participant User participant Chat as ChatSession participant OpenAI as OpenAI API participant Executor as MCPToolExecutor(Translation Layer) participant MCP as MCP Server User-\u003e\u003eChat: \"What's the weather in Paris?\" Note over Chat,OpenAI: Phase 1: Initial Chat Completion Chat-\u003e\u003eChat: Add user message to history Chat-\u003e\u003eOpenAI: chat.completions.create(messages=[...],tools=[...],tool_choice=\"auto\") OpenAI-\u003e\u003eChat: Response with tool_calls array:[{id: \"call_123\", function: {name: \"get_weather\",arguments: '{\"location\": \"Paris\"}'}}] Note over Chat,MCP: Phase 2: Tool Execution via Translation Layer Chat-\u003e\u003eChat: Detect tool_calls in response Chat-\u003e\u003eChat: Add assistant message with tool_calls to history loop For each tool_call Chat-\u003e\u003eExecutor: execute_tool(\"get_weather\",{\"location\": \"Paris\"}) Note over Executor: Translate OpenAI → MCP Executor-\u003e\u003eExecutor: Lookup server for \"get_weather\"→ \"utilities\" server Executor-\u003e\u003eMCP: stdio_client(command, args) Executor-\u003e\u003eMCP: session.initialize() Executor-\u003e\u003eMCP: session.call_tool(\"get_weather\",{\"location\": \"Paris\"}) MCP-\u003e\u003eExecutor: CallToolResult:content: [TextContent(text=\"Weather in Paris: Sunny, 72°F\")] Note over Executor: Extract result Executor-\u003e\u003eExecutor: Extract text from content array Executor-\u003e\u003eChat: \"Weather in Paris: Sunny, 72°F\" Chat-\u003e\u003eChat: Add tool result to history:{role: \"tool\",tool_call_id: \"call_123\",content: \"...\"} end Note over Chat,OpenAI: Phase 3: Final Response Synthesis Chat-\u003e\u003eOpenAI: chat.completions.create(messages=[..., tool_results]) OpenAI-\u003e\u003eChat: Final response synthesizedfrom tool results Chat-\u003e\u003eUser: \"The weather in Paris issunny with 72°F\" Key Design Features Translation Layer Pattern MCPToolExecutor acts as a protocol translator between OpenAI and MCP:\nDuring Tools Initialization:\n# MCP → OpenAI Format Translation MCP: {\"name\": \"x\", \"inputSchema\": {...}} ↓ OpenAI: {\"type\": \"function\", \"function\": {\"name\": \"x\", \"parameters\": {...}}} During Tool Execution:\n# OpenAI → MCP Call Translation OpenAI: tool_call.function.name, tool_call.function.arguments ↓ MCP: session.call_tool(name, arguments) This allows MCP servers to be used with any LLM API that supports function calling.\nTools with Chat Pattern ChatSession demonstrates the standard “tools with chat” workflow:\n# Pattern: Discovery → Format → Call → Translate → Execute → Respond async def initialize(): # Get MCP tools formatted for OpenAI self.tools = await tool_executor.initialize_tools() async def send_message(user_message): # Send with tools parameter response = openai.chat.completions.create(tools=self.tools, ...) # If tool calls requested, execute via translation layer if response.tool_calls: for tool_call in response.tool_calls: result = await tool_executor.execute_tool(...) # Add to conversation # Get final response with tool results response = openai.chat.completions.create(...) Automatic Tool Discovery The system dynamically discovers all tools from configured MCP servers using get_tools():\nNo hardcoded tool definitions Supports any number of MCP servers Tools are discovered at runtime during initialization New tools automatically available when servers are updated # All tools fetched dynamically via get_tools() server_tools = await get_tools(config_path) # Then translated to OpenAI format Multi-Server Tool Routing MCPToolExecutor maintains a routing map to execute tools on the correct server:\n# Built during initialization self.tool_to_server = { \"get_weather\": \"utilities\", \"calculate\": \"utilities\", \"other_tool\": \"different_server\" } # Used during execution server_name = self.tool_to_server.get(tool_name) Key Takeaways This example shows that integrating MCP into a “tools with chat” application requires:\nA formatting component (get_tools()) to fetch tool schemas A translation component (MCPToolExecutor) to convert between formats A orchestration component (ChatSession) to manage the chat flow This three-layer architecture cleanly separates MCP protocol details from application logic.\nExample Interaction Initializing MCP tools... [01/04/26 15:53:25] INFO Processing request of type ListToolsRequest server.py:558 Loaded 2 tools from MCP servers Chat session started. Type 'exit' or 'quit' to end the session. ============================================================ You: what is the product of five and three? Calling tool: calculate with args: {'operator': 'multiply', 'argument1': '5', 'argument2': '3'} [01/04/26 15:53:36] INFO Processing request of type CallToolRequest server.py:558 Assistant: The product of five and three is fifteen (15). You: what is the temperature in Paris right now? Calling tool: get_weather with args: {'location': 'Paris'} [01/04/26 15:54:01] INFO Processing request of type CallToolRequest server.py:558 Assistant: The current temperature in Paris is 72°F and it's sunny. You: write a haiku about the weather in Paris Assistant: Sunny skies above, Paris basking in warm light, Joyful hearts take flight. You: quit Goodbye! Final Thoughts Once you’ve understood the underlying mechanisms demonstrated here, it helps to understand more complex parts of the MCP specification - such as Authorization - and where that might fit into the overall workflow. Many tools and packages are already available to help wire these services up: MCP aggregators, directories, agentic frameworks, etc., and they offer a lot of flexibilty. At the end of the day, under the covers, a list of tools and their parameter specifications are being passed to the LLM’s API.\nContext engineering is still a factor to consider. This example shows how you could pass every tool offered by an MCP server and how that all becomes part of the context window (a limited resource). A fully functional implementation of this would need to consider how to filter for just the tools you really need - as there is a limit to context (and tools array size is limited to 128 entries for OpenAI). These are features you would find in something like arcade.dev, but now you have some idea why and where these features are needed.\n",
+  "wordCount" : "1708",
+  "inLanguage": "en",
+  "datePublished": "2026-01-04T00:00:00Z",
+  "dateModified": "2026-01-04T00:00:00Z",
+  "author":[{
+    "@type": "Person",
+    "name": "Michael OShea"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "http://localhost:1313/posts/chat-with-tools-copy/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MikesBlog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "http://localhost:1313/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="MikesBlog (Alt + H)">MikesBlog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      MCP Tools Integration Hands-On
+    </h1>
+    <div class="post-meta"><span title='2026-01-04 00:00:00 +0000 UTC'>January 4, 2026</span>&nbsp;·&nbsp;9 min&nbsp;·&nbsp;Michael OShea
+
+</div>
+  </header> 
+  <div class="post-content"><figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerchat.png#center"/> 
+</figure>
+
+<p>The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.</p>
+<p>With that in mind, I&rsquo;ve put together an example that shows how the pieces fit together, including a simple mcp server, to illustrate what it takes to use these MCP tools using OpenAI-compatible API calls. I wanted to create an example with a minimum of dependencies (FastMCP, OpenAI) so that the major ideas are not obfuscated behind too many abstractions.</p>
+<p>The code can be found here <a href="https://github.com/oshea00/mcp-chatwithtools/tree/main">mcp-chatwithtools project repo</a>.</p>
+<h2 id="overview">Overview<a hidden class="anchor" aria-hidden="true" href="#overview">#</a></h2>
+<p><code>chatwithtools.py</code> demonstrates how to integrate MCP (Model Context Protocol) into a &ldquo;tools with chat&rdquo; application.</p>
+<h2 id="architecture">Architecture<a hidden class="anchor" aria-hidden="true" href="#architecture">#</a></h2>
+<p>The system consists of four main participants:</p>
+<ol>
+<li><strong>User</strong> - Interacts via command-line interface</li>
+<li><strong>ChatSession</strong> - Orchestrates conversation flow and OpenAI API communication</li>
+<li><strong>MCPToolExecutor</strong> - Translates between OpenAI tool calls and MCP server protocol</li>
+<li><strong>MCP Servers</strong> - External processes providing tools via stdio (e.g., weather, calculator)</li>
+</ol>
+<h2 id="component-description">Component Description<a hidden class="anchor" aria-hidden="true" href="#component-description">#</a></h2>
+<h3 id="chatsession-class">ChatSession Class<a hidden class="anchor" aria-hidden="true" href="#chatsession-class">#</a></h3>
+<p>The <code>ChatSession</code> class implements the &ldquo;tools with chat&rdquo; pattern, orchestrating the complete conversation flow with OpenAI.</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li><strong>Chat Orchestration</strong>: Manages conversation history and sends requests to OpenAI with tools array</li>
+<li><strong>Tool Array Preparation</strong>: Calls <code>MCPToolExecutor.initialize_tools()</code> to get MCP tools formatted for OpenAI</li>
+<li><strong>Tool Call Detection</strong>: Monitors OpenAI responses for <code>tool_calls</code> array</li>
+<li><strong>Tool Execution Coordination</strong>: Delegates tool execution to MCPToolExecutor and adds results to conversation</li>
+<li><strong>Response Synthesis</strong>: Sends tool results back to OpenAI for final response generation</li>
+</ul>
+<p><strong>Key Methods:</strong></p>
+<ul>
+<li><code>initialize()</code> - Loads MCP tools via <code>tool_executor.initialize_tools()</code> for the tools array</li>
+<li><code>send_message(user_message)</code> - Orchestrates the full chat completion cycle including tool calls</li>
+<li><code>run()</code> - Interactive command-line loop</li>
+</ul>
+<p><strong>Key Pattern:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Phase 1: Chat with tools array</span>
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span>  <span class="c1"># Formatted by MCPToolExecutor</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tool_choice</span><span class="o">=</span><span class="s2">&#34;auto&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Phase 2: Execute tools if requested</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Add result to messages</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Phase 3: Get final response with tool results</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="mcptoolexecutor-class">MCPToolExecutor Class<a hidden class="anchor" aria-hidden="true" href="#mcptoolexecutor-class">#</a></h3>
+<p>The <code>MCPToolExecutor</code> class acts as a <strong>translation layer</strong> between OpenAI&rsquo;s function calling format and MCP&rsquo;s protocol:</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li><strong>Tool Discovery</strong>: Uses <code>get_tools()</code> from <code>get_mcp_tools.py</code> to fetch tools from all MCP servers</li>
+<li><strong>Format Translation</strong>: Converts MCP tool schemas to OpenAI function calling format (tools array)</li>
+<li><strong>Tool Routing</strong>: Maps tool names to their source MCP servers</li>
+<li><strong>Call Translation</strong>: Translates OpenAI tool call format into MCP <code>call_tool</code> requests</li>
+<li><strong>Connection Management</strong>: Establishes stdio connections to MCP servers for each tool execution</li>
+</ul>
+<p><strong>Key Methods:</strong></p>
+<ul>
+<li><code>initialize_tools()</code> - Calls <code>get_tools(config_path)</code> and transforms schemas to OpenAI format</li>
+<li><code>execute_tool(tool_name, arguments)</code> - Translates and executes tool call on appropriate MCP server</li>
+</ul>
+<p><strong>Translation Process:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># MCP Format (from server)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Get weather for location&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;object&#34;</span><span class="p">,</span> <span class="s2">&#34;properties&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># OpenAI Format (for chat completions)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;function&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;function&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Get weather for location&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;parameters&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;object&#34;</span><span class="p">,</span> <span class="s2">&#34;properties&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="get_tools-function-from-get_mcp_toolspy">get_tools() Function (from get_mcp_tools.py)<a hidden class="anchor" aria-hidden="true" href="#get_tools-function-from-get_mcp_toolspy">#</a></h3>
+<p>Utility function used by MCPToolExecutor during initialization:</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Loads <code>mcp.json</code> configuration</li>
+<li>Connects to each MCP server via stdio</li>
+<li>Calls <code>session.list_tools()</code> to retrieve tool definitions</li>
+<li>Returns array of tools with their schemas in MCP format</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;server&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;tools&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;tool_count&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><h3 id="configuration">Configuration<a hidden class="anchor" aria-hidden="true" href="#configuration">#</a></h3>
+<p>The system uses a json configuration file that defines the MCP servers you want to include <a href="https://gofastmcp.com/integrations/mcp-json-configuration">mcp configuration reference</a>. You can use any file name you want, but <code>mcp.json</code> is what I&rsquo;m using. The code accepts this as a parameter.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;mcpServers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;utilities&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;command&#34;</span><span class="p">:</span> <span class="s2">&#34;python3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;args&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;server.py&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;env&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="interaction-flow">Interaction Flow<a hidden class="anchor" aria-hidden="true" href="#interaction-flow">#</a></h2>
+<h3 id="initialization-sequence">Initialization Sequence<a hidden class="anchor" aria-hidden="true" href="#initialization-sequence">#</a></h3>
+<p>This diagram shows how MCP tools are discovered and formatted for OpenAI during startup. The main purpose of this flow is to create the &ldquo;tools array&rdquo; content that you pass as a parameter to the LLM.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Main as main()
+    participant Chat as ChatSession
+    participant Executor as MCPToolExecutor
+    participant GetTools as get_tools()
+    participant MCP1 as MCP Server 1
+    participant MCP2 as MCP Server 2
+
+    Main-&gt;&gt;Chat: ChatSession(config_path, model)
+    Chat-&gt;&gt;Executor: MCPToolExecutor(config_path)
+    Executor-&gt;&gt;Executor: Load mcp.json
+
+    Main-&gt;&gt;Chat: await chat.initialize()
+    Chat-&gt;&gt;Executor: await initialize_tools()
+
+    Note over Executor,GetTools: Tool Discovery Phase
+    Executor-&gt;&gt;GetTools: await get_tools(config_path)
+    GetTools-&gt;&gt;GetTools: Load mcp.json
+
+    par Connect to all servers
+        GetTools-&gt;&gt;MCP1: stdio_client() connection
+        GetTools-&gt;&gt;MCP1: session.initialize()
+        GetTools-&gt;&gt;MCP1: session.list_tools()
+        MCP1-&gt;&gt;GetTools: [tool1, tool2] (MCP format)
+    and
+        GetTools-&gt;&gt;MCP2: stdio_client() connection
+        GetTools-&gt;&gt;MCP2: session.initialize()
+        GetTools-&gt;&gt;MCP2: session.list_tools()
+        MCP2-&gt;&gt;GetTools: [tool3] (MCP format)
+    end
+
+    GetTools-&gt;&gt;Executor: [{server: &#34;srv1&#34;, tools: [...]}, ...]
+
+    Note over Executor: Translation Phase
+    loop For each server&#39;s tools
+        Executor-&gt;&gt;Executor: Convert MCP schema → OpenAI format
+        Executor-&gt;&gt;Executor: Map tool_name → server_name
+    end
+
+    Executor-&gt;&gt;Chat: [OpenAI formatted tools array]
+    Chat-&gt;&gt;Main: Ready with tools
+
+    Note over Chat: Now ready to send chat.completions&lt;br/&gt;with tools parameter
+</pre>
+
+<h3 id="standard-message-flows">Standard Message Flows<a hidden class="anchor" aria-hidden="true" href="#standard-message-flows">#</a></h3>
+<p>If the prompt being evaluated by the LLM doesn&rsquo;t contain any &ldquo;trigger&rdquo; words or phrases that might indicate the need to look for a tool - things like &ldquo;query for that latest&hellip;&rsquo;, &ldquo;calculate xyx&hellip;&rdquo;, &ldquo;what is the weather like in&hellip;&rdquo;, etc., then it simply responds as normal. Otherwise, one or more tools calls will be requested by the LLM.</p>
+<pre class="mermaid">sequenceDiagram
+    participant User
+    participant Chat as ChatSession
+    participant LLM as OpenAI LLM
+    
+    User-&gt;&gt;Chat: Enter message
+    Chat-&gt;&gt;LLM: Send message + available tools
+    LLM-&gt;&gt;Chat: Response (no tool calls)
+    Chat-&gt;&gt;User: Display response
+</pre>
+
+<h3 id="tool-assisted-message-flow">Tool-Assisted Message Flow<a hidden class="anchor" aria-hidden="true" href="#tool-assisted-message-flow">#</a></h3>
+<p>This diagram shows the complete sequence when OpenAI requests tool execution (tool_calls will be presented by the LLM).</p>
+<pre class="mermaid">sequenceDiagram
+    participant User
+    participant Chat as ChatSession
+    participant OpenAI as OpenAI API
+    participant Executor as MCPToolExecutor&lt;br/&gt;(Translation Layer)
+    participant MCP as MCP Server
+
+    User-&gt;&gt;Chat: &#34;What&#39;s the weather in Paris?&#34;
+
+    Note over Chat,OpenAI: Phase 1: Initial Chat Completion
+    Chat-&gt;&gt;Chat: Add user message to history
+    Chat-&gt;&gt;OpenAI: chat.completions.create(&lt;br/&gt;messages=[...],&lt;br/&gt;tools=[...],&lt;br/&gt;tool_choice=&#34;auto&#34;)
+    OpenAI-&gt;&gt;Chat: Response with tool_calls array:&lt;br/&gt;[{id: &#34;call_123&#34;, function: {&lt;br/&gt;name: &#34;get_weather&#34;,&lt;br/&gt;arguments: &#39;{&#34;location&#34;: &#34;Paris&#34;}&#39;}}]
+
+    Note over Chat,MCP: Phase 2: Tool Execution via Translation Layer
+    Chat-&gt;&gt;Chat: Detect tool_calls in response
+    Chat-&gt;&gt;Chat: Add assistant message with tool_calls to history
+
+    loop For each tool_call
+        Chat-&gt;&gt;Executor: execute_tool(&lt;br/&gt;&#34;get_weather&#34;,&lt;br/&gt;{&#34;location&#34;: &#34;Paris&#34;})
+
+        Note over Executor: Translate OpenAI → MCP
+        Executor-&gt;&gt;Executor: Lookup server for &#34;get_weather&#34;&lt;br/&gt;→ &#34;utilities&#34; server
+        Executor-&gt;&gt;MCP: stdio_client(command, args)
+        Executor-&gt;&gt;MCP: session.initialize()
+        Executor-&gt;&gt;MCP: session.call_tool(&lt;br/&gt;&#34;get_weather&#34;,&lt;br/&gt;{&#34;location&#34;: &#34;Paris&#34;})
+        MCP-&gt;&gt;Executor: CallToolResult:&lt;br/&gt;content: [TextContent(&lt;br/&gt;text=&#34;Weather in Paris: Sunny, 72°F&#34;)]
+
+        Note over Executor: Extract result
+        Executor-&gt;&gt;Executor: Extract text from content array
+        Executor-&gt;&gt;Chat: &#34;Weather in Paris: Sunny, 72°F&#34;
+
+        Chat-&gt;&gt;Chat: Add tool result to history:&lt;br/&gt;{role: &#34;tool&#34;,&lt;br/&gt;tool_call_id: &#34;call_123&#34;,&lt;br/&gt;content: &#34;...&#34;}
+    end
+
+    Note over Chat,OpenAI: Phase 3: Final Response Synthesis
+    Chat-&gt;&gt;OpenAI: chat.completions.create(&lt;br/&gt;messages=[..., tool_results])
+    OpenAI-&gt;&gt;Chat: Final response synthesized&lt;br/&gt;from tool results
+    Chat-&gt;&gt;User: &#34;The weather in Paris is&lt;br/&gt;sunny with 72°F&#34;
+</pre>
+
+<h2 id="key-design-features">Key Design Features<a hidden class="anchor" aria-hidden="true" href="#key-design-features">#</a></h2>
+<h3 id="translation-layer-pattern">Translation Layer Pattern<a hidden class="anchor" aria-hidden="true" href="#translation-layer-pattern">#</a></h3>
+<p><strong>MCPToolExecutor</strong> acts as a protocol translator between OpenAI and MCP:</p>
+<p><strong>During Tools Initialization:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># MCP → OpenAI Format Translation</span>
+</span></span><span class="line"><span class="cl"><span class="n">MCP</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">  <span class="err">↓</span>
+</span></span><span class="line"><span class="cl"><span class="n">OpenAI</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;function&#34;</span><span class="p">,</span> <span class="s2">&#34;function&#34;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;parameters&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}}</span>
+</span></span></code></pre></div><p><strong>During Tool Execution:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># OpenAI → MCP Call Translation</span>
+</span></span><span class="line"><span class="cl"><span class="n">OpenAI</span><span class="p">:</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">arguments</span>
+</span></span><span class="line"><span class="cl">  <span class="err">↓</span>
+</span></span><span class="line"><span class="cl"><span class="n">MCP</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">call_tool</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+</span></span></code></pre></div><p>This allows MCP servers to be used with any LLM API that supports function calling.</p>
+<h3 id="tools-with-chat-pattern">Tools with Chat Pattern<a hidden class="anchor" aria-hidden="true" href="#tools-with-chat-pattern">#</a></h3>
+<p><strong>ChatSession</strong> demonstrates the standard &ldquo;tools with chat&rdquo; workflow:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Pattern: Discovery → Format → Call → Translate → Execute → Respond</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Get MCP tools formatted for OpenAI</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">initialize_tools</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="n">user_message</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Send with tools parameter</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># If tool calls requested, execute via translation layer</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Add to conversation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Get final response with tool results</span>
+</span></span><span class="line"><span class="cl">        <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="automatic-tool-discovery">Automatic Tool Discovery<a hidden class="anchor" aria-hidden="true" href="#automatic-tool-discovery">#</a></h3>
+<p>The system dynamically discovers all tools from configured MCP servers using <code>get_tools()</code>:</p>
+<ul>
+<li>No hardcoded tool definitions</li>
+<li>Supports any number of MCP servers</li>
+<li>Tools are discovered at runtime during initialization</li>
+<li>New tools automatically available when servers are updated</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># All tools fetched dynamically via get_tools()</span>
+</span></span><span class="line"><span class="cl"><span class="n">server_tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_tools</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Then translated to OpenAI format</span>
+</span></span></code></pre></div><h3 id="multi-server-tool-routing">Multi-Server Tool Routing<a hidden class="anchor" aria-hidden="true" href="#multi-server-tool-routing">#</a></h3>
+<p>MCPToolExecutor maintains a routing map to execute tools on the correct server:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Built during initialization</span>
+</span></span><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">tool_to_server</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;get_weather&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;calculate&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;other_tool&#34;</span><span class="p">:</span> <span class="s2">&#34;different_server&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Used during execution</span>
+</span></span><span class="line"><span class="cl"><span class="n">server_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_to_server</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tool_name</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="key-takeaways">Key Takeaways<a hidden class="anchor" aria-hidden="true" href="#key-takeaways">#</a></h3>
+<p>This example shows that integrating MCP into a &ldquo;tools with chat&rdquo; application requires:</p>
+<ol>
+<li>A <strong>formatting component</strong> (<code>get_tools()</code>) to fetch tool schemas</li>
+<li>A <strong>translation component</strong> (MCPToolExecutor) to convert between formats</li>
+<li>A <strong>orchestration component</strong> (ChatSession) to manage the chat flow</li>
+</ol>
+<p>This three-layer architecture cleanly separates MCP protocol details from application logic.</p>
+<h3 id="example-interaction">Example Interaction<a hidden class="anchor" aria-hidden="true" href="#example-interaction">#</a></h3>
+<pre tabindex="0"><code>Initializing MCP tools...
+[01/04/26 15:53:25] INFO     Processing request of type ListToolsRequest                                                                           server.py:558
+Loaded 2 tools from MCP servers
+
+Chat session started. Type &#39;exit&#39; or &#39;quit&#39; to end the session.
+============================================================
+
+You: what is the product of five and three?
+Calling tool: calculate with args: {&#39;operator&#39;: &#39;multiply&#39;, &#39;argument1&#39;: &#39;5&#39;, &#39;argument2&#39;: &#39;3&#39;}
+[01/04/26 15:53:36] INFO     Processing request of type CallToolRequest                                                                            server.py:558
+
+Assistant: The product of five and three is fifteen (15).
+
+You: what is the temperature in Paris right now?
+Calling tool: get_weather with args: {&#39;location&#39;: &#39;Paris&#39;}
+[01/04/26 15:54:01] INFO     Processing request of type CallToolRequest                                                                            server.py:558
+
+Assistant: The current temperature in Paris is 72°F and it&#39;s sunny.
+
+You: write a haiku about the weather in Paris
+
+Assistant: Sunny skies above,  
+Paris basking in warm light,  
+Joyful hearts take flight.
+
+You: quit
+Goodbye!
+</code></pre><h3 id="final-thoughts">Final Thoughts<a hidden class="anchor" aria-hidden="true" href="#final-thoughts">#</a></h3>
+<p>Once you&rsquo;ve understood the underlying mechanisms demonstrated here, it helps to understand more complex parts of the MCP specification - such as Authorization - and where that might fit into the overall workflow. Many tools and packages are already available to help wire these services up: MCP aggregators, directories, agentic frameworks, etc., and they offer a lot of flexibilty. At the end of the day, under the covers, a list of tools and their parameter specifications are being passed to the LLM&rsquo;s API.</p>
+<p>Context engineering is still a factor to consider. This example shows how you could pass every tool offered by an MCP server and how that all becomes part of the context window (a limited resource). A fully functional implementation of this would need to consider how to filter for just the tools you really need - as there is a limit to context (and tools array size is limited to 128 entries for OpenAI). These are features you would find in something like <a href="https://www.arcade.dev">arcade.dev</a>, but now you have some idea why and where these features are needed.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/llm/">Llm</a></li>
+      <li><a href="http://localhost:1313/tags/openai/">Openai</a></li>
+      <li><a href="http://localhost:1313/tags/mcp/">Mcp</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="http://localhost:1313/posts/chat-with-tools/">
+    <span class="title">Next »</span>
+    <br>
+    <span>MCP Tools Integration Hands-On</span>
+  </a>
+</nav>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on x"
+            href="https://x.com/intent/tweet/?text=MCP%20Tools%20Integration%20Hands-On&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f&amp;hashtags=llm%2copenai%2cmcp">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f&amp;title=MCP%20Tools%20Integration%20Hands-On&amp;summary=MCP%20Tools%20Integration%20Hands-On&amp;source=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on reddit"
+            href="https://reddit.com/submit?url=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f&title=MCP%20Tools%20Integration%20Hands-On">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on whatsapp"
+            href="https://api.whatsapp.com/send?text=MCP%20Tools%20Integration%20Hands-On%20-%20http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on telegram"
+            href="https://telegram.me/share/url?text=MCP%20Tools%20Integration%20Hands-On&amp;url=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share MCP Tools Integration Hands-On on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=MCP%20Tools%20Integration%20Hands-On&u=http%3a%2f%2flocalhost%3a1313%2fposts%2fchat-with-tools-copy%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="http://localhost:1313/">MikesBlog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

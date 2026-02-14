@@ -4,19 +4,54 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.152.2</generator>
-    <language>en</language>
-    <lastBuildDate>Sun, 04 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <generator>Hugo -- 0.155.3</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 14 Feb 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Agents</title>
+      <link>https://oshea00.github.io/tags/agents/</link>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/agents/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Claude</title>
+      <link>https://oshea00.github.io/tags/claude/</link>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/claude/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Codex</title>
+      <link>https://oshea00.github.io/tags/codex/</link>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/codex/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Gastown</title>
+      <link>https://oshea00.github.io/tags/gastown/</link>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/gastown/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Llm</title>
       <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
-      <title>MCP</title>
+      <title>Openclaw</title>
+      <link>https://oshea00.github.io/tags/openclaw/</link>
+      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/openclaw/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mcp</title>
       <link>https://oshea00.github.io/tags/mcp/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/mcp/</guid>
@@ -27,13 +62,6 @@
       <link>https://oshea00.github.io/tags/openai/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/openai/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Agents</title>
-      <link>https://oshea00.github.io/tags/agents/</link>
-      <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/agents/</guid>
       <description></description>
     </item>
     <item>

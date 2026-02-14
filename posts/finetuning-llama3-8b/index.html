@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", function() {
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
-        if ( false ) {
+        if ( true ) {
           var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
           var doNotTrack = (dnt == "1" || dnt == "yes");
         }
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
   <meta property="og:title" content="Fine-tuning Llama3">
   <meta property="og:description" content="Since Llama3 was released, the PyTorch llama3 documentation has a few glitches pointing at configurations in torchtune that are still referencing Llama2. The meta website is a little more up-to-date, but the documentation is a little light on details. So, I wrote this article to bring everything together.
 Prerequisites You’ll want to use Python 3.11 until Torch compile supports Python 3.12 , and I recommend setting up a virtual environment for this using venv or pipenv. Install torchtune pip install torchtune Install EleutherAI’s Evaluation Harness pip install lm_eval==0.4.* Download Llama3-8B model You will need to get access to Llama3 via instructions on the official Meta Llama3 page. You will also need your Hugging Face token setup from here.">
-  <meta property="og:locale" content="en">
+  <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2024-05-11T00:00:00+00:00">
@@ -249,8 +249,8 @@ wrote this article to bring everything together.</p>
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune download meta-llama/Meta-Llama-3-8B <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>--output-dir /tmp/Meta-Llama-3-8B <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>--hf-token <span class="nv">$HF_TOKEN</span>
+</span></span></span><span class="line"><span class="cl">--output-dir /tmp/Meta-Llama-3-8B <span class="se">\
+</span></span></span><span class="line"><span class="cl">--hf-token <span class="nv">$HF_TOKEN</span>
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="fine-tune-the-model">Fine-tune the model<a hidden class="anchor" aria-hidden="true" href="#fine-tune-the-model">#</a></h2>
@@ -268,9 +268,9 @@ the <a href="https://pytorch.org/torchtune/stable/tutorials/llama3.html">Llama3 
 </span></code></pre></td>
 <td class="lntd">
 <pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run lora_finetune_single_device --config llama3/8B_lora_single_device <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    checkpointer.checkpoint_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B/original <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    tokenizer.path<span class="o">=</span>/tmp/Meta-Llama-3-8B/original/tokenizer.model <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span>    checkpointer.output_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B
+</span></span></span><span class="line"><span class="cl">    checkpointer.checkpoint_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B/original <span class="se">\
+</span></span></span><span class="line"><span class="cl">    tokenizer.path<span class="o">=</span>/tmp/Meta-Llama-3-8B/original/tokenizer.model <span class="se">\
+</span></span></span><span class="line"><span class="cl">    checkpointer.output_dir<span class="o">=</span>/tmp/Meta-Llama-3-8B
 </span></span></code></pre></td></tr></table>
 </div>
 </div><h3 id="tuning-run-results">Tuning run results<a hidden class="anchor" aria-hidden="true" href="#tuning-run-results">#</a></h3>
@@ -410,7 +410,7 @@ We will use a <code>top_k=300</code> and a <code>temperature=0.6</code> for thes
 </span></span><span class="line"><span class="cl">top_k: <span class="m">300</span>
 </span></span></code></pre></div><p>Run</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run generate --config ./custom_generation_config.yaml <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
+</span></span></span><span class="line"><span class="cl"><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
 </span></span></code></pre></div><p>So, this works, but we still have to load up 16GB worth of weights and run inference, which takes about 60 seconds on my rig. Your mileage may vary. Let&rsquo;s see if we can &ldquo;quantize&rdquo; our weights to speed up load time, and the inference time.</p>
 <h2 id="quantization">Quantization<a hidden class="anchor" aria-hidden="true" href="#quantization">#</a></h2>
 <p>Quantizing the model weights involves reducing the weights to smaller integer types. There are many algorithms, but we will use one of the standard torchtune recipes using <a href="https://github.com/pytorch/ao">TORCHAO</a> to produce an &lsquo;INT4&rsquo; quantization.</p>
@@ -498,7 +498,7 @@ We will use a <code>top_k=300</code> and a <code>temperature=0.6</code> for thes
 </span></span></code></pre></div><p>Note there are some key differences in this generation configuration file with the non-quantized generation file we used earlier on the fine-tuned model. Namely, we are pointing at the <code>meta_model_0-4w.pt</code> weights now. Also, we must provide the quantizer details matching the ones we used in the quantization step.</p>
 <p>Run</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">tune run generate --config ./custom_generation_4w_config.yaml <span class="se">\
-</span></span></span><span class="line"><span class="cl"><span class="se"></span><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
+</span></span></span><span class="line"><span class="cl"><span class="nv">prompt</span><span class="o">=</span><span class="s2">&#34;What are some interesting sites to visit in the Bay Area?&#34;</span>
 </span></span></code></pre></div><p>Here is what I got
 <img alt="quantized gen" loading="lazy" src="/posts/finetuning-llama3-8b/images/llama3_quantized_gen.png"></p>
 <p>It takes about 22 seconds to load up the model, and a mere 7 seconds to run the inference. This is about a 300% improvement over the un-quantized generation run, and the output also looks pretty good.</p>
