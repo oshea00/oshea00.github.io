@@ -10,9 +10,9 @@
     <atom:link href="https://oshea00.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>AI Adoption - Systems Model</title>
-      <link>https://oshea00.github.io/posts/interactive-hype-cycle/</link>
+      <link>https://oshea00.github.io/posts/ai-adoption-systems/</link>
       <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/interactive-hype-cycle/</guid>
+      <guid>https://oshea00.github.io/posts/ai-adoption-systems/</guid>
       <description>&lt;html lang=&#34;en&#34;&gt;
 &lt;head&gt;
 &lt;meta charset=&#34;UTF-8&#34;&gt;
@@ -485,9 +485,9 @@ document.addEventListener(&#39;click&#39;, function(e) {
     </item>
     <item>
       <title>AI Cloud Interactive Hype Cycle 2025</title>
-      <link>https://oshea00.github.io/posts/ai-adoption-systems/</link>
+      <link>https://oshea00.github.io/posts/interactive-hype-cycle/</link>
       <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/ai-adoption-systems/</guid>
+      <guid>https://oshea00.github.io/posts/interactive-hype-cycle/</guid>
       <description>&lt;html lang=&#34;en&#34;&gt;
 &lt;head&gt;
     &lt;meta charset=&#34;UTF-8&#34;&gt;
