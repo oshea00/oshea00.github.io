@@ -4,10 +4,463 @@
     <title>MikesBlog</title>
     <link>https://oshea00.github.io/</link>
     <description>Recent content on MikesBlog</description>
-    <generator>Hugo -- 0.155.3</generator>
+    <generator>Hugo -- 0.156.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 14 Feb 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 22 Feb 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI Adoption - Systems Model</title>
+      <link>https://oshea00.github.io/posts/interactive-hype-cycle/</link>
+      <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/interactive-hype-cycle/</guid>
+      <description>&lt;html lang=&#34;en&#34;&gt;
+&lt;head&gt;
+&lt;meta charset=&#34;UTF-8&#34;&gt;
+&lt;meta name=&#34;viewport&#34; content=&#34;width=device-width, initial-scale=1.0&#34;&gt;
+&lt;style&gt;
+  @import url(&#39;https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap&#39;);
+
+  :root {
+    --bg: #0a0e14;
+    --panel: #111820;
+    --border: #1e2d3d;
+    --accent: #00b4d8;
+    --accent2: #f77f00;
+    --accent3: #06d6a0;
+    --accent4: #ef476f;
+    --stock-color: #00b4d8;
+    --flow-color: #f77f00;
+    --trigger-color: #ef476f;
+    --text: #cdd9e5;
+    --muted: #808c96;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: &#39;IBM Plex Sans&#39;, monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  header {
+    padding: 32px 48px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+ .header-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  }
+
+  h1 {
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  .infosubtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 28px;
+    font-size: 11px;
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    flex-wrap: nowrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+
+  .diagram-container {
+    padding: 40px 48px;
+    position: relative;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+   
+  .stock {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .stock:hover .stock-rect { filter: brightness(1.3); }
+  .stock-rect {
+    rx: 4;
+    fill: #0d1f2d;
+    stroke: var(--stock-color);
+    stroke-width: 1.5;
+    transition: all 0.2s;
+  }
+  .stock-label {
+    fill: var(--stock-color);
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .stock-sublabel {
+    fill: #5c8a9e;
+    font-family: &#39;IBM Plex Sans&#39;, sans-serif;
+    font-size: 9.5px;
+  }
+
+   
+  .flow-path {
+    fill: none;
+    stroke: var(--flow-color);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 3;
+    opacity: 0.7;
+  }
+  .flow-label {
+    fill: var(--flow-color);
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+   
+  .trigger-circle {
+    fill: #1a0a10;
+    stroke: var(--trigger-color);
+    stroke-width: 1.5;
+  }
+  .trigger-label {
+    fill: var(--trigger-color);
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 9.6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .trigger-path {
+    fill: none;
+    stroke: var(--trigger-color);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+    opacity: 0.5;
+  }
+
+   
+  .reinforce-path {
+    fill: none;
+    stroke: var(--accent3);
+    stroke-width: 1.5;
+    stroke-dasharray: 8 3;
+    opacity: 0.5;
+  }
+  .reinforce-label {
+    fill: var(--accent3);
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 10px;
+  }
+
+   
+  #info-panel {
+    position: fixed;
+    right: 40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 240px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  #info-panel.visible { opacity: 1; }
+  #info-title {
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+  #info-body {
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  #info-type {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 10px;
+  }
+
+  .note {
+    margin-top: 16px;
+    padding: 0 48px 32px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    letter-spacing: 0.04em;
+  }
+
+   
+  marker path { }
+
+  .loop-badge {
+    font-family: &#39;IBM Plex Mono&#39;, monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;header&gt;
+  &lt;div&gt;
+    &lt;div class=&#34;subtitle&#34;&gt;Stocks, Flows &amp;amp; Impediments to Rapid Diffusion · 2022–present&lt;/div&gt;
+  &lt;/div&gt;
+&lt;div class=&#34;infosubtitle&#34;&gt;
+  ↓ Click any stock or resistance node for detail &amp;nbsp;|&amp;nbsp; Flows (dashed orange) show rates of change &amp;nbsp;|&amp;nbsp; Resistance nodes (red) act as governors limiting flow rates
+&lt;/div&gt;
+  &lt;div class=&#34;legend&#34;&gt;
+    &lt;div class=&#34;legend-item&#34;&gt;&lt;div class=&#34;legend-dot&#34; style=&#34;background:#00b4d8&#34;&gt;&lt;/div&gt;&lt;span style=&#34;color:#00b4d8&#34;&gt;STOCK&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&#34;legend-item&#34;&gt;&lt;div class=&#34;legend-dot&#34; style=&#34;background:#f77f00&#34;&gt;&lt;/div&gt;&lt;span style=&#34;color:#f77f00&#34;&gt;FLOW&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&#34;legend-item&#34;&gt;&lt;div class=&#34;legend-dot&#34; style=&#34;background:#ef476f&#34;&gt;&lt;/div&gt;&lt;span style=&#34;color:#ef476f&#34;&gt;RESISTANCE&lt;/span&gt;&lt;/div&gt;
+    &lt;div class=&#34;legend-item&#34;&gt;&lt;div class=&#34;legend-dot&#34; style=&#34;background:#06d6a0&#34;&gt;&lt;/div&gt;&lt;span style=&#34;color:#06d6a0&#34;&gt;REINFORCING LOOP&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/header&gt;
+
+&lt;div class=&#34;diagram-container&#34;&gt;
+&lt;svg viewBox=&#34;0 0 960 680&#34; xmlns=&#34;http://www.w3.org/2000/svg&#34;&gt;
+  &lt;defs&gt;
+    &lt;marker id=&#34;arrow-flow&#34; markerWidth=&#34;8&#34; markerHeight=&#34;8&#34; refX=&#34;6&#34; refY=&#34;3&#34; orient=&#34;auto&#34;&gt;
+      &lt;path d=&#34;M0,0 L0,6 L8,3 z&#34; fill=&#34;#f77f00&#34; opacity=&#34;0.8&#34;/&gt;
+    &lt;/marker&gt;
+    &lt;marker id=&#34;arrow-trigger&#34; markerWidth=&#34;7&#34; markerHeight=&#34;7&#34; refX=&#34;5&#34; refY=&#34;3&#34; orient=&#34;auto&#34;&gt;
+      &lt;path d=&#34;M0,0 L0,6 L7,3 z&#34; fill=&#34;#ef476f&#34; opacity=&#34;0.6&#34;/&gt;
+    &lt;/marker&gt;
+    &lt;marker id=&#34;arrow-reinforce&#34; markerWidth=&#34;8&#34; markerHeight=&#34;8&#34; refX=&#34;6&#34; refY=&#34;3&#34; orient=&#34;auto&#34;&gt;
+      &lt;path d=&#34;M0,0 L0,6 L8,3 z&#34; fill=&#34;#06d6a0&#34; opacity=&#34;0.7&#34;/&gt;
+    &lt;/marker&gt;
+    &lt;filter id=&#34;glow&#34;&gt;
+      &lt;feGaussianBlur stdDeviation=&#34;3&#34; result=&#34;coloredBlur&#34;/&gt;
+      &lt;feMerge&gt;&lt;feMergeNode in=&#34;coloredBlur&#34;/&gt;&lt;feMergeNode in=&#34;SourceGraphic&#34;/&gt;&lt;/feMerge&gt;
+    &lt;/filter&gt;
+  &lt;/defs&gt;
+
+  
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;AI Capability Stock&#39;, &#39;The accumulated body of AI models, tools, APIs, and research. Grows continuously via R&amp;D investment. Currently very high and accelerating — this stock is NOT the bottleneck.&#39;, &#39;STOCK&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;370&#34; y=&#34;30&#34; width=&#34;220&#34; height=&#34;64&#34; rx=&#34;4&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;480&#34; y=&#34;56&#34; text-anchor=&#34;middle&#34;&gt;AI Capability&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;480&#34; y=&#34;72&#34; text-anchor=&#34;middle&#34;&gt;Models, APIs, Tools, Research&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;480&#34; y=&#34;85&#34; text-anchor=&#34;middle&#34; style=&#34;fill:#06d6a0&#34;&gt;▲ High &amp;amp; Accelerating&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;Workforce Readiness Stock&#39;, &#39;The aggregate skill, familiarity, and comfort workers have with AI tools. Drains slowly from retirement/attrition, fills slowly through training and hands-on use. Enormous inertia — most organizations are still in early accumulation phase.&#39;, &#39;STOCK&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;40&#34; y=&#34;240&#34; width=&#34;200&#34; height=&#34;64&#34; rx=&#34;4&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;140&#34; y=&#34;266&#34; text-anchor=&#34;middle&#34;&gt;Workforce&lt;/text&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;140&#34; y=&#34;280&#34; text-anchor=&#34;middle&#34;&gt;Readiness&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;140&#34; y=&#34;295&#34; text-anchor=&#34;middle&#34;&gt;Skills, Habits, Comfort&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;Institutional Trust Stock&#39;, &#39;The degree to which organizations formally trust and authorize AI in decision-making workflows. Builds slowly via proven pilots and audits. Erodes quickly from high-profile failures. Currently low-to-medium across most sectors.&#39;, &#39;STOCK&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;270&#34; y=&#34;340&#34; width=&#34;200&#34; height=&#34;64&#34; rx=&#34;4&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;370&#34; y=&#34;366&#34; text-anchor=&#34;middle&#34;&gt;Institutional&lt;/text&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;370&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34;&gt;Trust&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;370&#34; y=&#34;395&#34; text-anchor=&#34;middle&#34;&gt;Authorization &amp;amp; Confidence&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;Regulatory Clarity Stock&#39;, &#39;The degree to which governments and standards bodies have defined legal frameworks for AI use. Currently very low globally. Without clear rules, legal risk deters enterprise adoption especially in healthcare, finance, and law.&#39;, &#39;STOCK&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;500&#34; y=&#34;340&#34; width=&#34;200&#34; height=&#34;64&#34; rx=&#34;4&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;600&#34; y=&#34;366&#34; text-anchor=&#34;middle&#34;&gt;Regulatory&lt;/text&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;600&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34;&gt;Clarity&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;600&#34; y=&#34;395&#34; text-anchor=&#34;middle&#34;&gt;Legal Frameworks &amp;amp; Standards&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;600&#34; y=&#34;403&#34; text-anchor=&#34;middle&#34; style=&#34;fill:#ef476f&#34;&gt;▼ Currently Low&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;AI Adoption Stock&#39;, &#39;The actual integration of AI into real workflows across individuals, enterprises, and institutions. This is the output stock. It grows only as fast as the upstream stocks allow — workforce readiness, trust, and regulatory clarity all act as rate limiters.&#39;, &#39;STOCK — PRIMARY OUTPUT&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;370&#34; y=&#34;540&#34; width=&#34;220&#34; height=&#34;64&#34; rx=&#34;4&#34; style=&#34;stroke-width:2.5&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;480&#34; y=&#34;566&#34; text-anchor=&#34;middle&#34; style=&#34;font-size:13px&#34;&gt;AI Adoption&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;480&#34; y=&#34;582&#34; text-anchor=&#34;middle&#34;&gt;Real Workflow Integration&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;480&#34; y=&#34;595&#34; text-anchor=&#34;middle&#34; style=&#34;fill:#f77f00&#34;&gt;◈ Primary Output Stock&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+  &lt;g class=&#34;stock&#34; onclick=&#34;showInfo(&#39;Infrastructure Stock&#39;, &#39;Compute availability, cloud AI services, enterprise APIs, integration tooling. Growing fast but unevenly distributed. SMBs and developing markets lag significantly. Cost per inference still prohibitive for many use cases.&#39;, &#39;STOCK&#39;)&#34;&gt;
+    &lt;rect class=&#34;stock-rect&#34; x=&#34;720&#34; y=&#34;240&#34; width=&#34;200&#34; height=&#34;64&#34; rx=&#34;4&#34;/&gt;
+    &lt;text class=&#34;stock-label&#34; x=&#34;820&#34; y=&#34;266&#34; text-anchor=&#34;middle&#34;&gt;Infrastructure&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;820&#34; y=&#34;282&#34; text-anchor=&#34;middle&#34;&gt;Compute, APIs, Tooling&lt;/text&gt;
+    &lt;text class=&#34;stock-sublabel&#34; x=&#34;820&#34; y=&#34;295&#34; text-anchor=&#34;middle&#34; style=&#34;fill:#06d6a0&#34;&gt;▲ Growing (uneven)&lt;/text&gt;
+  &lt;/g&gt;
+
+  
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 480 94 L 480 120 Q 480 140 460 150 L 240 270&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;305&#34; y=&#34;185&#34;&gt;capability exposure&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;305&#34; y=&#34;196&#34;&gt;→ training inflow&lt;/text&gt;
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 590 62 L 700 220 L 720 255&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;670&#34; y=&#34;185&#34;&gt;API/service&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;670&#34; y=&#34;196&#34;&gt;buildout&lt;/text&gt;
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 210 292 L 290 360&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;215&#34; y=&#34;338&#34;&gt;demonstrated&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;215&#34; y=&#34;349&#34;&gt;competence&lt;/text&gt;
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 760 304 L 680 350&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;728&#34; y=&#34;335&#34;&gt;use cases&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;728&#34; y=&#34;346&#34;&gt;define rules&lt;/text&gt;
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 420 404 L 440 540&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;378&#34; y=&#34;482&#34;&gt;authorized&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;378&#34; y=&#34;493&#34;&gt;deployment&lt;/text&gt;
+
+  
+  &lt;path class=&#34;flow-path&#34; d=&#34;M 550 404 L 530 540&#34; 
+        marker-end=&#34;url(#arrow-flow)&#34;/&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;556&#34; y=&#34;478&#34;&gt;legal&lt;/text&gt;
+  &lt;text class=&#34;flow-label&#34; x=&#34;556&#34; y=&#34;489&#34;&gt;clearance&lt;/text&gt;
+
+  
+
+  
+  &lt;g onclick=&#34;showInfo(&#39;Resistance: Loss Aversion&#39;, &#39;Workers fear displacement more than they value productivity gains. This is deeply psychological and slows voluntary skill acquisition. Unions and professional bodies amplify this resistance. Acts directly on the Workforce Readiness inflow.&#39;, &#39;RESISTANCE TRIGGER&#39;)&#34;&gt;
+    &lt;ellipse class=&#34;trigger-circle&#34; cx=&#34;90&#34; cy=&#34;170&#34; rx=&#34;70&#34; ry=&#34;28&#34;/&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;90&#34; y=&#34;166&#34; text-anchor=&#34;middle&#34;&gt;Job Threat&lt;/text&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;90&#34; y=&#34;178&#34; text-anchor=&#34;middle&#34;&gt;Perception&lt;/text&gt;
+  &lt;/g&gt;
+  &lt;path class=&#34;trigger-path&#34; d=&#34;M 90 198 L 110 242&#34; marker-end=&#34;url(#arrow-trigger)&#34;/&gt;
+  &lt;text style=&#34;fill:#ef476f; font-size:10px; font-family:&#39;IBM Plex Mono&#39;&#34; x=&#34;45&#34; y=&#34;222&#34;&gt;⊖ slows&lt;/text&gt;
+
+  
+  &lt;g onclick=&#34;showInfo(&#39;Resistance: High-Profile Failures&#39;, &#39;Publicized AI errors — hallucinated legal citations, medical mistakes, biased hiring decisions — erode institutional trust rapidly. A single major failure can drain months of accumulated trust-building. Acts as a negative shock to the Institutional Trust stock.&#39;, &#39;RESISTANCE TRIGGER&#39;)&#34;&gt;
+    &lt;ellipse class=&#34;trigger-circle&#34; cx=&#34;175&#34; cy=&#34;460&#34; rx=&#34;78&#34; ry=&#34;28&#34;/&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;175&#34; y=&#34;456&#34; text-anchor=&#34;middle&#34;&gt;Publicized AI&lt;/text&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;175&#34; y=&#34;468&#34; text-anchor=&#34;middle&#34;&gt;Failures&lt;/text&gt;
+  &lt;/g&gt;
+  &lt;path class=&#34;trigger-path&#34; d=&#34;M 253 460 L 290 395&#34; marker-end=&#34;url(#arrow-trigger)&#34;/&gt;
+  &lt;text style=&#34;fill:#ef476f; font-size:10px; font-family:&#39;IBM Plex Mono&#39;&#34; x=&#34;220&#34; y=&#34;435&#34;&gt;⊖ erodes trust&lt;/text&gt;
+
+  
+  &lt;g onclick=&#34;showInfo(&#39;Resistance: Regulatory Uncertainty&#39;, &#39;Without clear rules, legal and compliance teams apply maximum caution. This is especially acute in healthcare (HIPAA), finance (SEC/FINRA), and law. The absence of a rule is itself a blocker — it forces organizations to self-regulate conservatively.&#39;, &#39;RESISTANCE TRIGGER&#39;)&#34;&gt;
+    &lt;ellipse class=&#34;trigger-circle&#34; cx=&#34;760&#34; cy=&#34;460&#34; rx=&#34;78&#34; ry=&#34;28&#34;/&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;760&#34; y=&#34;456&#34; text-anchor=&#34;middle&#34;&gt;Legal / Liability&lt;/text&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;760&#34; y=&#34;468&#34; text-anchor=&#34;middle&#34;&gt;Uncertainty&lt;/text&gt;
+  &lt;/g&gt;
+  &lt;path class=&#34;trigger-path&#34; d=&#34;M 700 460 L 680 405&#34; marker-end=&#34;url(#arrow-trigger)&#34;/&gt;
+  &lt;text style=&#34;fill:#ef476f; font-size:10px; font-family:&#39;IBM Plex Mono&#39;&#34; x=&#34;690&#34; y=&#34;430&#34;&gt;⊖ chills&lt;/text&gt;
+  &lt;text style=&#34;fill:#ef476f; font-size:9px; font-family:&#39;IBM Plex Mono&#39;&#34; x=&#34;690&#34; y=&#34;451&#34;&gt;adoption&lt;/text&gt;
+
+  
+  &lt;g onclick=&#34;showInfo(&#39;Resistance: Integration Complexity&#39;, &#39;Existing enterprise systems (ERP, CRM, legacy databases) were not designed for AI integration. The technical debt of existing stocks of software infrastructure creates a slow, expensive on-ramp. Most organizations underestimate this by 3-5x.&#39;, &#39;RESISTANCE TRIGGER&#39;)&#34;&gt;
+    &lt;ellipse class=&#34;trigger-circle&#34; cx=&#34;870&#34; cy=&#34;170&#34; rx=&#34;76&#34; ry=&#34;28&#34;/&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;870&#34; y=&#34;166&#34; text-anchor=&#34;middle&#34;&gt;Legacy System&lt;/text&gt;
+    &lt;text class=&#34;trigger-label&#34; x=&#34;870&#34; y=&#34;178&#34; text-anchor=&#34;middle&#34;&gt;Complexity&lt;/text&gt;
+  &lt;/g&gt;
+  &lt;path class=&#34;trigger-path&#34; d=&#34;M 830 196 L 820 242&#34; marker-end=&#34;url(#arrow-trigger)&#34;/&gt;
+  &lt;text style=&#34;fill:#ef476f; font-size:10px; font-family:&#39;IBM Plex Mono&#39;&#34; x=&#34;820&#34; y=&#34;224&#34;&gt;⊖ slows&lt;/text&gt;
+
+  
+  
+  &lt;path class=&#34;reinforce-path&#34; 
+        d=&#34;M 480 604 Q 480 650 600 650 Q 740 650 740 550 Q 740 430 680 400&#34; 
+        marker-end=&#34;url(#arrow-reinforce)&#34;/&gt;
+  &lt;text class=&#34;reinforce-label&#34; x=&#34;650&#34; y=&#34;645&#34;&gt;R+ Early adopter success&lt;/text&gt;
+  &lt;text class=&#34;reinforce-label&#34; x=&#34;650&#34; y=&#34;656&#34;&gt;builds proof cases → trust&lt;/text&gt;
+
+  
+
+  
+  &lt;rect x=&#34;10&#34; y=&#34;10&#34; width=&#34;340&#34; height=&#34;20&#34; rx=&#34;2&#34; fill=&#34;none&#34; stroke=&#34;#1e2d3d&#34; stroke-width=&#34;1&#34;/&gt;
+  &lt;text style=&#34;fill:#d0dfe9; font-family:&#39;IBM Plex Mono&#39;; font-size:12px; letter-spacing:0.08em&#34; x=&#34;18&#34; y=&#34;24&#34;&gt;SYSTEM BOUNDARY: Enterprise AI Adoption&lt;/text&gt;
+
+  
+  &lt;text style=&#34;fill:#ef476f; font-family:&#39;IBM Plex Mono&#39;; font-size:10px; letter-spacing:0.05em&#34; x=&#34;40&#34; y=&#34;650&#34;&gt;B− Balancing loops (resistance nodes) create natural governor on adoption rate&lt;/text&gt;
+
+&lt;/svg&gt;
+&lt;/div&gt;
+
+&lt;div id=&#34;info-panel&#34;&gt;
+  &lt;div id=&#34;info-title&#34;&gt;—&lt;/div&gt;
+  &lt;div id=&#34;info-body&#34;&gt;—&lt;/div&gt;
+  &lt;div id=&#34;info-type&#34;&gt;—&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+function showInfo(title, body, type) {
+  document.getElementById(&#39;info-title&#39;).textContent = title;
+  document.getElementById(&#39;info-body&#39;).textContent = body;
+  document.getElementById(&#39;info-type&#39;).textContent = &#39;■ &#39; + type;
+  
+  const panel = document.getElementById(&#39;info-panel&#39;);
+  panel.style.borderLeftColor = type.includes(&#39;RESISTANCE&#39;) ? &#39;#ef476f&#39; : 
+                                 type.includes(&#39;OUTPUT&#39;) ? &#39;#f77f00&#39; : &#39;#00b4d8&#39;;
+  panel.classList.add(&#39;visible&#39;);
+}
+
+document.addEventListener(&#39;click&#39;, function(e) {
+  if (!e.target.closest(&#39;.stock&#39;) &amp;&amp; !e.target.closest(&#39;g[onclick]&#39;)) {
+    document.getElementById(&#39;info-panel&#39;).classList.remove(&#39;visible&#39;);
+  }
+});
+&lt;/script&gt;
+&lt;/body&gt;</description>
+    </item>
     <item>
       <title>Agentic Orchestration is Not a Moat</title>
       <link>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</link>
@@ -32,9 +485,9 @@
     </item>
     <item>
       <title>AI Cloud Interactive Hype Cycle 2025</title>
-      <link>https://oshea00.github.io/posts/interactive-hype-cycle/</link>
+      <link>https://oshea00.github.io/posts/ai-adoption-systems/</link>
       <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/interactive-hype-cycle/</guid>
+      <guid>https://oshea00.github.io/posts/ai-adoption-systems/</guid>
       <description>&lt;html lang=&#34;en&#34;&gt;
 &lt;head&gt;
     &lt;meta charset=&#34;UTF-8&#34;&gt;

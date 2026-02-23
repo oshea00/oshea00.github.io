@@ -4,10 +4,24 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.155.3</generator>
+    <generator>Hugo -- 0.156.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 14 Feb 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 22 Feb 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>AI</title>
+      <link>https://oshea00.github.io/tags/ai/</link>
+      <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/ai/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Systems</title>
+      <link>https://oshea00.github.io/tags/systems/</link>
+      <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/systems/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Agents</title>
       <link>https://oshea00.github.io/tags/agents/</link>
@@ -62,13 +76,6 @@
       <link>https://oshea00.github.io/tags/openai/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/openai/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>AI</title>
-      <link>https://oshea00.github.io/tags/ai/</link>
-      <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/ai/</guid>
       <description></description>
     </item>
     <item>
