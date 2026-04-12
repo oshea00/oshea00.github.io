@@ -167,6 +167,20 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">Tool Calls With Agentic Code Generation Using &#39;Monty&#39;
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Inspired by Anthropic’s recent article on using code execution to improve MCP tool calling, and having just discovered Monty — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.
+Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The monty-example project explores a different approach: let the model write code that orchestrates tool calls and executes that code in a sandbox running within your code!
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-04-11 00:00:00 +0000 UTC'>April 11, 2026</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to Tool Calls With Agentic Code Generation Using &#39;Monty&#39;" href="https://oshea00.github.io/posts/optimizing-tools-with-monty/"></a>
+</article>
+
+<article class="post-entry"> 
+  <header class="entry-header">
     <h2 class="entry-hint-parent">AI Adoption - Systems Model
     </h2>
   </header>
@@ -229,23 +243,9 @@ MCP is an open standard (launched by Anthropic in Nov 2024) for exposing data so
   <footer class="entry-footer"><span title='2025-09-29 00:00:00 +0000 UTC'>September 29, 2025</span>&nbsp;·&nbsp;8 min&nbsp;·&nbsp;Michael OShea</footer>
   <a class="entry-link" aria-label="post link to Model Context Protocol (MCP) Best Practices" href="https://oshea00.github.io/posts/mcp-practices/"></a>
 </article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">A2A Doesn&#39;t need AI Agents
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p> Is this just distributed computing re-packaged for AI?
-What is A2A Without AI Agents? I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini’s Creator) had announced A2A in April, and Gemini got a little “gushy” on how it was “a revolutionary new idea.” Also, perhaps “debate” is too strong a word. And I might want to consider getting out more often.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2025-09-28 00:00:00 +0000 UTC'>September 28, 2025</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Michael OShea</footer>
-  <a class="entry-link" aria-label="post link to A2A Doesn&#39;t need AI Agents" href="https://oshea00.github.io/posts/a2a-thoughts/"></a>
-</article>
 <footer class="page-footer">
   <nav class="pagination">
-    <a class="next" href="https://oshea00.github.io/page/2/">Next&nbsp;2/3&nbsp;»
+    <a class="next" href="https://oshea00.github.io/page/2/">Next&nbsp;2/4&nbsp;»
     </a>
   </nav>
 </footer>

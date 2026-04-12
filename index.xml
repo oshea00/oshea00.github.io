@@ -6,8 +6,20 @@
     <description>Recent content on MikesBlog</description>
     <generator>Hugo -- 0.160.1</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 22 Feb 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 11 Apr 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tool Calls With Agentic Code Generation Using &#39;Monty&#39;</title>
+      <link>https://oshea00.github.io/posts/optimizing-tools-with-monty/</link>
+      <pubDate>Sat, 11 Apr 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/optimizing-tools-with-monty/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputercoder.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;Inspired by &lt;a href=&#34;https://www.anthropic.com/engineering/code-execution-with-mcp&#34;&gt;Anthropic&amp;rsquo;s recent article&lt;/a&gt; on using code execution to improve MCP tool calling, and having just discovered &lt;a href=&#34;https://github.com/pydantic/monty&#34;&gt;Monty&lt;/a&gt; — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.&lt;/p&gt;
+&lt;p&gt;Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The &lt;a href=&#34;https://github.com/oshea00/monty-example&#34;&gt;monty-example&lt;/a&gt; project explores a different approach: let the model &lt;em&gt;write code&lt;/em&gt; that orchestrates tool calls and executes that code in a sandbox running within your code!&lt;/p&gt;</description>
+    </item>
     <item>
       <title>AI Adoption - Systems Model</title>
       <link>https://oshea00.github.io/posts/ai-adoption-systems/</link>
