@@ -2,6 +2,51 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oshea00.github.io/tags/cluster/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/dgx/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/llama.cpp/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/llm/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/running-cool-dgx-cluster/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/spark/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/tags/</loc>
+    <lastmod>2026-08-13T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://oshea00.github.io/tags/agents/</loc>
     <lastmod>2026-04-11T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -12,27 +57,7 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://oshea00.github.io/tags/llm/</loc>
-    <lastmod>2026-04-11T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/</loc>
-    <lastmod>2026-04-11T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/posts/</loc>
-    <lastmod>2026-04-11T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
     <loc>https://oshea00.github.io/tags/python/</loc>
-    <lastmod>2026-04-11T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/tags/</loc>
     <lastmod>2026-04-11T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

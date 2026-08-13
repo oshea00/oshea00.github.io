@@ -4,10 +4,45 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.160.1</generator>
+    <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 11 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 13 Aug 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Cluster</title>
+      <link>https://oshea00.github.io/tags/cluster/</link>
+      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/cluster/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Dgx</title>
+      <link>https://oshea00.github.io/tags/dgx/</link>
+      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/dgx/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Llama.cpp</title>
+      <link>https://oshea00.github.io/tags/llama.cpp/</link>
+      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/llama.cpp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Llm</title>
+      <link>https://oshea00.github.io/tags/llm/</link>
+      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Spark</title>
+      <link>https://oshea00.github.io/tags/spark/</link>
+      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/spark/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Agents</title>
       <link>https://oshea00.github.io/tags/agents/</link>
@@ -20,13 +55,6 @@
       <link>https://oshea00.github.io/tags/code-generation/</link>
       <pubDate>Sat, 11 Apr 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/code-generation/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Llm</title>
-      <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Sat, 11 Apr 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>

@@ -233,94 +233,94 @@ It is designed to replace the ad-hoc “one-off connector per tool/agent” patt
 <h2 id="best-practices--design-patterns-for-mcp-based-architectures">Best Practices &amp; Design Patterns for MCP-based Architectures<a hidden class="anchor" aria-hidden="true" href="#best-practices--design-patterns-for-mcp-based-architectures">#</a></h2>
 <p>Below is a guide to designing robust, maintainable, and secure agent systems using MCP or MCP-like protocols. You can think of this as a “playbook” or cheat sheet.</p>
 <table>
-  <thead>
-      <tr>
-          <th>Area</th>
-          <th>Best Practice / Pattern</th>
-          <th>Rationale &amp; Risks</th>
-          <th>Notes / Examples</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><strong>Modular Server Design</strong></td>
-          <td>Break MCP servers by domain (e.g. “Git”, “Database”, “Search”, “Notifications”)</td>
-          <td>Keeps responsibilities small and limits blast radius of errors</td>
-          <td>The reference MCP repository already includes separate servers for e.g. GitHub, Postgres, Slack. [1]</td>
-      </tr>
-      <tr>
-          <td><strong>Domain-Specific Abstractions vs. CRUD</strong></td>
-          <td>Design tools around meaningful domain actions instead of low-level CRUD primitives</td>
-          <td>Improves agent reasoning, reduces ambiguity</td>
-          <td>E.g. &ldquo;submit_expense_report&rdquo; instead of &ldquo;create_record&rdquo;</td>
-      </tr>
-      <tr>
-          <td><strong>Rate Limiting, Throttling &amp; Quotas</strong></td>
-          <td>Impose per-agent or per-method usage quotas</td>
-          <td>Avoid abuse, runaway loops, or denial-of-service</td>
-          <td>Useful in multi-tenant settings</td>
-      </tr>
-      <tr>
-          <td><strong>Input / Output Validation &amp; Sanitization</strong></td>
-          <td>Strict schema validation on method parameters and return values</td>
-          <td>Prevent injection, malformed queries, or security exploits</td>
-          <td>E.g. sanitize SQL fragments, path names, or user-provided arguments</td>
-      </tr>
-      <tr>
-          <td><strong>Idempotency &amp; Transaction Safety</strong></td>
-          <td>For write operations, support idempotent execution or confirm semantics</td>
-          <td>Avoid accidental duplication if retries occur</td>
-          <td>E.g. a “create_user” call should handle duplicates safely</td>
-      </tr>
-      <tr>
-          <td><strong>Contextual Logging, Auditing &amp; Traceability</strong></td>
-          <td>Log every request, which agent invoked it, parameters, and response; enable trace replay</td>
-          <td>Facilitates debugging, security audits, and rollback reasoning</td>
-          <td>You can integrate prompt- or event-level logging as a separate MCP “logging” channel [2]</td>
-      </tr>
-      <tr>
-          <td><strong>Graceful Fallback &amp; Error Propagation</strong></td>
-          <td>Clients should elegantly handle server errors, timeouts, or partial failures</td>
-          <td>Agents can fall back to default heuristics or emit human-readable error messages</td>
-          <td>Always wrap network/IO calls with retries or timeouts</td>
-      </tr>
-      <tr>
-          <td><strong>Sandboxing / Isolation</strong></td>
-          <td>Run server logic in controlled containers or isolated environments</td>
-          <td>Limits damage from exploits or malicious tool usage</td>
-          <td>Prevent direct OS-level command execution unless explicitly allowed</td>
-      </tr>
-      <tr>
-          <td><strong>Metadata &amp; Typing</strong></td>
-          <td>Use rich type definitions, units, constraints, and semantic labels on method arguments/return values</td>
-          <td>This helps the agent choose correct methods and helps schema validation</td>
-          <td>E.g. define a <code>Timestamp</code>, <code>Currency</code>, <code>UserId</code> type rather than generic string [5]</td>
-      </tr>
-      <tr>
-          <td><strong>Least Privilege Principle</strong></td>
-          <td>Only expose minimal methods and resources needed for the task</td>
-          <td>Reduces attack surface and cognitive load</td>
-          <td>Avoid a “catch-all” server that has full DB, full file system, etc.</td>
-      </tr>
-      <tr>
-          <td><strong>Security Auditing &amp; Fuzz Testing</strong></td>
-          <td>Regularly run adversarial tests, fuzz input spaces, and validate permission enforcement</td>
-          <td>MCP-specific research has already exposed vulnerabilities in naive servers [4]</td>
-          <td>Tools like <code>MCPSafetyScanner</code> can help detect misuse or misconfiguration. [4]</td>
-      </tr>
-      <tr>
-          <td><strong>Governance, Certification &amp; Tool Vetting</strong></td>
-          <td>In enterprise contexts, classify or “vet” MCP servers/tools, register trusted servers, and maintain a registry</td>
-          <td>So that only approved tools are callable by agents</td>
-          <td>Similar to how plugin stores vet plugins in ChatGPT</td>
-      </tr>
-      <tr>
-          <td><strong>Testing via Benchmarks / Simulators</strong></td>
-          <td>Build internal benchmarks for multi-step workflows, stress test tool orchestration, simulate agent failure modes</td>
-          <td>E.g. “MCP-Bench” is a published benchmark for evaluating tool-using agents via MCP. [6]</td>
-          <td></td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th>Area</th>
+					<th>Best Practice / Pattern</th>
+					<th>Rationale &amp; Risks</th>
+					<th>Notes / Examples</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>Modular Server Design</strong></td>
+					<td>Break MCP servers by domain (e.g. “Git”, “Database”, “Search”, “Notifications”)</td>
+					<td>Keeps responsibilities small and limits blast radius of errors</td>
+					<td>The reference MCP repository already includes separate servers for e.g. GitHub, Postgres, Slack. [1]</td>
+			</tr>
+			<tr>
+					<td><strong>Domain-Specific Abstractions vs. CRUD</strong></td>
+					<td>Design tools around meaningful domain actions instead of low-level CRUD primitives</td>
+					<td>Improves agent reasoning, reduces ambiguity</td>
+					<td>E.g. &ldquo;submit_expense_report&rdquo; instead of &ldquo;create_record&rdquo;</td>
+			</tr>
+			<tr>
+					<td><strong>Rate Limiting, Throttling &amp; Quotas</strong></td>
+					<td>Impose per-agent or per-method usage quotas</td>
+					<td>Avoid abuse, runaway loops, or denial-of-service</td>
+					<td>Useful in multi-tenant settings</td>
+			</tr>
+			<tr>
+					<td><strong>Input / Output Validation &amp; Sanitization</strong></td>
+					<td>Strict schema validation on method parameters and return values</td>
+					<td>Prevent injection, malformed queries, or security exploits</td>
+					<td>E.g. sanitize SQL fragments, path names, or user-provided arguments</td>
+			</tr>
+			<tr>
+					<td><strong>Idempotency &amp; Transaction Safety</strong></td>
+					<td>For write operations, support idempotent execution or confirm semantics</td>
+					<td>Avoid accidental duplication if retries occur</td>
+					<td>E.g. a “create_user” call should handle duplicates safely</td>
+			</tr>
+			<tr>
+					<td><strong>Contextual Logging, Auditing &amp; Traceability</strong></td>
+					<td>Log every request, which agent invoked it, parameters, and response; enable trace replay</td>
+					<td>Facilitates debugging, security audits, and rollback reasoning</td>
+					<td>You can integrate prompt- or event-level logging as a separate MCP “logging” channel [2]</td>
+			</tr>
+			<tr>
+					<td><strong>Graceful Fallback &amp; Error Propagation</strong></td>
+					<td>Clients should elegantly handle server errors, timeouts, or partial failures</td>
+					<td>Agents can fall back to default heuristics or emit human-readable error messages</td>
+					<td>Always wrap network/IO calls with retries or timeouts</td>
+			</tr>
+			<tr>
+					<td><strong>Sandboxing / Isolation</strong></td>
+					<td>Run server logic in controlled containers or isolated environments</td>
+					<td>Limits damage from exploits or malicious tool usage</td>
+					<td>Prevent direct OS-level command execution unless explicitly allowed</td>
+			</tr>
+			<tr>
+					<td><strong>Metadata &amp; Typing</strong></td>
+					<td>Use rich type definitions, units, constraints, and semantic labels on method arguments/return values</td>
+					<td>This helps the agent choose correct methods and helps schema validation</td>
+					<td>E.g. define a <code>Timestamp</code>, <code>Currency</code>, <code>UserId</code> type rather than generic string [5]</td>
+			</tr>
+			<tr>
+					<td><strong>Least Privilege Principle</strong></td>
+					<td>Only expose minimal methods and resources needed for the task</td>
+					<td>Reduces attack surface and cognitive load</td>
+					<td>Avoid a “catch-all” server that has full DB, full file system, etc.</td>
+			</tr>
+			<tr>
+					<td><strong>Security Auditing &amp; Fuzz Testing</strong></td>
+					<td>Regularly run adversarial tests, fuzz input spaces, and validate permission enforcement</td>
+					<td>MCP-specific research has already exposed vulnerabilities in naive servers [4]</td>
+					<td>Tools like <code>MCPSafetyScanner</code> can help detect misuse or misconfiguration. [4]</td>
+			</tr>
+			<tr>
+					<td><strong>Governance, Certification &amp; Tool Vetting</strong></td>
+					<td>In enterprise contexts, classify or “vet” MCP servers/tools, register trusted servers, and maintain a registry</td>
+					<td>So that only approved tools are callable by agents</td>
+					<td>Similar to how plugin stores vet plugins in ChatGPT</td>
+			</tr>
+			<tr>
+					<td><strong>Testing via Benchmarks / Simulators</strong></td>
+					<td>Build internal benchmarks for multi-step workflows, stress test tool orchestration, simulate agent failure modes</td>
+					<td>E.g. “MCP-Bench” is a published benchmark for evaluating tool-using agents via MCP. [6]</td>
+					<td></td>
+			</tr>
+	</tbody>
 </table>
 <p>These practices help maintain tractability, safety, observability, and modularity in your agent architecture.</p>
 <hr>

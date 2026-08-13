@@ -391,30 +391,30 @@ Standard LLM tool calling has a fundamental inefficiency: the model calls one to
 <h2 id="final-takeaways">Final Takeaways<a hidden class="anchor" aria-hidden="true" href="#final-takeaways">#</a></h2>
 <h3 id="performance-observations">Performance observations<a hidden class="anchor" aria-hidden="true" href="#performance-observations">#</a></h3>
 <table>
-  <thead>
-      <tr>
-          <th></th>
-          <th>Tokens</th>
-          <th>Time</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td>Code Generation</td>
-          <td>3,957 (32%)</td>
-          <td>0.005s</td>
-      </tr>
-      <tr>
-          <td>Model Processing</td>
-          <td>8,299 (68%)</td>
-          <td>23.86s</td>
-      </tr>
-      <tr>
-          <td><strong>Total</strong></td>
-          <td><strong>12,256</strong></td>
-          <td><strong>23.865s</strong></td>
-      </tr>
-  </tbody>
+	<thead>
+			<tr>
+					<th></th>
+					<th>Tokens</th>
+					<th>Time</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Code Generation</td>
+					<td>3,957 (32%)</td>
+					<td>0.005s</td>
+			</tr>
+			<tr>
+					<td>Model Processing</td>
+					<td>8,299 (68%)</td>
+					<td>23.86s</td>
+			</tr>
+			<tr>
+					<td><strong>Total</strong></td>
+					<td><strong>12,256</strong></td>
+					<td><strong>23.865s</strong></td>
+			</tr>
+	</tbody>
 </table>
 <p><em>Table 1. Session totals from the demo conversation.</em></p>
 <p><strong>Code execution is essentially free.</strong> The entire session required 0.005 seconds of code execution time. In a standard sequential tool-calling setup, each of those fetches would have required a round-trip back to the LLM to decide what to call next.</p>
@@ -441,6 +441,11 @@ Standard LLM tool calling has a fundamental inefficiency: the model calls one to
       <li><a href="https://oshea00.github.io/tags/code-generation/">Code-Generation</a></li>
     </ul>
 <nav class="paginav">
+  <a class="prev" href="https://oshea00.github.io/posts/running-cool-dgx-cluster/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Running Cooler Spark DGX Cluster</span>
+  </a>
   <a class="next" href="https://oshea00.github.io/posts/ai-adoption-systems/">
     <span class="title">Next »</span>
     <br>
