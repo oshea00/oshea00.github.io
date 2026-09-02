@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Do LLMs Dream of Pi? | MikesBlog</title>
+<meta name="keywords" content="llm, claude, memory">
+<meta name="description" content="
+     
+
+
+Do LLMs dream of Pi? It&rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.">
+<meta name="author" content="Michael OShea">
+<link rel="canonical" href="https://oshea00.github.io/posts/ai-pi-story/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://oshea00.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://oshea00.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://oshea00.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="https://oshea00.github.io/posts/ai-pi-story/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-37B7H2GBCX');
+        }
+      </script><meta property="og:url" content="https://oshea00.github.io/posts/ai-pi-story/">
+  <meta property="og:site_name" content="MikesBlog">
+  <meta property="og:title" content="Do LLMs Dream of Pi?">
+  <meta property="og:description" content=" Do LLMs dream of Pi? It’s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-09-01T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-09-01T00:00:00+00:00">
+    <meta property="article:tag" content="Llm">
+    <meta property="article:tag" content="Claude">
+    <meta property="article:tag" content="Memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Do LLMs Dream of Pi?">
+<meta name="twitter:description" content="
+     
+
+
+Do LLMs dream of Pi? It&rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://oshea00.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Do LLMs Dream of Pi?",
+      "item": "https://oshea00.github.io/posts/ai-pi-story/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Do LLMs Dream of Pi?",
+  "name": "Do LLMs Dream of Pi?",
+  "description": " Do LLMs dream of Pi? It\u0026rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.\n",
+  "keywords": [
+    "llm", "claude", "memory"
+  ],
+  "articleBody": " Do LLMs dream of Pi? It’s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.\nDuring an offsite lunch with friends, the conversation turned to our favorite interview questions for new candidates. One of the questions offered during this session struck me as a bit Machiavellian, and it went as follows: you are a student in a math class, and the professor announces they will be giving a quiz on Monday where you will be asked to write Pi out to 100 digits. It is Friday. How will you prepare to pass this test?\nTo me, the obvious answer was to spend the weekend remembering 100 digits of Pi. Other options were proposed, mostly involving how to manage partying over the weekend while developing a clever (some might say fiendish) way to get the information into the class on Monday. While we were debating the ethics of some of these options, I told my colleagues that I would just memorize the digits and crush the test on Monday. They were skeptical this was possible, so I volunteered to do it on Monday (this being a Friday lunch).\nI had a plan. Having read a few books about memory techniques, I thought I could build a “memory palace” over the weekend and recite the 100 digits on Monday. This involved a method called memory packing: turning digits into consonant sounds, forming these into words, and building a memorable narrative filled with vivid imagery. Vivid images are easy to recall while moving mentally through a scene, and the words can be decoded into the original digits when needed.\nOn the following Monday, I was able to recite 100 digits of Pi—as promised. Making the point that really anyone can do it, and you can do it too.\nMemory My recollection of this story turned into thinking about the memory technique I had used, and I realized my memory palace had long since evaporated. Unable to summon the images, I was no longer able to remember the digits. This is the problem with these memory techniques—use it or lose it.\nWhile fumbling to reassemble the memories, I realized I still had the phonetic rules. I could use this to build a new memory palace! I muddled through a few digits and words. Once you have put a string of consonants together, thinking up memorable matching words arranged in the right sequence is the trick. While I pondered, it crept into my reverie that perhaps there was a shortcut. I could give all the rules to an LLM and prompt it to create candidate words. In fact, why not ask it to create the full narrative as well?\nExcited to see what might be produced, I considered using a local LLM model, such as Qwen 3.8, but being in a hurry to see immediate results (local models are slow), and wanting a high degree of capability, I decided instead to use Opus 5 from Anthropic. What follows are the prompts I used to produce the new system:\nThe following content has ten 10 digit sequences I want to remember using a memory technique using consonant sounds to represent each digit, also given in the translation table. The trick is to string the consonant sounds for each sequence and then choose words fitting those consonants to make a sentence which, taken together, form a story I can remember and translate back to the digits the words in the story represents. Some of the sounds, for example the digit seven, are 'k' or it could be a hard 'c' sound. Similarly, the digit 6 is 'j' or could be the 'ch' sound in the words jay or chase. It helps if the words produce funny images. Create a 10 line story that follows these rules. Show the digit sequence next to each line. ### 100 digits of Pi 1415926535 8979323846 2643383279 5028841971 6939937510 5820974944 5923078164 0628620899 8628034825 3421170680 ### Digit translation |---|---| | 0 |z s| | 1 |t d| | 2 |n | | 3 |m | | 4 |r | | 5 |l | | 6 |j | | 7 |k | | 8 |f | | 9 |p b| Here’s a resulting sample of the first attempt.\n1. 1415926535 A TURTLE strums a BANJO until the LLAMA starts to HOWL. TURTLE 1415 · BANJO 926 · LLAMA 53 · HOWL 5 2. 8979323846 That howl hardens into a FIB told to a COP from the MOON, who works for a MAFIA ROACH. FIB 89 · COP 79 · MOON 32 · MAFIA 38 · ROACH 46 ... It got the phonetic encoding right, but problems abounded in the narrative composition. Having to remember which words were in BOLD would not be easy. Another feature lacking here is the use of too many words. The main goal of memory packing is to compress related items into a “package” that can be stored away and later unpacked.\nI modified the prompt accordingly:\nLet's try an approach where I don't have to remember certain words as being BOLDED as the ones to decode. I'm thinking the encoded words can be nouns, adverbs, verbs, or adjectives, but we can use prepositions, or other connecting words like 'the' (which doesn't have any of the encoding sounds in it), to help form sentences. Can you give that a go? This yielded a very good result (sample below), but the sentences are disjointed and lacking logical flow. For example: taking the first line, I could easily imagine a turtle and a pony (perhaps the pony riding on the turtle’s back) jailing a mule, and that image by itself is memorable enough, but the sentence following on the second line has no connection to the first. So, I’m left with having to remember each sentence discretely in order. Also, what the heck is a “moon mafia roach”? I’d hate to meet one in a dark alley.\n1. 1415926535 The TURTLE, the PONY, they JAIL the MULE. TURTLE 1415 · PONY 92 · JAIL 65 · MULE 35 2. 8979323846 I FIB, I COP the MOON MAFIA ROACH. FIB 89 · COP 79 · MOON 32 · MAFIA 38 · ROACH 46 3. 2643383279 NACHO RAM, MIFF the MANIAC with a PIE! NACHO 26 · RAM 43 · MIFF 38 · MANIAC 327 · PIE 9 Seeing a need to improve things, I took a stab at another prompt which yielded the best solution.\nRecalling the Palace Realizing I needed to link the sentences in a coherent and memorable way (for me), I suggested a new approach to tie everything together. In the final prompt, I associated each line number with a corresponding month to establish a theme for each stanza. Also, I added a bit of positive reinforcement—a technique that has shown promise with advanced reasoning models, often resulting in them “trying harder” without using negative language.\nNow, I am really going to challenge your creative powers. You're doing great. Each line 1 through 10 I can associate with the corresponding month 1 is January, 10 October. Re-write the story so the sentences have some association with the month they are about, for example September is Autumn, so perhaps leaves or fall, and October is halloween, so cats or witches could be weaved in according to the month. This makes it easier to recall the encoded sentences according to their month/line The final version that follows not only met my criteria, but also surpassed my expectations in some ways. I’ve included the full answer from the model, including the model’s notes:\nHere's the month-themed version. Same rule as before: every content word encodes, and the entire glue vocabulary across all ten lines is the, a, we, I, with—every one of which carries zero encoding sounds. --- 1 · JANUARY—1415926535 TEARY, IDLE, we PUNCH the LIME ALE. TEARY 14 · IDLE 15 · PUNCH 926 · LIME 53 · ALE 5 New Year's Day: red-eyed, doing nothing, swinging at the leftover party punch. 2 · FEBRUARY—8979323846 I FIB, I CUP the MOON, I MUFF the ROUGE. FIB 89 · CUP 79 · MOON 32 · MUFF 38 · ROUGE 46 Valentine's flattery—the sweet lie, the moon cupped in your hands, the red makeup smeared. 3 · MARCH—2643383279 We OWN the CHARM, we MIFF the MEAN CAP. OWN 2 · CHARM 643 · MIFF 38 · MEAN 32 · CAP 79 St. Patrick's: we've got the lucky charm, and the leprechaun under the mean green cap is furious. 4 · APRIL—5028841971 LOOSEN the IFFY OAF with the READY BUCKET. LOOSEN 502 · IFFY 8 · OAF 8 · READY 41 · BUCKET 971 April Fools meets April showers—loosen the stiff fool up with a bucket that's been waiting all month. 5 · MAY—6939937510 JAY, BEAM the BABY MEEKLY with a DAISY! JAY 6 · BEAM 93 · BABY 99 · MEEKLY 375 · DAISY 10 Spring: blue jay, spring baby, and a daisy lobbed very apologetically. 6 · JUNE—5820974944 WEALTHY FANS BICKER with the BEARER. WEALTHY 5 · FANS 820 · BICKER 974 · BEARER 944 June wedding—the rich guests fighting with the ring bearer. 7 · JULY—5923078164 We HAIL the BUN, the MUSIC, the FAT CHEER. HAIL 5 · BUN 92 · MUSIC 307 · FAT 81 · CHEER 64 Fourth of July: the hot dog bun, the marching band, the big roar from the parade route. 8 · AUGUST—0628620899 The ICY OCEAN: we FISH the NOISY, IFFY PUPPY. ICY 0 · OCEAN 62 · FISH 86 · NOISY 20 · IFFY 8 · PUPPY 99 Dog days—hauling a yappy, questionable dog out of the cold surf. 9 · SEPTEMBER—8628034825 FASHION the FAUX SUMMER FINALE. FASHION 862 · FAUX 8 · SUMMER 034 · FINALE 825 Indian summer and back-to-school clothes: staging a fake last act for a season that's already over. 10 · OCTOBER—3421170680 MARINATE the TICK, the ICE, the WITCH FACE! MARINATE 3421 · TICK 17 · ICE 0 · WITCH 6 · FACE 80 Halloween cauldron recipe—and the witch's face is in the pot. --- How the months paid off. The digits themselves handed me several of these. Line 3 contains 643 right where a word had to start, which is CHARM—pure luck for St. Patrick's. Line 9 has 034 buried in the middle, which is exactly SUMMER, so September wrote itself. Line 10 has a lone 6 sitting at position eight, and 6 is the ch/sh digit—that's WITCH, in October, at no cost. Line 8's two 62s gave me OCEAN to work with for August. Two lines fought back. January has no 0 anywhere, so no s or z sound is available in the whole line—no snow, no ice, no resolutions. I went with the hangover instead. And February's chunks are all short two-sound pieces, which is why it came out as three parallel clauses rather than one sentence; the repetition actually makes it easier to chant. The packaging now condenses things on at least three dimensions: the ordering of the stanzas follows an easy association to the months I already know, each verse has a thematic association to its corresponding month, and finally, averaging five words in length, the passages compress 10 digits into a small package.\nChallenge Accepted With the final memory palace above, I encourage you to give it a try. It’s also a handy way to memorize phone numbers.\nWhat made this final version surprising was seeing the model’s commentary on how it made certain choices showing in-depth understanding of the alternatives. Each of the thematic verses, along with the elaboration of the underlying imagery for each month, showed, shall I say, creativity? This goes far beyond how many ‘r’s are in strawberry, and it does lead to further questions.\nFrom a technical standpoint we see the model combining facets of a problem requiring the juxtaposition of syntax, phonetic rules, permutations, and thematic constraints, while hitting every mark. Perhaps the challenge wasn’t as complex as I had imagined? Language is the sweet spot for LLMs. Seeing this, I want to be especially careful not to summon the impression of another mind at work. This is something we are hardwired to do. As you read this, you’re likely forming impressions of how I think, and what my motivations are. You can’t help it, and neither can I.\nThe second challenge is to avoid granting agency, and perhaps even trust, to a technology cleverly designed to emulate linguistic feats, complete with perfect grammar, possibly overcommitting to the likelihood that its constructions are correct and worthy of our trust.\nIt’s difficult to convey how the model’s language engenders a “presence” which can crop up in a tangible way, but I recently had a discussion with my dad, who was using Gemini to help process the news of a friend’s loss. The model provided very plausible advice on how to support his friend, suggested checking in and offering resources, and finally offered to draft a text he could send his friend in time of need. I asked my dad to consider whether he would allow the model to send that text to his friend without him first reading it, to act as his proxy, given how well it writes. Of course, he said no, and the reasons boil down to trust. To be fair, I might not trust anyone to send such a message for me, but the likelihood is far greater if they are a fellow human being.\nIs there feeling and empathy here? I would say no. That would require a mind capable of feeling empathy. It’s capable of recreating language that simulates what a fellow human could create: an empathetic thought. So, we should be careful how we use these models, ensuring we imbue our taste, discretion and humanity into the work we create with their assistance.\nIt’s worth noting that the final result of my thought experiment emerged from a collaborative process. I think this is an important facet of working with LLMs. I could have created a multi-agent interaction, a producer\u003c-\u003ereviewer construct wherein the two agents would arrive at a final product. It would be interesting to try this, yet I can’t help think the result would not have been as good. By collaborating, I was able to infuse aspects of the solution I needed—knowing my weaknesses and lack of total recall—while amplifying my ability to search a lexicon of possible words for which the model has the advantage. The result was better.\nI think this was a good partnership. Maybe the models will one day dream about Pi…\nP.S. All the emdashes were hand-crafted by me.\n",
+  "wordCount" : "2510",
+  "inLanguage": "en",
+  "datePublished": "2026-09-01T00:00:00Z",
+  "dateModified": "2026-09-01T00:00:00Z",
+  "author":[{
+    "@type": "Person",
+    "name": "Michael OShea"
+  }],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://oshea00.github.io/posts/ai-pi-story/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "MikesBlog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://oshea00.github.io/favicon.ico"
+    }
+  }
+}
+</script>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://oshea00.github.io/" accesskey="h" title="MikesBlog (Alt + H)">MikesBlog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://oshea00.github.io/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Do LLMs Dream of Pi?
+    </h1>
+    <div class="post-meta"><span title='2026-09-01 00:00:00 +0000 UTC'>September 1, 2026</span>&nbsp;·&nbsp;12 min&nbsp;·&nbsp;Michael OShea
+
+</div>
+  </header> 
+  <div class="post-content"><figure class="align-center ">
+    <img loading="lazy" src="images/cuteaidreamsofpi.jpg#center"/> 
+</figure>
+
+<p>Do LLMs dream of Pi? It&rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.</p>
+<p>During an offsite lunch with friends, the conversation turned to our favorite interview questions for new candidates. One of the questions offered during this session struck me as a bit Machiavellian, and it went as follows: you are a student in a math class, and the professor announces they will be giving a quiz on Monday where you will be asked to write Pi out to 100 digits. It is Friday. How will you prepare to pass this test?</p>
+<p>To me, the obvious answer was to spend the weekend remembering 100 digits of Pi. Other options were proposed, mostly involving how to manage partying over the weekend while developing a clever (some might say fiendish) way to get the information into the class on Monday. While we were debating the ethics of some of these options, I told my colleagues that I would just memorize the digits and crush the test on Monday. They were skeptical this was possible, so I volunteered to do it on Monday (this being a Friday lunch).</p>
+<p>I had a plan. Having read a few books about memory techniques, I thought I could build a &ldquo;memory palace&rdquo; over the weekend and recite the 100 digits on Monday. This involved a method called memory packing: turning digits into consonant sounds, forming these into words, and building a memorable narrative filled with vivid imagery. Vivid images are easy to recall while moving mentally through a scene, and the words can be decoded into the original digits when needed.</p>
+<p>On the following Monday, I was able to recite 100 digits of Pi—as promised. Making the point that really anyone can do it, and you can do it too.</p>
+<h3 id="memory">Memory<a hidden class="anchor" aria-hidden="true" href="#memory">#</a></h3>
+<p>My recollection of this story turned into thinking about the memory technique I had used, and I realized my memory palace had long since evaporated. Unable to summon the images, I was no longer able to remember the digits. This is the problem with these memory techniques—use it or lose it.</p>
+<p>While fumbling to reassemble the memories, I realized I still had the phonetic rules. I could use this to build a new memory palace! I muddled through a few digits and words. Once you have put a string of consonants together, thinking up memorable matching words arranged in the right sequence is the trick. While I pondered, it crept into my reverie that perhaps there was a shortcut. I could give all the rules to an LLM and prompt it to create candidate words. In fact, why not ask it to create the full narrative as well?</p>
+<p>Excited to see what might be produced, I considered using a local LLM model, such as Qwen 3.8, but being in a hurry to see immediate results (local models are slow), and wanting a high degree of capability, I decided instead to use Opus 5 from Anthropic. What follows are the prompts I used to produce the new system:</p>
+<pre tabindex="0"><code>The following content has ten 10 digit sequences I want to remember
+using a memory technique using consonant sounds to represent each digit, 
+also given in the translation table. The trick is to string the consonant
+sounds for each sequence and then choose words fitting those consonants
+to make a sentence which, taken together, form a story I can remember
+and translate back to the digits the words in the story represents. 
+Some of the sounds, for example the digit seven, are &#39;k&#39; or it could be
+a hard &#39;c&#39; sound. Similarly, the digit 6 is &#39;j&#39; or could be the &#39;ch&#39; sound
+in the words jay or chase. It helps if the words produce funny images.
+Create a 10 line story that follows these rules. Show the digit sequence
+next to each line.
+
+### 100 digits of Pi
+1415926535
+8979323846
+2643383279
+5028841971
+6939937510
+5820974944
+5923078164
+0628620899
+8628034825
+3421170680
+
+### Digit translation
+|---|---|
+| 0 |z s|
+| 1 |t d|
+| 2 |n  |
+| 3 |m  | 
+| 4 |r  |
+| 5 |l  |
+| 6 |j  |
+| 7 |k  |
+| 8 |f  |
+| 9 |p b|
+</code></pre><p>Here&rsquo;s a resulting sample of the first attempt.</p>
+<pre tabindex="0"><code>  1. 1415926535
+  A TURTLE strums a BANJO until the LLAMA starts to HOWL.
+  TURTLE 1415 · BANJO 926 · LLAMA 53 · HOWL 5
+
+  2. 8979323846
+  That howl hardens into a FIB told to a COP from the MOON, who works for a
+  MAFIA ROACH.
+  FIB 89 · COP 79 · MOON 32 · MAFIA 38 · ROACH 46
+...
+</code></pre><p>It got the phonetic encoding right, but problems abounded in the narrative composition. Having to remember which words were in <em>BOLD</em> would not be easy. Another feature lacking here is the use of too many words. The main goal of memory packing is to compress related items into a &ldquo;package&rdquo; that can be stored away and later unpacked.</p>
+<p>I modified the prompt accordingly:</p>
+<pre tabindex="0"><code>Let&#39;s try an approach where I don&#39;t have to remember certain words as being
+BOLDED as the ones to decode. I&#39;m thinking the encoded words can be nouns,
+adverbs, verbs, or adjectives, but we can use prepositions, or other
+connecting words like &#39;the&#39; (which doesn&#39;t have any of the encoding sounds in
+it), to help form sentences. Can you give that a go?
+</code></pre><p>This yielded a very good result (sample below), but the sentences are disjointed and lacking logical flow. For example: taking the first line, I could easily imagine a turtle and a pony (perhaps the pony riding on the turtle&rsquo;s back) jailing a mule, and that image by itself is memorable enough, but the sentence following on the second line has no connection to the first. So, I&rsquo;m left with having to remember each sentence discretely in order. Also, what the heck is a &ldquo;moon mafia roach&rdquo;? I&rsquo;d hate to meet one in a dark alley.</p>
+<pre tabindex="0"><code>1. 1415926535
+  The TURTLE, the PONY, they JAIL the MULE.
+  TURTLE 1415 · PONY 92 · JAIL 65 · MULE 35
+
+2. 8979323846
+  I FIB, I COP the MOON MAFIA ROACH.
+  FIB 89 · COP 79 · MOON 32 · MAFIA 38 · ROACH 46
+
+3. 2643383279
+  NACHO RAM, MIFF the MANIAC with a PIE!
+  NACHO 26 · RAM 43 · MIFF 38 · MANIAC 327 · PIE 9
+</code></pre><p>Seeing a need to improve things, I took a stab at another prompt which yielded the best solution.</p>
+<h3 id="recalling-the-palace">Recalling the Palace<a hidden class="anchor" aria-hidden="true" href="#recalling-the-palace">#</a></h3>
+<p>Realizing I needed to link the sentences in a coherent and memorable way (for me), I suggested a new approach to tie everything together. In the final prompt, I associated each line number with a corresponding month to establish a theme for each stanza. Also, I added a bit of positive reinforcement—a technique that has shown promise with advanced reasoning models, often resulting in them &ldquo;trying harder&rdquo; without using negative language.</p>
+<pre tabindex="0"><code>Now, I am really going to challenge your creative powers. You&#39;re doing great.
+Each line 1 through 10 I can associate with the corresponding month 1 is
+January, 10 October. Re-write the story so the sentences have some
+association with the month they are about, for example September is Autumn,
+so perhaps leaves or fall, and October is halloween, so cats or witches could
+be weaved in according to the month. This makes it easier to recall the
+encoded sentences according to their month/line
+</code></pre><p>The final version that follows not only met my criteria, but also surpassed my expectations in some ways. I&rsquo;ve included the full answer from the model, including the model&rsquo;s notes:</p>
+<pre tabindex="0"><code>Here&#39;s the month-themed version. Same rule as before: every content word
+encodes, and the entire glue vocabulary across all ten lines is the, a, we, I,
+with—every one of which carries zero encoding sounds.
+
+  ---
+
+  1 · JANUARY—1415926535
+  TEARY, IDLE, we PUNCH the LIME ALE.
+  TEARY 14 · IDLE 15 · PUNCH 926 · LIME 53 · ALE 5
+  New Year&#39;s Day: red-eyed, doing nothing, swinging at the leftover party punch.
+
+  2 · FEBRUARY—8979323846
+  I FIB, I CUP the MOON, I MUFF the ROUGE.
+  FIB 89 · CUP 79 · MOON 32 · MUFF 38 · ROUGE 46
+  Valentine&#39;s flattery—the sweet lie, the moon cupped in your hands, the red
+  makeup smeared.
+
+  3 · MARCH—2643383279
+  We OWN the CHARM, we MIFF the MEAN CAP.
+  OWN 2 · CHARM 643 · MIFF 38 · MEAN 32 · CAP 79
+  St. Patrick&#39;s: we&#39;ve got the lucky charm, and the leprechaun under the mean
+  green cap is furious.
+
+  4 · APRIL—5028841971
+  LOOSEN the IFFY OAF with the READY BUCKET.
+  LOOSEN 502 · IFFY 8 · OAF 8 · READY 41 · BUCKET 971
+  April Fools meets April showers—loosen the stiff fool up with a bucket
+  that&#39;s been waiting all month.
+
+  5 · MAY—6939937510
+  JAY, BEAM the BABY MEEKLY with a DAISY!
+  JAY 6 · BEAM 93 · BABY 99 · MEEKLY 375 · DAISY 10
+  Spring: blue jay, spring baby, and a daisy lobbed very apologetically.
+
+  6 · JUNE—5820974944
+  WEALTHY FANS BICKER with the BEARER.
+  WEALTHY 5 · FANS 820 · BICKER 974 · BEARER 944
+  June wedding—the rich guests fighting with the ring bearer.
+
+  7 · JULY—5923078164
+  We HAIL the BUN, the MUSIC, the FAT CHEER.
+  HAIL 5 · BUN 92 · MUSIC 307 · FAT 81 · CHEER 64
+  Fourth of July: the hot dog bun, the marching band, the big roar from the
+  parade route.
+
+  8 · AUGUST—0628620899
+  The ICY OCEAN: we FISH the NOISY, IFFY PUPPY.
+  ICY 0 · OCEAN 62 · FISH 86 · NOISY 20 · IFFY 8 · PUPPY 99
+  Dog days—hauling a yappy, questionable dog out of the cold surf.
+
+  9 · SEPTEMBER—8628034825
+  FASHION the FAUX SUMMER FINALE.
+  FASHION 862 · FAUX 8 · SUMMER 034 · FINALE 825
+  Indian summer and back-to-school clothes: staging a fake last act for a season
+  that&#39;s already over.
+
+  10 · OCTOBER—3421170680
+  MARINATE the TICK, the ICE, the WITCH FACE!
+  MARINATE 3421 · TICK 17 · ICE 0 · WITCH 6 · FACE 80
+  Halloween cauldron recipe—and the witch&#39;s face is in the pot.
+
+  ---
+
+  How the months paid off. The digits themselves handed me several of these.
+  Line 3 contains 643 right where a word had to start, which is CHARM—pure
+  luck for St. Patrick&#39;s. Line 9 has 034 buried in the middle, which is exactly
+  SUMMER, so September wrote itself. Line 10 has a lone 6 sitting at position
+  eight, and 6 is the ch/sh digit—that&#39;s WITCH, in October, at no cost. Line
+  8&#39;s two 62s gave me OCEAN to work with for August.
+
+  Two lines fought back. January has no 0 anywhere, so no s or z sound is
+  available in the whole line—no snow, no ice, no resolutions. I went with the
+  hangover instead. And February&#39;s chunks are all short two-sound pieces, which
+  is why it came out as three parallel clauses rather than one sentence; the
+  repetition actually makes it easier to chant.
+</code></pre><p>The packaging now condenses things on at least three dimensions: the ordering of the stanzas follows an easy association to the months I already know, each verse has a thematic association to its corresponding month, and finally, averaging five words in length, the passages compress 10 digits into a small package.</p>
+<h2 id="challenge-accepted">Challenge Accepted<a hidden class="anchor" aria-hidden="true" href="#challenge-accepted">#</a></h2>
+<p>With the final memory palace above, I encourage you to give it a try. It&rsquo;s also a handy way to memorize phone numbers.</p>
+<p>What made this final version surprising was seeing the model&rsquo;s commentary on how it made certain choices showing in-depth understanding of the alternatives. Each of the thematic verses, along with the elaboration of the underlying imagery for each month, showed, shall I say, creativity? This goes far beyond how many &lsquo;r&rsquo;s are in strawberry, and it does lead to further questions.</p>
+<p>From a technical standpoint we see the model combining facets of a problem requiring the juxtaposition of syntax, phonetic rules, permutations, and thematic constraints, while hitting every mark. Perhaps the challenge wasn&rsquo;t as complex as I had imagined? Language is the sweet spot for LLMs. Seeing this, I want to be especially careful not to summon the impression of another mind at work. This is something we are hardwired to do. As you read this, you&rsquo;re likely forming impressions of how I think, and what my motivations are. You can&rsquo;t help it, and neither can I.</p>
+<p>The second challenge is to avoid granting agency, and perhaps even trust, to a technology cleverly designed to emulate linguistic feats, complete with perfect grammar, possibly overcommitting to the likelihood that its constructions are correct and worthy of our trust.</p>
+<p>It&rsquo;s difficult to convey how the model&rsquo;s language engenders a &ldquo;presence&rdquo; which can crop up in a tangible way, but I recently had a discussion with my dad, who was using Gemini to help process the news of a friend&rsquo;s loss. The model provided very plausible advice on how to support his friend, suggested checking in and offering resources, and finally offered to draft a text he could send his friend in time of need. I asked my dad to consider whether he would allow the model to send that text to his friend without him first reading it, to act as his proxy, given how well it writes. Of course, he said no, and the reasons boil down to trust. To be fair, I might not trust anyone to send such a message for me, but the likelihood is far greater if they are a fellow human being.</p>
+<p>Is there feeling and empathy here? I would say no. That would require a mind capable of feeling empathy. It&rsquo;s capable of recreating language that simulates what a fellow human could create: an empathetic thought. So, we should be careful how we use these models, ensuring we imbue our taste, discretion and humanity into the work we create with their assistance.</p>
+<p>It&rsquo;s worth noting that the final result of my thought experiment emerged from a collaborative process. I think this is an important facet of working with LLMs. I could have created a multi-agent interaction, a producer&lt;-&gt;reviewer construct wherein the two agents would arrive at a final product. It would be interesting to try this, yet I can&rsquo;t help think the result would not have been as good. By collaborating, I was able to infuse aspects of the solution I needed—knowing my weaknesses and lack of total recall—while amplifying my ability to search a lexicon of possible words for which the model has the advantage. The result was better.</p>
+<p>I think this was a good partnership. Maybe the models will one day dream about Pi&hellip;</p>
+<p>P.S. All the emdashes were hand-crafted by me.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://oshea00.github.io/tags/llm/">Llm</a></li>
+      <li><a href="https://oshea00.github.io/tags/claude/">Claude</a></li>
+      <li><a href="https://oshea00.github.io/tags/memory/">Memory</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://oshea00.github.io/posts/running-cool-dgx-cluster/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Running Cooler Spark DGX Cluster</span>
+  </a>
+</nav>
+
+
+<ul class="share-buttons">
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on x"
+            href="https://x.com/intent/tweet/?text=Do%20LLMs%20Dream%20of%20Pi%3f&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f&amp;hashtags=llm%2cclaude%2cmemory">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on linkedin"
+            href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f&amp;title=Do%20LLMs%20Dream%20of%20Pi%3f&amp;summary=Do%20LLMs%20Dream%20of%20Pi%3f&amp;source=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-288.985,423.278l0,-225.717l-75.04,0l0,225.717l75.04,0Zm270.539,0l0,-129.439c0,-69.333 -37.018,-101.586 -86.381,-101.586c-39.804,0 -57.634,21.891 -67.617,37.266l0,-31.958l-75.021,0c0.995,21.181 0,225.717 0,225.717l75.02,0l0,-126.056c0,-6.748 0.486,-13.492 2.474,-18.315c5.414,-13.475 17.767,-27.434 38.494,-27.434c27.135,0 38.007,20.707 38.007,51.037l0,120.768l75.024,0Zm-307.552,-334.556c-25.674,0 -42.448,16.879 -42.448,39.002c0,21.658 16.264,39.002 41.455,39.002l0.484,0c26.165,0 42.452,-17.344 42.452,-39.002c-0.485,-22.092 -16.241,-38.954 -41.943,-39.002Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on reddit"
+            href="https://reddit.com/submit?url=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f&title=Do%20LLMs%20Dream%20of%20Pi%3f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-3.446,265.638c0,-22.964 -18.616,-41.58 -41.58,-41.58c-11.211,0 -21.361,4.457 -28.841,11.666c-28.424,-20.508 -67.586,-33.757 -111.204,-35.278l18.941,-89.121l61.884,13.157c0.756,15.734 13.642,28.29 29.56,28.29c16.407,0 29.706,-13.299 29.706,-29.701c0,-16.403 -13.299,-29.702 -29.706,-29.702c-11.666,0 -21.657,6.792 -26.515,16.578l-69.105,-14.69c-1.922,-0.418 -3.939,-0.042 -5.585,1.036c-1.658,1.073 -2.811,2.761 -3.224,4.686l-21.152,99.438c-44.258,1.228 -84.046,14.494 -112.837,35.232c-7.468,-7.164 -17.589,-11.591 -28.757,-11.591c-22.965,0 -41.585,18.616 -41.585,41.58c0,16.896 10.095,31.41 24.568,37.918c-0.639,4.135 -0.99,8.328 -0.99,12.576c0,63.977 74.469,115.836 166.33,115.836c91.861,0 166.334,-51.859 166.334,-115.836c0,-4.218 -0.347,-8.387 -0.977,-12.493c14.564,-6.47 24.735,-21.034 24.735,-38.001Zm-119.474,108.193c-20.27,20.241 -59.115,21.816 -70.534,21.816c-11.428,0 -50.277,-1.575 -70.522,-21.82c-3.007,-3.008 -3.007,-7.882 0,-10.889c3.003,-2.999 7.882,-3.003 10.885,0c12.777,12.781 40.11,17.317 59.637,17.317c19.522,0 46.86,-4.536 59.657,-17.321c3.016,-2.999 7.886,-2.995 10.885,0.008c3.008,3.011 3.003,7.882 -0.008,10.889Zm-5.23,-48.781c-16.373,0 -29.701,-13.324 -29.701,-29.698c0,-16.381 13.328,-29.714 29.701,-29.714c16.378,0 29.706,13.333 29.706,29.714c0,16.374 -13.328,29.698 -29.706,29.698Zm-160.386,-29.702c0,-16.381 13.328,-29.71 29.714,-29.71c16.369,0 29.689,13.329 29.689,29.71c0,16.373 -13.32,29.693 -29.689,29.693c-16.386,0 -29.714,-13.32 -29.714,-29.693Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on facebook"
+            href="https://facebook.com/sharer/sharer.php?u=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-106.468,0l0,-192.915l66.6,0l12.672,-82.621l-79.272,0l0,-53.617c0,-22.603 11.073,-44.636 46.58,-44.636l36.042,0l0,-70.34c0,0 -32.71,-5.582 -63.982,-5.582c-65.288,0 -107.96,39.569 -107.96,111.204l0,62.971l-72.573,0l0,82.621l72.573,0l0,192.915l-191.104,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on whatsapp"
+            href="https://api.whatsapp.com/send?text=Do%20LLMs%20Dream%20of%20Pi%3f%20-%20https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f">
+            <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M449.446,0c34.525,0 62.554,28.03 62.554,62.554l0,386.892c0,34.524 -28.03,62.554 -62.554,62.554l-386.892,0c-34.524,0 -62.554,-28.03 -62.554,-62.554l0,-386.892c0,-34.524 28.029,-62.554 62.554,-62.554l386.892,0Zm-58.673,127.703c-33.842,-33.881 -78.847,-52.548 -126.798,-52.568c-98.799,0 -179.21,80.405 -179.249,179.234c-0.013,31.593 8.241,62.428 23.927,89.612l-25.429,92.884l95.021,-24.925c26.181,14.28 55.659,21.807 85.658,21.816l0.074,0c98.789,0 179.206,-80.413 179.247,-179.243c0.018,-47.895 -18.61,-92.93 -52.451,-126.81Zm-126.797,275.782l-0.06,0c-26.734,-0.01 -52.954,-7.193 -75.828,-20.767l-5.441,-3.229l-56.386,14.792l15.05,-54.977l-3.542,-5.637c-14.913,-23.72 -22.791,-51.136 -22.779,-79.287c0.033,-82.142 66.867,-148.971 149.046,-148.971c39.793,0.014 77.199,15.531 105.329,43.692c28.128,28.16 43.609,65.592 43.594,105.4c-0.034,82.149 -66.866,148.983 -148.983,148.984Zm81.721,-111.581c-4.479,-2.242 -26.499,-13.075 -30.604,-14.571c-4.105,-1.495 -7.091,-2.241 -10.077,2.241c-2.986,4.483 -11.569,14.572 -14.182,17.562c-2.612,2.988 -5.225,3.364 -9.703,1.12c-4.479,-2.241 -18.91,-6.97 -36.017,-22.23c-13.314,-11.876 -22.304,-26.542 -24.916,-31.026c-2.612,-4.484 -0.279,-6.908 1.963,-9.14c2.016,-2.007 4.48,-5.232 6.719,-7.847c2.24,-2.615 2.986,-4.484 4.479,-7.472c1.493,-2.99 0.747,-5.604 -0.374,-7.846c-1.119,-2.241 -10.077,-24.288 -13.809,-33.256c-3.635,-8.733 -7.327,-7.55 -10.077,-7.688c-2.609,-0.13 -5.598,-0.158 -8.583,-0.158c-2.986,0 -7.839,1.121 -11.944,5.604c-4.105,4.484 -15.675,15.32 -15.675,37.364c0,22.046 16.048,43.342 18.287,46.332c2.24,2.99 31.582,48.227 76.511,67.627c10.685,4.615 19.028,7.371 25.533,9.434c10.728,3.41 20.492,2.929 28.209,1.775c8.605,-1.285 26.499,-10.833 30.231,-21.295c3.732,-10.464 3.732,-19.431 2.612,-21.298c-1.119,-1.869 -4.105,-2.99 -8.583,-5.232Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on telegram"
+            href="https://telegram.me/share/url?text=Do%20LLMs%20Dream%20of%20Pi%3f&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f">
+            <svg version="1.1" xml:space="preserve" viewBox="2 2 28 28" height="30px" width="30px" fill="currentColor">
+                <path
+                    d="M26.49,29.86H5.5a3.37,3.37,0,0,1-2.47-1,3.35,3.35,0,0,1-1-2.47V5.48A3.36,3.36,0,0,1,3,3,3.37,3.37,0,0,1,5.5,2h21A3.38,3.38,0,0,1,29,3a3.36,3.36,0,0,1,1,2.46V26.37a3.35,3.35,0,0,1-1,2.47A3.38,3.38,0,0,1,26.49,29.86Zm-5.38-6.71a.79.79,0,0,0,.85-.66L24.73,9.24a.55.55,0,0,0-.18-.46.62.62,0,0,0-.41-.17q-.08,0-16.53,6.11a.59.59,0,0,0-.41.59.57.57,0,0,0,.43.52l4,1.24,1.61,4.83a.62.62,0,0,0,.63.43.56.56,0,0,0,.4-.17L16.54,20l4.09,3A.9.9,0,0,0,21.11,23.15ZM13.8,20.71l-1.21-4q8.72-5.55,8.78-5.55c.15,0,.23,0,.23.16a.18.18,0,0,1,0,.06s-2.51,2.3-7.52,6.8Z" />
+            </svg>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" rel="noopener noreferrer" aria-label="share Do LLMs Dream of Pi? on ycombinator"
+            href="https://news.ycombinator.com/submitlink?t=Do%20LLMs%20Dream%20of%20Pi%3f&u=https%3a%2f%2foshea00.github.io%2fposts%2fai-pi-story%2f">
+            <svg version="1.1" xml:space="preserve" width="30px" height="30px" viewBox="0 0 512 512" fill="currentColor"
+                xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+                <path
+                    d="M449.446 0C483.971 0 512 28.03 512 62.554L512 449.446C512 483.97 483.97 512 449.446 512L62.554 512C28.03 512 0 483.97 0 449.446L0 62.554C0 28.03 28.029 0 62.554 0L449.446 0ZM183.8767 87.9921H121.8427L230.6673 292.4508V424.0079H281.3328V292.4508L390.1575 87.9921H328.1233L256 238.2489z" />
+            </svg>
+        </a>
+    </li>
+</ul>
+
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://oshea00.github.io/">MikesBlog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

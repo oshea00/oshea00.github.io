@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Claude on MikesBlog</title>
-    <link>https://oshea00.github.io/tags/claude/</link>
-    <description>Recent content in Claude on MikesBlog</description>
+    <title>Memory on MikesBlog</title>
+    <link>https://oshea00.github.io/tags/memory/</link>
+    <description>Recent content in Memory on MikesBlog</description>
     <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 01 Sep 2026 00:00:00 +0000</lastBuildDate>
-    <atom:link href="https://oshea00.github.io/tags/claude/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://oshea00.github.io/tags/memory/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Do LLMs Dream of Pi?</title>
       <link>https://oshea00.github.io/posts/ai-pi-story/</link>
@@ -18,17 +18,6 @@
 &lt;/figure&gt;
 
 &lt;p&gt;Do LLMs dream of Pi? It&amp;rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Agentic Orchestration is Not a Moat</title>
-      <link>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</link>
-      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarmy.png#center&#34;/&gt; 
-&lt;/figure&gt;
-
-&lt;p&gt;The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it&amp;rsquo;s a trivial solution, and it will be copied, relentlessly, and everyone will move on to something else&amp;ndash;not sure what that will be.&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

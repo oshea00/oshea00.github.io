@@ -6,8 +6,19 @@
     <description>Recent content in Llm on MikesBlog</description>
     <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 13 Aug 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/llm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Do LLMs Dream of Pi?</title>
+      <link>https://oshea00.github.io/posts/ai-pi-story/</link>
+      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/ai-pi-story/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cuteaidreamsofpi.jpg#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;Do LLMs dream of Pi? It&amp;rsquo;s a whimsical question in the vein of a Philip K. Dick story, exploring the meaning of artificial intelligence and reality itself. The reality we find ourselves in decades after Dick first wondered about electric dreams, a future containing large language models (LLMs) and chatbots, might offer new answers, or perhaps just better questions. I found a few of my own recently as I recalled a time when I was able to recite Pi out to many digits, basically on a dare, a few years ago.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Running Cooler Spark DGX Cluster</title>
       <link>https://oshea00.github.io/posts/running-cool-dgx-cluster/</link>

@@ -6,8 +6,29 @@
     <description>Recent content in Tags on MikesBlog</description>
     <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 13 Aug 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Claude</title>
+      <link>https://oshea00.github.io/tags/claude/</link>
+      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/claude/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Llm</title>
+      <link>https://oshea00.github.io/tags/llm/</link>
+      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Memory</title>
+      <link>https://oshea00.github.io/tags/memory/</link>
+      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/memory/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Cluster</title>
       <link>https://oshea00.github.io/tags/cluster/</link>
@@ -27,13 +48,6 @@
       <link>https://oshea00.github.io/tags/llama.cpp/</link>
       <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llama.cpp/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Llm</title>
-      <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/llm/</guid>
       <description></description>
     </item>
     <item>
@@ -83,13 +97,6 @@
       <link>https://oshea00.github.io/tags/systems/</link>
       <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/systems/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Claude</title>
-      <link>https://oshea00.github.io/tags/claude/</link>
-      <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/claude/</guid>
       <description></description>
     </item>
     <item>
