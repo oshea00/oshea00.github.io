@@ -6,20 +6,41 @@
     <description>Recent content in Tags on MikesBlog</description>
     <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Claude</title>
-      <link>https://oshea00.github.io/tags/claude/</link>
-      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/claude/</guid>
+      <title>Genai</title>
+      <link>https://oshea00.github.io/tags/genai/</link>
+      <pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/genai/</guid>
       <description></description>
     </item>
     <item>
       <title>Llm</title>
       <link>https://oshea00.github.io/tags/llm/</link>
-      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Rsi</title>
+      <link>https://oshea00.github.io/tags/rsi/</link>
+      <pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/rsi/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Transformers</title>
+      <link>https://oshea00.github.io/tags/transformers/</link>
+      <pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/transformers/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Claude</title>
+      <link>https://oshea00.github.io/tags/claude/</link>
+      <pubDate>Tue, 01 Sep 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/claude/</guid>
       <description></description>
     </item>
     <item>
