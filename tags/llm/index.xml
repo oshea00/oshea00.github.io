@@ -6,8 +6,26 @@
     <description>Recent content in Llm on MikesBlog</description>
     <generator>Hugo -- 0.165.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 16 Sep 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 08 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/llm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Economics of Bespoke Internal Software</title>
+      <link>https://oshea00.github.io/posts/bespoke-software/</link>
+      <pubDate>Thu, 08 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/bespoke-software/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerwoodworking.jpg#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;I&amp;rsquo;m probably not the only one annoyed at Adobe Software&amp;rsquo;s licensing model, with its ever-increasing subscription pricing, combined with the incessant cross-selling ads in the products, and intrusive update reminders. So I decided to replace Adobe Acrobat with my own internal product written using Claude Code and Opus 5.5. It is called &amp;ldquo;MyPDF.&amp;rdquo;&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/MyPdfScreen.png&#34;/&gt; &lt;figcaption&gt;
+            &lt;p&gt;Figure 1. MyPDF Screenshot.&lt;/p&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;The total cost of this effort was less than $20, and it took about six hours of my time. It is checked into a private repository on Github, and I can deploy new releases, as needed, in a matter of minutes. I&amp;rsquo;ve uninstalled Adobe Acrobat from all my internal systems and made &amp;ldquo;MyPDF&amp;rdquo; the default for &lt;code&gt;*.pdf&lt;/code&gt; files.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Limits on Recursive Self Improvement</title>
       <link>https://oshea00.github.io/posts/recursive-self-improvement/</link>
