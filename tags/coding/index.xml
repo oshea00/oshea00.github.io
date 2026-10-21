@@ -4,10 +4,21 @@
     <title>Coding on MikesBlog</title>
     <link>https://oshea00.github.io/tags/coding/</link>
     <description>Recent content in Coding on MikesBlog</description>
-    <generator>Hugo -- 0.165.0</generator>
+    <generator>Hugo -- 0.168.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 08 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/coding/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Oh, Brave New World</title>
+      <link>https://oshea00.github.io/posts/brave-new-world/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/brave-new-world/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarcade.jpg#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It&amp;rsquo;s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 &amp;ldquo;do its thing.&amp;rdquo; Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>The Economics of Bespoke Internal Software</title>
       <link>https://oshea00.github.io/posts/bespoke-software/</link>

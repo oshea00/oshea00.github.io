@@ -4,7 +4,7 @@
     <title>Cloud on MikesBlog</title>
     <link>https://oshea00.github.io/tags/cloud/</link>
     <description>Recent content in Cloud on MikesBlog</description>
-    <generator>Hugo -- 0.165.0</generator>
+    <generator>Hugo -- 0.168.0</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 29 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/cloud/index.xml" rel="self" type="application/rss+xml" />
@@ -277,7 +277,283 @@
     &lt;div id=&#34;hype-cycle-widget&#34;&gt;
         &lt;div class=&#34;hype-container&#34;&gt;
             &lt;div class=&#34;hype-header&#34;&gt;
-                &lt;p style=&#34;font-size: 1rem; opacity: 0.8; margin-top: 10px;&#34;&gt;Based on Gartner Hype Cycle for Cloud Platform Services, 2025&lt;/p&gt;</description>
+                &lt;p style=&#34;font-size: 1rem; opacity: 0.8; margin-top: 10px;&#34;&gt;Based on Gartner Hype Cycle for Cloud Platform Services, 2025&lt;/p&gt;
+                &lt;p style=&#34;font-size: 0.8rem; opacity: 0.8; margin-top: 10px;&#34;&gt;&lt;i&gt;(Hover over the dots to see details)&lt;/i&gt;&lt;/p&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&#34;hype-main-content&#34;&gt;
+                &lt;div class=&#34;hype-chart-section&#34;&gt;
+                    &lt;h3 style=&#34;margin-bottom: 20px; color: #2c3e50;&#34;&gt;Technology Positioning&lt;/h3&gt;
+                    &lt;div class=&#34;hype-chart-container&#34;&gt;
+                        &lt;svg class=&#34;hype-curve&#34; style=&#34;position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;&#34;&gt;
+                            &lt;path d=&#34;&#34; stroke=&#34;#3498db&#34; stroke-width=&#34;3&#34; fill=&#34;none&#34; stroke-linejoin=&#34;round&#34; stroke-linecap=&#34;round&#34;/&gt;
+                            
+                            &lt;text x=&#34;80&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;Innovation Trigger&lt;/text&gt;
+                            &lt;text x=&#34;200&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;Peak of Expectations&lt;/text&gt;
+                            &lt;text x=&#34;350&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;Trough of Disillusionment&lt;/text&gt;
+                            &lt;text x=&#34;550&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;Slope of Enlightenment&lt;/text&gt;
+                            &lt;text x=&#34;720&#34; y=&#34;380&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;Plateau of Productivity&lt;/text&gt;
+                            
+                            &lt;text x=&#34;25&#34; y=&#34;200&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34; transform=&#34;rotate(-90 25 200)&#34;&gt;EXPECTATIONS&lt;/text&gt;
+                            
+                            &lt;text x=&#34;400&#34; y=&#34;395&#34; text-anchor=&#34;middle&#34; font-size=&#34;12&#34; fill=&#34;#666&#34;&gt;TIME&lt;/text&gt;
+                        &lt;/svg&gt;
+                        &lt;div class=&#34;hype-tooltip&#34; id=&#34;hypeTooltip&#34;&gt;&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;div class=&#34;hype-table-section&#34;&gt;
+                    &lt;h3 style=&#34;margin-bottom: 20px; color: #2c3e50;&#34;&gt;Technology Analysis&lt;/h3&gt;
+                    &lt;div class=&#34;hype-controls&#34;&gt;
+                        &lt;input type=&#34;text&#34; class=&#34;hype-search-box&#34; id=&#34;hypeSearchInput&#34; placeholder=&#34;Search technologies...&#34;&gt;
+                        &lt;select class=&#34;hype-filter-select&#34; id=&#34;hypePositionFilter&#34;&gt;
+                            &lt;option value=&#34;&#34;&gt;All Positions&lt;/option&gt;
+                            &lt;option value=&#34;Innovation Trigger&#34;&gt;Innovation Trigger&lt;/option&gt;
+                            &lt;option value=&#34;Peak of Inflated Expectations&#34;&gt;Peak of Expectations&lt;/option&gt;
+                            &lt;option value=&#34;Trough of Disillusionment&#34;&gt;Trough of Disillusionment&lt;/option&gt;
+                            &lt;option value=&#34;Slope of Enlightenment&#34;&gt;Slope of Enlightenment&lt;/option&gt;
+                        &lt;/select&gt;
+                        &lt;select class=&#34;hype-filter-select&#34; id=&#34;hypeTimeFilter&#34;&gt;
+                            &lt;option value=&#34;&#34;&gt;All Timeframes&lt;/option&gt;
+                            &lt;option value=&#34;&lt;2 years&#34;&gt;&amp;lt;2 years&lt;/option&gt;
+                            &lt;option value=&#34;2-5 years&#34;&gt;2-5 years&lt;/option&gt;
+                            &lt;option value=&#34;5-10 years&#34;&gt;5-10 years&lt;/option&gt;
+                            &lt;option value=&#34;&gt;10 years&#34;&gt;&amp;gt;10 years&lt;/option&gt;
+                            &lt;option value=&#34;Obsolete&#34;&gt;Obsolete&lt;/option&gt;
+                        &lt;/select&gt;
+                    &lt;/div&gt;
+                    
+                    &lt;div class=&#34;hype-table-container&#34;&gt;
+                        &lt;table id=&#34;hypeDataTable&#34;&gt;
+                            &lt;thead&gt;
+                                &lt;tr&gt;
+                                    &lt;th onclick=&#34;HypeCycle.sortTable(0)&#34;&gt;Technology &lt;span class=&#34;sort-icon&#34;&gt;↕&lt;/span&gt;&lt;/th&gt;
+                                    &lt;th onclick=&#34;HypeCycle.sortTable(1)&#34;&gt;Position &lt;span class=&#34;sort-icon&#34;&gt;↕&lt;/span&gt;&lt;/th&gt;
+                                    &lt;th onclick=&#34;HypeCycle.sortTable(2)&#34;&gt;Time to Plateau &lt;span class=&#34;sort-icon&#34;&gt;↕&lt;/span&gt;&lt;/th&gt;
+                                    &lt;th onclick=&#34;HypeCycle.sortTable(3)&#34;&gt;Analysis &lt;span class=&#34;sort-icon&#34;&gt;↕&lt;/span&gt;&lt;/th&gt;
+                                &lt;/tr&gt;
+                            &lt;/thead&gt;
+                            &lt;tbody id=&#34;hypeTableBody&#34;&gt;
+                            &lt;/tbody&gt;
+                        &lt;/table&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        const HypeCycle = (function() {
+            const data = [
+                {name: &#34;Quantum Computing as a Service&#34;, position: &#34;Innovation Trigger&#34;, time: &#34;&gt;10 years&#34;, analysis: &#34;Early cloud access to quantum computers generating interest. Technology still too immature for practical applications.&#34;, x: 80, y: 300},
+                {name: &#34;AI Model Hubs&#34;, position: &#34;Innovation Trigger&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Centralized repositories for sharing AI models gaining momentum. Standards and governance models still developing.&#34;, x: 100, y: 280},
+                {name: &#34;Open GenAI Code Models&#34;, position: &#34;Innovation Trigger&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Open-source alternatives to proprietary AI models gaining traction. Very early stage with uncertain commercial viability.&#34;, x: 120, y: 260},
+                {name: &#34;Business Cloud Platform&#34;, position: &#34;Innovation Trigger&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Integrated platforms for business process automation emerging. Concept still evolving with limited real-world implementations.&#34;, x: 140, y: 240},
+                {name: &#34;AI Agent Development Frameworks&#34;, position: &#34;Innovation Trigger&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Early-stage technology with autonomous agents gaining attention. Still largely experimental with unclear practical applications.&#34;, x: 160, y: 220},
+                {name: &#34;Prompt Engineering&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;&lt;2 years&#34;, analysis: &#34;Viewed as a critical new skill for AI optimization. Reality setting in about complexity and variability of results.&#34;, x: 180, y: 120},
+                {name: &#34;AI Assistants for Infrastructure as Code&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Significant promise for automating infrastructure management. Early adopters finding gaps in reliability and context understanding.&#34;, x: 190, y: 90},
+                {name: &#34;Cloud Development Environments&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;&lt;2 years&#34;, analysis: &#34;Strong interest in cloud-based IDEs and development platforms. Organizations discovering integration and performance limitations.&#34;, x: 200, y: 75},
+                {name: &#34;Intelligent Applications&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Maximum hype around AI-powered apps with promises of revolutionary capabilities. Market excitement often exceeds current technical reality.&#34;, x: 210, y: 60},
+                {name: &#34;GenAI Application Orchestration Frameworks&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;High expectations for seamlessly integrating multiple AI models and services. Complex implementation challenges are becoming apparent.&#34;, x: 220, y: 55},
+                {name: &#34;Sovereign Cloud&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Government and regulatory interest in data sovereignty driving hype. Technical and compliance complexities proving challenging.&#34;, x: 230, y: 52},
+                {name: &#34;AI Code Assistants&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;High expectations for productivity gains in software development. Limitations in code quality and context understanding emerging.&#34;, x: 240, y: 55},
+                {name: &#34;AI Model as a Service&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Promise of easy AI integration through APIs creating excitement. Vendor lock-in and customization limitations becoming evident.&#34;, x: 250, y: 60},
+                {name: &#34;Internal Developer Portals&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Expected to solve developer experience and productivity issues. Implementation complexity and adoption challenges surfacing.&#34;, x: 260, y: 70},
+                {name: &#34;SaaS Application Platform&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Vision of unified application development and deployment platforms. Integration and migration complexities proving difficult.&#34;, x: 270, y: 85},
+                {name: &#34;Industry Cloud Platforms&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Sector-specific cloud solutions promising rapid transformation. Customization needs and vendor dependencies creating friction.&#34;, x: 280, y: 105},
+                {name: &#34;Vector Databases&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Essential for AI/ML applications driving high interest. Performance and scalability challenges in production environments emerging.&#34;, x: 290, y: 130},
+                {name: &#34;CloudNative&#34;, position: &#34;Peak of Inflated Expectations&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Containerization and microservices architecture at peak hype. Operational complexity and skills requirements becoming apparent.&#34;, x: 300, y: 155},
+                {name: &#34;Cloud Portability&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Multi-cloud promises met with vendor lock-in and complexity realities. Organizations struggling with practical implementation.&#34;, x: 320, y: 190},
+                {name: &#34;Front-End Cloud&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;JAMstack and edge-first development showing limitations. Performance and complexity trade-offs becoming clear.&#34;, x: 330, y: 205},
+                {name: &#34;Edge PaaS&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Edge computing platforms not delivering expected performance gains. Latency and management challenges proving significant.&#34;, x: 340, y: 215},
+                {name: &#34;Distributed Cloud&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;5-10 years&#34;, analysis: &#34;Hybrid cloud architectures more complex than anticipated. Integration and governance challenges causing frustration.&#34;, x: 350, y: 220},
+                {name: &#34;MACH&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Microservices, API-first, Cloud-native, Headless architecture showing implementation complexity. Skills gaps and operational overhead creating disillusionment.&#34;, x: 360, y: 225},
+                {name: &#34;Data Ecosystems&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Integrated data platforms not delivering seamless experiences promised. Data governance and integration proving challenging.&#34;, x: 370, y: 230},
+                {name: &#34;Enhanced Blockchain as a Service&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Enterprise blockchain solutions struggling to find practical use cases. High costs and performance limitations evident.&#34;, x: 380, y: 235},
+                {name: &#34;Data Fabric&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Unified data management approach facing implementation complexities. Integration across diverse systems proving difficult.&#34;, x: 390, y: 240},
+                {name: &#34;Container Management&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Kubernetes and container orchestration showing steep learning curves. Operational complexity exceeding initial expectations.&#34;, x: 400, y: 245},
+                {name: &#34;Cloud Event Brokers&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Event-driven architectures more complex to implement than expected. Debugging and monitoring challenges causing frustration.&#34;, x: 410, y: 250},
+                {name: &#34;Service Mesh&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Microservices communication layer adding significant complexity. Performance overhead and learning curve steeper than anticipated.&#34;, x: 420, y: 248},
+                {name: &#34;Cloud Repatriation&#34;, position: &#34;Trough of Disillusionment&#34;, time: &#34;Obsolete&#34;, analysis: &#34;Organizations moving workloads back on-premises due to cloud costs and complexity. Trend losing momentum as cloud economics improve.&#34;, x: 430, y: 245},
+                {name: &#34;Hybrid Cloud Computing&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Mature understanding of when and how to use hybrid approaches. Tooling and practices improving significantly.&#34;, x: 480, y: 220},
+                {name: &#34;IoT PaaS&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Internet of Things platforms finding stable market fit. Clear use cases and ROI models emerging.&#34;, x: 520, y: 200},
+                {name: &#34;Cloud AI Services&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Pre-built AI services showing consistent value in specific domains. Organizations understanding limitations and appropriate use cases.&#34;, x: 560, y: 185},
+                {name: &#34;Data Hub PaaS&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Centralized data platforms proving valuable for analytics and governance. Practical implementation patterns established.&#34;, x: 600, y: 175},
+                {name: &#34;Platform Engineering&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Internal platforms improving developer experience and productivity. Clear methodologies and success patterns emerging.&#34;, x: 640, y: 170},
+                {name: &#34;Headless SaaS&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;API-first SaaS solutions enabling flexible integrations. Market understanding of benefits and limitations maturing.&#34;, x: 680, y: 165},
+                {name: &#34;Communications Platform as a Service&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;CPaaS solutions providing reliable communication capabilities. Established market with clear value propositions and use cases.&#34;, x: 720, y: 162},
+                {name: &#34;CloudNative Architecture&#34;, position: &#34;Slope of Enlightenment&#34;, time: &#34;2-5 years&#34;, analysis: &#34;Best practices for cloud-native development becoming clearer. Organizations finding practical approaches to implementation.&#34;, x: 760, y: 160}
+            ];
+
+            let sortDirection = {};
+            let currentData = [...data];
+
+            function getPositionClass(position) {
+                const classMap = {
+                    &#34;Innovation Trigger&#34;: &#34;innovation-trigger&#34;,
+                    &#34;Peak of Inflated Expectations&#34;: &#34;peak-expectations&#34;,
+                    &#34;Trough of Disillusionment&#34;: &#34;trough-disillusionment&#34;,
+                    &#34;Slope of Enlightenment&#34;: &#34;slope-enlightenment&#34;,
+                    &#34;Plateau of Productivity&#34;: &#34;plateau-productivity&#34;
+                };
+                return classMap[position] || &#34;&#34;;
+            }
+
+            function getTimeClass(time) {
+                if (time === &#34;&lt;2 years&#34;) return &#34;time-lt2&#34;;
+                if (time === &#34;2-5 years&#34;) return &#34;time-2-5&#34;;
+                if (time === &#34;5-10 years&#34;) return &#34;time-5-10&#34;;
+                if (time === &#34;&gt;10 years&#34;) return &#34;time-gt10&#34;;
+                if (time === &#34;Obsolete&#34;) return &#34;time-obsolete&#34;;
+                return &#34;&#34;;
+            }
+
+            function renderDots() {
+                const chartContainer = document.querySelector(&#39;#hype-cycle-widget .hype-chart-container&#39;);
+                const tooltip = document.getElementById(&#39;hypeTooltip&#39;);
+                
+                const keyPoints = [
+                    data.find(item =&gt; item.name === &#34;Quantum Computing as a Service&#34;),
+                    data.find(item =&gt; item.name === &#34;AI Agent Development Frameworks&#34;),
+                    data.find(item =&gt; item.name === &#34;Prompt Engineering&#34;),
+                    data.find(item =&gt; item.name === &#34;GenAI Application Orchestration Frameworks&#34;), 
+                    data.find(item =&gt; item.name === &#34;AI Model as a Service&#34;), 
+                    data.find(item =&gt; item.name === &#34;Internal Developer Portals&#34;), 
+                    data.find(item =&gt; item.name === &#34;CloudNative&#34;),
+                    data.find(item =&gt; item.name === &#34;Cloud Portability&#34;),
+                    data.find(item =&gt; item.name === &#34;MACH&#34;),
+                    data.find(item =&gt; item.name === &#34;Cloud Event Brokers&#34;),
+                    data.find(item =&gt; item.name === &#34;Cloud Repatriation&#34;),
+                    data.find(item =&gt; item.name === &#34;Hybrid Cloud Computing&#34;),
+                    data.find(item =&gt; item.name === &#34;Platform Engineering&#34;),
+                    data.find(item =&gt; item.name === &#34;CloudNative Architecture&#34;)
+                ].filter(Boolean).sort((a, b) =&gt; a.x - b.x);
+                
+                const pathSegments = keyPoints.map((point, index) =&gt; {
+                    return index === 0 ? `M ${point.x} ${point.y}` : `L ${point.x} ${point.y}`;
+                }).join(&#39; &#39;);
+                
+                document.querySelector(&#39;#hype-cycle-widget .hype-curve path&#39;).setAttribute(&#39;d&#39;, pathSegments);
+                
+                data.forEach((item) =&gt; {
+                    const dot = document.createElement(&#39;div&#39;);
+                    dot.className = `tech-dot ${getPositionClass(item.position)}`;
+                    dot.style.left = `${item.x}px`;
+                    dot.style.top = `${item.y}px`;
+                    
+                    dot.addEventListener(&#39;mouseenter&#39;, () =&gt; {
+                        tooltip.innerHTML = `&lt;strong&gt;${item.name}&lt;/strong&gt;&lt;br&gt;${item.analysis}`;
+                        
+                        let tooltipX = item.x + 15;
+                        let tooltipY = item.y - 10;
+                        
+                        if (tooltipX + 300 &gt; chartContainer.offsetWidth) {
+                            tooltipX = item.x - 315;
+                        }
+                        
+                        if (tooltipY &lt; 0) {
+                            tooltipY = item.y + 25;
+                        }
+                        
+                        tooltip.style.left = `${tooltipX}px`;
+                        tooltip.style.top = `${tooltipY}px`;
+                        tooltip.classList.add(&#39;show&#39;);
+                    });
+                    
+                    dot.addEventListener(&#39;mouseleave&#39;, () =&gt; {
+                        tooltip.classList.remove(&#39;show&#39;);
+                    });
+                    
+                    chartContainer.appendChild(dot);
+                });
+            }
+
+            function renderTable(filteredData = data) {
+                const tbody = document.getElementById(&#39;hypeTableBody&#39;);
+                tbody.innerHTML = &#39;&#39;;
+                
+                filteredData.forEach(item =&gt; {
+                    const row = document.createElement(&#39;tr&#39;);
+                    row.innerHTML = `
+                        &lt;td class=&#34;tech-name&#34;&gt;${item.name}&lt;/td&gt;
+                        &lt;td&gt;&lt;span class=&#34;position ${getPositionClass(item.position)}&#34;&gt;${item.position}&lt;/span&gt;&lt;/td&gt;
+                        &lt;td&gt;&lt;span class=&#34;time-badge ${getTimeClass(item.time)}&#34;&gt;${item.time}&lt;/span&gt;&lt;/td&gt;
+                        &lt;td class=&#34;analysis-cell&#34;&gt;${item.analysis}&lt;/td&gt;
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function filterData() {
+                const searchTerm = document.getElementById(&#39;hypeSearchInput&#39;).value.toLowerCase();
+                const positionFilter = document.getElementById(&#39;hypePositionFilter&#39;).value;
+                const timeFilter = document.getElementById(&#39;hypeTimeFilter&#39;).value;
+                
+                const filtered = data.filter(item =&gt; {
+                    const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                                        item.analysis.toLowerCase().includes(searchTerm);
+                    const matchesPosition = !positionFilter || item.position === positionFilter;
+                    const matchesTime = !timeFilter || item.time === timeFilter;
+                    
+                    return matchesSearch &amp;&amp; matchesPosition &amp;&amp; matchesTime;
+                });
+                
+                renderTable(filtered);
+            }
+
+            function sortTable(columnIndex) {
+                const direction = sortDirection[columnIndex] === &#39;asc&#39; ? &#39;desc&#39; : &#39;asc&#39;;
+                sortDirection[columnIndex] = direction;
+                
+                const sortedData = [...currentData].sort((a, b) =&gt; {
+                    let aVal, bVal;
+                    switch(columnIndex) {
+                        case 0: aVal = a.name; bVal = b.name; break;
+                        case 1: aVal = a.position; bVal = b.position; break;
+                        case 2: aVal = a.time; bVal = b.time; break;
+                        case 3: aVal = a.analysis; bVal = b.analysis; break;
+                    }
+                    
+                    if (direction === &#39;asc&#39;) {
+                        return aVal.localeCompare(bVal);
+                    } else {
+                        return bVal.localeCompare(aVal);
+                    }
+                });
+                
+                currentData = sortedData;
+                renderTable(sortedData);
+                
+                document.querySelectorAll(&#39;#hype-cycle-widget .sort-icon&#39;).forEach(icon =&gt; {
+                    icon.textContent = &#39;↕&#39;;
+                });
+                document.querySelectorAll(&#39;#hype-cycle-widget .sort-icon&#39;)[columnIndex].textContent = 
+                    direction === &#39;asc&#39; ? &#39;↑&#39; : &#39;↓&#39;;
+            }
+
+            function init() {
+                renderDots();
+                renderTable();
+                
+                document.getElementById(&#39;hypeSearchInput&#39;).addEventListener(&#39;input&#39;, filterData);
+                document.getElementById(&#39;hypePositionFilter&#39;).addEventListener(&#39;change&#39;, filterData);
+                document.getElementById(&#39;hypeTimeFilter&#39;).addEventListener(&#39;change&#39;, filterData);
+            }
+
+            return {
+                init: init,
+                sortTable: sortTable
+            };
+        })();
+
+        if (document.readyState === &#39;loading&#39;) {
+            document.addEventListener(&#39;DOMContentLoaded&#39;, HypeCycle.init);
+        } else {
+            HypeCycle.init();
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</description>
     </item>
   </channel>
 </rss>
