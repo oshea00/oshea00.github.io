@@ -6,8 +6,24 @@
     <description>Recent content in Posts on MikesBlog</description>
     <generator>Hugo -- 0.168.0</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 22 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>The Inverted Funnel: Why AI’s Benefits and Costs Flow in Opposite Directions</title>
+      <link>https://oshea00.github.io/posts/population-impacts-of-ai/</link>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/population-impacts-of-ai/</guid>
+      <description>&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputer-two-funnels.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;In his &lt;a href=&#34;https://x.com/karpathy/status/2109361546505966046&#34;&gt;recent post on X&lt;/a&gt;, Andrej Karpathy uses the funnel as an analogy for the AI understanding gap — that gap being largely one of scale in terms of population exposure to the models. The same analogy also helps illustrate the cost and benefit gaps, the inverted nature of which are colliding with popular acceptance of AI.&lt;/p&gt;
+&lt;figure class=&#34;align-center &#34;&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;images/Understanding.png#center&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;This model can be applied to the benefits and costs experienced in the same populations.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>Oh, Brave New World</title>
       <link>https://oshea00.github.io/posts/brave-new-world/</link>
