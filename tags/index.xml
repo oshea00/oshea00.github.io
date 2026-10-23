@@ -9,6 +9,13 @@
     <lastBuildDate>Thu, 22 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>AI</title>
+      <link>https://oshea00.github.io/tags/ai/</link>
+      <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/ai/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Coding</title>
       <link>https://oshea00.github.io/tags/coding/</link>
       <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
@@ -23,17 +30,17 @@
       <description></description>
     </item>
     <item>
-      <title>Satire</title>
-      <link>https://oshea00.github.io/tags/satire/</link>
-      <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/satire/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Software</title>
       <link>https://oshea00.github.io/tags/software/</link>
       <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/software/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Satire</title>
+      <link>https://oshea00.github.io/tags/satire/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/tags/satire/</guid>
       <description></description>
     </item>
     <item>
@@ -128,13 +135,6 @@
       <description></description>
     </item>
     <item>
-      <title>AI</title>
-      <link>https://oshea00.github.io/tags/ai/</link>
-      <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/tags/ai/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Systems</title>
       <link>https://oshea00.github.io/tags/systems/</link>
       <pubDate>Sun, 22 Feb 2026 00:00:00 +0000</pubDate>
@@ -163,7 +163,7 @@
       <description></description>
     </item>
     <item>
-      <title>Mcp</title>
+      <title>MCP</title>
       <link>https://oshea00.github.io/tags/mcp/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/mcp/</guid>
