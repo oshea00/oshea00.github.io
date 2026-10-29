@@ -3815,8 +3815,7 @@ In the case of Ollama, there is no api_key, but it is a required element for the
       <description>About Mike OShea: a long-time software builder who tinkers with LLMs and agents and writes about what he finds.</description>
       <content:encoded><![CDATA[<p>Hi, I&rsquo;m Mike.</p>
 <p>I&rsquo;ve been building software for about 30 years: military systems, aeronautics, and financial services, most recently leading AI enablement work. I also fly, which has a way of teaching you to respect checklists.</p>
-<p>These days I mostly tinker. I&rsquo;ll get curious about a new protocol, model, or tool, build something with it, and write up what happened. Sometimes that&rsquo;s a <a href="/posts/running-cool-dgx-cluster/">two-node DGX Spark cluster that ran hot</a>. Sometimes it&rsquo;s <a href="/posts/bespoke-software/">replacing Acrobat with something Claude and I built in a day</a>, or a weekend spent <a href="/posts/ai-pi-story/">memorizing 100 digits of Pi</a>. In between, I write opinion pieces when the hype gets a little thick.</p>
-<p>The code behind most posts is on <a href="https://github.com/oshea00">GitHub</a>.</p>
+<p>These days I mostly follow my muse. I&rsquo;ll get curious about a new protocol, model, or tool, build something with it, and write up what happened. Sometimes that&rsquo;s a <a href="/posts/running-cool-dgx-cluster/">two-node DGX Spark cluster that ran hot</a>. Sometimes it&rsquo;s <a href="/posts/bespoke-software/">replacing Acrobat with something Claude and I built in a day</a>, or a weekend spent <a href="/posts/ai-pi-story/">memorizing 100 digits of Pi</a>. In between, I write opinion pieces when the hype gets a little thick.</p>
 <h2 id="say-hi">Say hi</h2>
 <p>I&rsquo;m happy to hear from you, whether you agree, disagree, or are working on something similar:</p>
 <ul>
