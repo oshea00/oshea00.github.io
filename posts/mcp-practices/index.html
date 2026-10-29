@@ -6,17 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
 <title>Model Context Protocol (MCP) Best Practices | MikesBlog</title>
-<meta name="keywords" content="llm, MCP, agents">
-<meta name="description" content="
-     
-
-
-As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.
-MCP is an open standard (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
-It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]">
+<meta name="keywords" content="llm, mcp, agents">
+<meta name="description" content="Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/mcp-practices/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -54,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -70,25 +65,20 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/mcp-practices/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Model Context Protocol (MCP) Best Practices">
-  <meta property="og:description" content=" As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.
-MCP is an open standard (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface. It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]">
+  <meta property="og:description" content="Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2025-09-29T00:00:00+00:00">
     <meta property="article:modified_time" content="2025-09-29T00:00:00+00:00">
     <meta property="article:tag" content="Llm">
-    <meta property="article:tag" content="MCP">
+    <meta property="article:tag" content="Mcp">
     <meta property="article:tag" content="Agents">
-<meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://oshea00.github.io/posts/mcp-practices/images/cuteMCP.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/mcp-practices/images/cuteMCP.png">
 <meta name="twitter:title" content="Model Context Protocol (MCP) Best Practices">
-<meta name="twitter:description" content="
-     
-
-
-As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.
-MCP is an open standard (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
-It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]">
+<meta name="twitter:description" content="Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.">
 
 
 <script type="application/ld+json">
@@ -117,14 +107,14 @@ It is designed to replace the ad-hoc “one-off connector per tool/agent” patt
   "@type": "BlogPosting",
   "headline": "Model Context Protocol (MCP) Best Practices",
   "name": "Model Context Protocol (MCP) Best Practices",
-  "description": " As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.\nMCP is an open standard (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface. It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]\n",
+  "description": "Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.",
   "keywords": [
-    "llm", "MCP", "agents"
+    "llm", "mcp", "agents"
   ],
   "articleBody": " As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.\nMCP is an open standard (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface. It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]\nUnder the MCP architecture, you typically have:\nMCP Clients (embedded in agent/assistant hosts) that issue structured requests MCP Servers that wrap data sources, APIs, internal systems, and expose capabilities Resources / Tools / Prompts / Logging as first-class concepts in the protocol [2] Communication is based on JSON-RPC 2.0 messages over standard transports (stdio, HTTP, with optional SSE)\nMCP has already been adopted or integrated by several tool providers (e.g. Google Drive, Slack, GitHub, Postgres) and platforms (Replit, Sourcegraph, Zed) as reference servers.\nNote there is active research pointing out security \u0026 risk challenges with MCP (e.g., prompt injection, permission escalation). For example, the “MCP Safety Audit” shows how misconfigured tools can lead to credential leaks and privilege escalation. [4]\nGiven that background, here are best practices, design patterns, semantic types, and worked examples for using MCP (or MCP-inspired) in agent systems.\nBest Practices \u0026 Design Patterns for MCP-based Architectures Below is a guide to designing robust, maintainable, and secure agent systems using MCP or MCP-like protocols. You can think of this as a “playbook” or cheat sheet.\nArea Best Practice / Pattern Rationale \u0026 Risks Notes / Examples Modular Server Design Break MCP servers by domain (e.g. “Git”, “Database”, “Search”, “Notifications”) Keeps responsibilities small and limits blast radius of errors The reference MCP repository already includes separate servers for e.g. GitHub, Postgres, Slack. [1] Domain-Specific Abstractions vs. CRUD Design tools around meaningful domain actions instead of low-level CRUD primitives Improves agent reasoning, reduces ambiguity E.g. “submit_expense_report” instead of “create_record” Rate Limiting, Throttling \u0026 Quotas Impose per-agent or per-method usage quotas Avoid abuse, runaway loops, or denial-of-service Useful in multi-tenant settings Input / Output Validation \u0026 Sanitization Strict schema validation on method parameters and return values Prevent injection, malformed queries, or security exploits E.g. sanitize SQL fragments, path names, or user-provided arguments Idempotency \u0026 Transaction Safety For write operations, support idempotent execution or confirm semantics Avoid accidental duplication if retries occur E.g. a “create_user” call should handle duplicates safely Contextual Logging, Auditing \u0026 Traceability Log every request, which agent invoked it, parameters, and response; enable trace replay Facilitates debugging, security audits, and rollback reasoning You can integrate prompt- or event-level logging as a separate MCP “logging” channel [2] Graceful Fallback \u0026 Error Propagation Clients should elegantly handle server errors, timeouts, or partial failures Agents can fall back to default heuristics or emit human-readable error messages Always wrap network/IO calls with retries or timeouts Sandboxing / Isolation Run server logic in controlled containers or isolated environments Limits damage from exploits or malicious tool usage Prevent direct OS-level command execution unless explicitly allowed Metadata \u0026 Typing Use rich type definitions, units, constraints, and semantic labels on method arguments/return values This helps the agent choose correct methods and helps schema validation E.g. define a Timestamp, Currency, UserId type rather than generic string [5] Least Privilege Principle Only expose minimal methods and resources needed for the task Reduces attack surface and cognitive load Avoid a “catch-all” server that has full DB, full file system, etc. Security Auditing \u0026 Fuzz Testing Regularly run adversarial tests, fuzz input spaces, and validate permission enforcement MCP-specific research has already exposed vulnerabilities in naive servers [4] Tools like MCPSafetyScanner can help detect misuse or misconfiguration. [4] Governance, Certification \u0026 Tool Vetting In enterprise contexts, classify or “vet” MCP servers/tools, register trusted servers, and maintain a registry So that only approved tools are callable by agents Similar to how plugin stores vet plugins in ChatGPT Testing via Benchmarks / Simulators Build internal benchmarks for multi-step workflows, stress test tool orchestration, simulate agent failure modes E.g. “MCP-Bench” is a published benchmark for evaluating tool-using agents via MCP. [6] These practices help maintain tractability, safety, observability, and modularity in your agent architecture.\nSemantic Types / Abstractions in MCP In MCP, the protocol emphasizes several core conceptual categories (or semantic types). Understanding them helps you decide when and how to use them.\nTools\nEntity: executable methods / functions / actions (with parameters \u0026 returns) Examples: “run SQL query”, “send Slack message”, “create GitHub issue”, “invoke HTTP API” Tools often effect side-effects (writes, mutations) or return structured data. Agents can choose among available tools based on context and reasoning. Resources\nEntity: referenceable data context or assets (documents, embeddings, corpora, static files, templates) These are passive (no side-effect) — they serve as context for prompting or retrieval Example: a company policy document, a knowledge base, a style guide, code snippets Agents can “fetch” or “load” resources and incorporate them into prompts. Prompts / Prompt Templates\nPredefined or configurable prompt scaffolding, instructions, or system messages Can be versioned, parameterized, or dynamically generated Helps standardize agent behavior (e.g. “You are a financial analyst” template) Agents might request a prompt template given context or task. Logging / Traces / Events\nChannels to emit or collect event-level or request-level logs Useful for audit trails, feedback loops, debugging, alignment Example: capturing agent decisions, tool calls, errors, retries Sessions / Context State\nAgents maintain conversational or reasoning state (e.g. memory, partial results) MCP may allow state references or handles passed across calls Useful for chaining tool calls across turns Schemas / Metadata\nDefinitions of types, constraints, method signatures, documentation Tools/resources should carry descriptive metadata: name, description, input/output schema, usage cost, permission levels Transports / Connectivity\nThe protocol layer (e.g. JSON-RPC over HTTP, stdio, SSE, WebSockets) Allows flexible deployment: local, remote, hybrid These abstractions align with how agents reason (plan, select tools, fetch context, execute, log). It is important to design tools that make MCP more expressive and modular than flat function-call APIs. Avoid modeling MCP tools strictly in terms of “CRUD” operations — this is a low-level abstraction that does not map well to MCP’s richer capability model.\nFor example, instead of exposing generic methods like create_record or update_row, an MCP server might offer domain-aware actions such as submit_expense_report, approve_leave_request, or schedule_meeting. These higher-level tools are easier for agents to understand, reason about, and chain together.\nExamples \u0026 Projects in the Community Here are some illustrative examples, open-source projects, and research directions in the MCP / agent-tooling ecosystem:\nMCP-Bench A benchmark suite connecting agents with real-world tasks across many domains using live MCP servers (250+ tools) to assess planning, tool selection, error recovery, etc. [6]\nMCP-Zero A research framework that allows agents to dynamically discover and request relevant tool schemas rather than injecting all tool specs into the prompt. Useful for reducing prompt/context size in systems with large tool sets. [7]\nMCPSafetyScanner A tool for auditing MCP servers for security vulnerabilities (credential leakage, command injection, tool misuse) by probing adversarial usage patterns. [4]\nMCPSecBench A security benchmarking framework that enumerates attack surfaces in MCP systems (17 attack types) and tests client/server combinations. [8]\n“Leveling Up Your AI Agents” (blog) A developer-friendly walkthrough of MCP’s four pillars (tools, resources, prompts, logging) with narrative examples and schema choices. [2]\nAWS / Cloud Integration AWS published blog content showing how to run MCP clients and servers in the cloud, integrate with Bedrock, and compose agent workflows across distributed systems. [9]\nReference MCP Servers (official) The MCP project offers open-source servers for systems like Google Drive, Slack, GitHub, Postgres, Puppeteer, Stripe, etc. [1]\nOpenAI / .NET + MCP Microsoft docs show how to build .NET apps with MCP clients/servers connecting to databases or external services. [10]\nSummary \u0026 Recommendations MCP represents a shift toward standardization, modularity, and safer integration of AI agents with real systems. The distinction between tools, resources, prompts, and logging is important: treat each as a different kind of capability. Follow architectural best practices (modularity, versioning, ACLs, isolation, logging, auditability) to avoid potential pitfalls, especially security. Use existing projects (e.g. dbt MCP, MCP-Bench, MCPSafetyScanner) as foundations or testbeds. Make security a first-class concern — many MCP risks arise from over-permissive servers or schema misuse. Model the agent’s orchestration carefully: tool chaining, fallback logic, partial failure modes, simulation/dry-run support. Maintain a registry or catalog of trusted MCP servers and vet them in enterprise settings. References [1] Anthropic, “Introducing the Model Context Protocol (MCP),” Anthropic Newsroom, Nov. 2024. [Online]. Available: https://www.anthropic.com/news/model-context-protocol\n[2] D. Nahata, “Leveling Up Your AI Agents: A Story-Driven Guide to MCP Tools, Resources, Prompts, and Logging,” blog.codewithdan.com, 2024. [Online]. Available: https://blog.codewithdan.com/leveling-up-your-ai-agents-a-story-driven-guide-to-mcp-tools-resources-prompts-and-logging/\n[3] J. Wang, “Model Context Protocol (MCP): Real World Use Cases, Adoptions, and Comparison to Function Calling,” Medium, 2024. [Online]. Available: https://medium.com/@laowang_journey/model-context-protocol-mcp-real-world-use-cases-adoptions-and-comparison-to-functional-calling-9320b775845c\n[4] N. Shinn et al., “MCP Safety Audit: LLMs with the Model Context Protocol Allow Major Security Exploits,” arXiv preprint, arXiv:2504.03767, Apr. 2025. [Online]. Available: https://arxiv.org/abs/2504.03767\n[5] Model Context Protocol, What is the Model Context Protocol (MCP)?, 2024. [Online]. Available: https://modelcontextprotocol.io/\n[6] D. Dohan et al., “MCP-Bench: Benchmarking Tool-Using LLM Agents with Complex Real-World Tasks via MCP Servers,” arXiv preprint, arXiv:2508.20453, Aug. 2025. [Online]. Available: https://arxiv.org/abs/2508.20453\n[7] B. Peng et al., “MCP-Zero: Proactive Toolchain Construction for LLM Agents from Scratch,” arXiv preprint, arXiv:2506.01056, Jun. 2025. [Online]. Available: https://arxiv.org/abs/2506.01056\n[8] X. Qiu et al., “MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols,” arXiv preprint, arXiv:2508.13220, Aug. 2025. [Online]. Available: https://arxiv.org/abs/2508.13220\n[9] Amazon Web Services, “Unlocking the Power of Model Context Protocol (MCP) on AWS,” AWS Machine Learning Blog, 2024. [Online]. Available: https://aws.amazon.com/blogs/machine-learning/unlocking-the-power-of-model-context-protocol-mcp-on-aws/\n[10] Microsoft, “Get Started with .NET AI and MCP,” Microsoft Learn, 2024. [Online]. Available: https://learn.microsoft.com/en-us/dotnet/ai/get-started-mcp\n",
   "wordCount" : "1629",
   "inLanguage": "en",
-  "datePublished": "2025-09-29T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/mcp-practices/images/cuteMCP.png","datePublished": "2025-09-29T00:00:00Z",
   "dateModified": "2025-09-29T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -183,6 +173,11 @@ It is designed to replace the ad-hoc “one-off connector per tool/agent” patt
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -190,6 +185,11 @@ It is designed to replace the ad-hoc “one-off connector per tool/agent” patt
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -208,6 +208,9 @@ It is designed to replace the ad-hoc “one-off connector per tool/agent” patt
     <h1 class="post-title entry-hint-parent">
       Model Context Protocol (MCP) Best Practices
     </h1>
+    <div class="post-description">
+      Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.
+    </div>
     <div class="post-meta"><span title='2025-09-29 00:00:00 +0000 UTC'>September 29, 2025</span>&nbsp;·&nbsp;8 min&nbsp;·&nbsp;Michael OShea
 
 </div>
@@ -454,7 +457,7 @@ Microsoft docs show how to build .NET apps with MCP clients/servers connecting t
   <footer class="post-footer">
     <ul class="post-tags">
       <li><a href="https://oshea00.github.io/tags/llm/">Llm</a></li>
-      <li><a href="https://oshea00.github.io/tags/mcp/">MCP</a></li>
+      <li><a href="https://oshea00.github.io/tags/mcp/">Mcp</a></li>
       <li><a href="https://oshea00.github.io/tags/agents/">Agents</a></li>
     </ul>
 <nav class="paginav">
@@ -474,7 +477,7 @@ Microsoft docs show how to build .NET apps with MCP clients/servers connecting t
 <ul class="share-buttons">
     <li>
         <a target="_blank" rel="noopener noreferrer" aria-label="share Model Context Protocol (MCP) Best Practices on x"
-            href="https://x.com/intent/tweet/?text=Model%20Context%20Protocol%20%28MCP%29%20Best%20Practices&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fmcp-practices%2f&amp;hashtags=llm%2cMCP%2cagents">
+            href="https://x.com/intent/tweet/?text=Model%20Context%20Protocol%20%28MCP%29%20Best%20Practices&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fmcp-practices%2f&amp;hashtags=llm%2cmcp%2cagents">
             <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
                 <path
                     d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />

@@ -6,16 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
 <title>Vibecoding an Agentic Coder - Part 1 | MikesBlog</title>
-<meta name="keywords" content="Agentic AI, Codegen, Claude Desktop">
-<meta name="description" content="
-     
-
-
-I&rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &ldquo;vibing&rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.
-I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.">
+<meta name="keywords" content="agentic-ai, codegen, claude-desktop">
+<meta name="description" content="Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/agentic-codegen-part1/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -53,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -69,24 +65,21 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/agentic-codegen-part1/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Vibecoding an Agentic Coder - Part 1">
-  <meta property="og:description" content=" I’ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require “vibing” until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.
-I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.">
+  <meta property="og:description" content="Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2025-04-27T00:00:00+00:00">
     <meta property="article:modified_time" content="2025-04-27T00:00:00+00:00">
-    <meta property="article:tag" content="Agentic AI">
+    <meta property="article:tag" content="Agentic-Ai">
     <meta property="article:tag" content="Codegen">
-    <meta property="article:tag" content="Claude Desktop">
-<meta name="twitter:card" content="summary">
+    <meta property="article:tag" content="Claude-Desktop">
+    <meta property="og:image" content="https://oshea00.github.io/posts/agentic-codegen-part1/images/agentengineer_3_1_aspect_ratio.png">
+      <meta property="og:see_also" content="https://oshea00.github.io/posts/agentic-codegen-part2/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/agentic-codegen-part1/images/agentengineer_3_1_aspect_ratio.png">
 <meta name="twitter:title" content="Vibecoding an Agentic Coder - Part 1">
-<meta name="twitter:description" content="
-     
-
-
-I&rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &ldquo;vibing&rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.
-I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.">
+<meta name="twitter:description" content="Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.">
 
 
 <script type="application/ld+json">
@@ -115,14 +108,14 @@ I’ve also become fascinated by how these tools will change the way programmers
   "@type": "BlogPosting",
   "headline": "Vibecoding an Agentic Coder - Part 1",
   "name": "Vibecoding an Agentic Coder - Part 1",
-  "description": " I\u0026rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require \u0026ldquo;vibing\u0026rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.\nI’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.\n",
+  "description": "Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.",
   "keywords": [
-    "Agentic AI", "Codegen", "Claude Desktop"
+    "agentic-ai", "codegen", "claude-desktop"
   ],
   "articleBody": " I’ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require “vibing” until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.\nI’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.\nOne of these ideas is that we may no longer need so many dependencies in our code bases. Eventually, all LLMs will be able to generate all of the code needed and, more importantly, only the code needed to solve any given problem.\nWhy do we have so many dependencies in our projects? In a nutshell, programmers are lazy. Alright, maybe it’s just because we are human beings with limited time and memory. We solve related problems and lump code into libraries to save time through reuse; cognitively, we can stay focused on the main problems we are trying to solve.\nWhy do LLMs need so many dependencies in their generated projects? Perhaps because they learned to code from humans? “Cargo culting” all of that code has brought certain old problems into the equation, such as security exploits and buggy dependencies.\nWe can ask our LLMs to code from “first principles.”\nTo learn more and explore some of these ideas while also having a meaty example to later test on the open source and commercial tools I mentioned earlier, I decided to use a powerful code generation model, Claude 3.7, to generate an “agentic” code generator from first principles.\nThe journey has revealed some insights and taken on a life of its own.\nHey Claude, make this… Using a Claude Desktop project, I generated a basic code generation framework using these prompts:\nWrite a python program which implements an agentic flow from basic principles, using the openai api and the GPT-4o model. There will be two agents: 1. Architect - an agent which takes a problem description and converts it into a plan for developing a software solution. 2. The second agent will be a software engineer that can write python code which implements the system outlined by the architect agent. we need to add a third agent to this framework that will be able to compile and test the code developed by the software engineer. It will take the implementation from the software engineer agent, and return a test_report showing whether the code is compiling, and whether the tests are passing, along with suggestions how the code might be fixed if it fails to compile or run properly. The report may itself be a json object with a boolean 'passed' key, along with 'results' key to suggested fixes if passed == False, or test results if passed = True. we can adjust the software engineer agent to look for test_report, along with the software engineer specification, and its own last-generated implementation. If the test_report shows passed == False, it can use the suggestions from the test agent to attempt to fix the implementation. We can then put this interaction in a loop that breaks once the passed == True is returned from the test agent, or after a maximum number of attempts. The resulting code worked, but the testing agent did not actually run tests; rather, it generated test cases and then attempted to predict whether each test case passed. The results were passed back and integrated into future passes. So, although it hallucinated its ability to interpret the code, it did create the overall flow correctly.\nSo, I needed to create a real software testing agent, for which I used the following prompts to generate:\nCreate a python class that can take a python program as text and perform the following: 1. Determine the python packages needed by the program. 2. Create a Dockerfile that loads the required packages along with the pytest framework required to run tests against the program. but our code, implementation.py, and its test test_implementation.py need to be copied over to app dir in the Dockerfile, and the pytest command can be run with app as the curent dir, so tests will run. Make the changes needed for this to be done in the dockerfile let's change this code as follows: 1. replace the sample_code with a check for a src_dir on the command line, from which python files are loaded, and checked for dependencies so that a requirements.txt file can be created. 2. the src_dir will be used in the Docker file to copy python files into the WORKDIR minor change to the requirements file generation needed to exclude package names matching the application files loaded from the source directory. Finally, Claude returns code for a testing framework:\nFigure 1. Claude test agent description.\nPutting all the pieces together Putting the code together into a project, I ended up adding a few enhancements, including the ability to choose other model providers. I used Claude 3.7 to analyze the combined code and asked it to create a DOT-language (Graphviz) representation of the code’s flowchart below using the following prompt:\nExamine the code and create a flowchart of its operation using the DOT language. (code attached) Figure 2. Agentic code generator flowchart.\nAs was my goal, the generated agent code has just standard packages as dependencies (shown below). Although I initially had Claude create the ability to choose different model providers, I eventually chose LiteLLM to make it easier for me to compare output from other providers without having to re-generate this part.\nFigure 3. Dependencies for agentic code generator.\nThe current project can be found at CodeAgents on GitHub\nTaking it out for a test drive I have included notable examples of two projects that I generated using this framework in the GitHub repository above: a scientific calculator as CLI and a weather API using FastAPI. I found these project types useful for testing across different models and providers. They are non-trivial enough to be interesting and small enough to run frequent passes with different providers. In my next post on this topic, I’ll present some results and conclusions about these comparisons.\nFigure 4. Scientific calculator CLI.\nFigure 5. Weather API.\nFigure 6. Forecast.\nComing next For now, I can say the promise of “hands-free” code generation of production-quality code is still a way off, although I can see no reason why the quality won’t continue to improve. I think we need to set our expectations accordingly. One thing is clear: These tools will change the way we develop software - mostly for the better.\n",
   "wordCount" : "1129",
   "inLanguage": "en",
-  "datePublished": "2025-04-27T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/agentic-codegen-part1/images/agentengineer_3_1_aspect_ratio.png","datePublished": "2025-04-27T00:00:00Z",
   "dateModified": "2025-04-27T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -181,6 +174,11 @@ I’ve also become fascinated by how these tools will change the way programmers
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -188,6 +186,11 @@ I’ve also become fascinated by how these tools will change the way programmers
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -206,6 +209,9 @@ I’ve also become fascinated by how these tools will change the way programmers
     <h1 class="post-title entry-hint-parent">
       Vibecoding an Agentic Coder - Part 1
     </h1>
+    <div class="post-description">
+      Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.
+    </div>
     <div class="post-meta"><span title='2025-04-27 00:00:00 +0000 UTC'>April 27, 2025</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Michael OShea
 
 </div>
@@ -318,9 +324,9 @@ names matching the application files loaded from the source directory.
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="https://oshea00.github.io/tags/agentic-ai/">Agentic AI</a></li>
+      <li><a href="https://oshea00.github.io/tags/agentic-ai/">Agentic-Ai</a></li>
       <li><a href="https://oshea00.github.io/tags/codegen/">Codegen</a></li>
-      <li><a href="https://oshea00.github.io/tags/claude-desktop/">Claude Desktop</a></li>
+      <li><a href="https://oshea00.github.io/tags/claude-desktop/">Claude-Desktop</a></li>
     </ul>
 <nav class="paginav">
   <a class="prev" href="https://oshea00.github.io/posts/agentic-codegen-part2/">
@@ -339,7 +345,7 @@ names matching the application files loaded from the source directory.
 <ul class="share-buttons">
     <li>
         <a target="_blank" rel="noopener noreferrer" aria-label="share Vibecoding an Agentic Coder - Part 1 on x"
-            href="https://x.com/intent/tweet/?text=Vibecoding%20an%20Agentic%20Coder%20-%20Part%201&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fagentic-codegen-part1%2f&amp;hashtags=AgenticAI%2cCodegen%2cClaudeDesktop">
+            href="https://x.com/intent/tweet/?text=Vibecoding%20an%20Agentic%20Coder%20-%20Part%201&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fagentic-codegen-part1%2f&amp;hashtags=agentic-ai%2ccodegen%2cclaude-desktop">
             <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
                 <path
                     d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />

@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>AI Tools on MikesBlog</title>
+    <title>Ai-Tools on MikesBlog</title>
     <link>https://oshea00.github.io/tags/ai-tools/</link>
-    <description>Recent content in AI Tools on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <description>Recent content in Ai-Tools on MikesBlog</description>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 30 Dec 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/ai-tools/index.xml" rel="self" type="application/rss+xml" />
@@ -13,28 +18,105 @@
       <link>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputereditor.png#center&#34;/&gt; 
-&lt;/figure&gt;
-
-&lt;p&gt;The first time I fired up an MCP (Model Context Protocol) server plugin, &amp;ldquo;Agent,&amp;rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&amp;rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&amp;rsquo;re in the early days, and there&amp;rsquo;s a lot of ground to cover before Agents become seamless collaborators.&lt;/p&gt;</description>
+      <description>Lessons from wiring MCP server agents into Claude Desktop: autonomy is hard, and agents will need their own UI.</description>
+      <content:encoded><![CDATA[<p>The first time I fired up an MCP (Model Context Protocol) server plugin, &ldquo;Agent,&rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&rsquo;re in the early days, and there&rsquo;s a lot of ground to cover before Agents become seamless collaborators.</p>
+<h2 id="autonomy-is-hard">Autonomy is Hard</h2>
+<p>Once I had a demo MCP-enabled Agent up and running under Claude Desktop, it became clear that autonomy would not be easy as the interplay between myself and the model continued. The handoffs felt awkward, with the model frequently pausing to ask for confirmation and review before continuing. At one point, it even obscured the information about the action it needed guidance on, content I needed to review behind a popup, like someone standing in front of the whiteboard while you&rsquo;re trying to solve a problem.</p>
+<p>It became clear that future Agents must generate custom UI/UX as part of their operation. Integrating a set of Agent plugins to solve unique problems with a generic UI doesn&rsquo;t seem workable. Claude Desktop points in the right direction, but it won&rsquo;t scale to more complex activities.</p>
+<h2 id="seeing-the-potential-for-saas-disruption">Seeing the Potential for SaaS Disruption</h2>
+<p>In some ways, these tools already shine in vertical applications like customer support or order management, where workflows are predictable and well-defined. We&rsquo;ll continue to see SaaS providers using these AI tools to improve their products, but I don&rsquo;t think Agents will be a SaaS killer soon.</p>
+<p>For someone like me, and probably many other knowledge workers who must hop between projects and improvise solutions on the fly, Agents are more like a collection of loose parts than a fully formed toolkit. There is potential, but the vast majority of more &ldquo;horizontal&rdquo; applications will require a vast improvement in execution capabilities.</p>
+<p>In addition to improving agents&rsquo; capabilities, entirely new and mature ecosystems need to be in place to support the effective deployment and operation of Agentic AI networks. The SaaS providers have invested in robust ecosystems, which will not easily be replaced or updated.</p>
+<h2 id="bridging-the-gap">Bridging the Gap</h2>
+<p>That gap between tools that work for specialized tasks and those flexible enough for day-to-day experimentation and use might be the biggest challenge these systems face. The idea of &ldquo;horizontal integration&rdquo; sounds great in theory, but in practice, the tools still demand a lot of customization to fit into diverse workflows.
+Take monitoring, for example. Robust monitoring is a must-have for scaling these tools, especially in professional settings. During one experiment, I used MCP Inspector to visualize the capabilities of an MCP server. It was a step in the right direction, but even that felt like a workaround rather than an integral part of the system. For these tools to take off, monitoring and diagnostic capabilities must be baked in, not bolted on.</p>
+<h2 id="is-the-agentic-future-here-yet">Is the Agentic Future Here Yet?</h2>
+<p>I see many challenges and opportunities in the next year. On one hand, we&rsquo;re still in the experimentation phase, and the tools are rough around the edges. The key will be simplifying the interactions, refining the interfaces, and improving the tools while also delivering on the ecosystems, allowing users to monitor and manage large Agent networks easily. The dream is a set of AI tools that don&rsquo;t just augment workflows in specific domains but empower users across the board to create and innovate on their own terms.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Navigating the Fragmented Landscape of Agentic AI Tools</title>
       <link>https://oshea00.github.io/posts/agentic-ai-fragmentation/</link>
       <pubDate>Sun, 15 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-ai-fragmentation/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentengineer_3_1_aspect_ratio.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Why the lack of standards across OpenAI, LangChain, and Microsoft agent tooling is slowing agentic AI adoption, and what might fix it.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/agentengineer_3_1_aspect_ratio.png#center"/> 
+</figure>
 
-&lt;p&gt;Agentic AI, with its promise of creating systems capable of autonomous reasoning and action, has been a hotbed of innovation
+<p>Agentic AI, with its promise of creating systems capable of autonomous reasoning and action, has been a hotbed of innovation
 in the AI community. Tools from OpenAI, LangChain, and Microsoft are spearheading this new wave, each offering unique
 features and capabilities. However, the lack of standardization in this ecosystem presents significant challenges to developers,
-researchers, and organizations eager to adopt these technologies.&lt;/p&gt;
-&lt;h2 id=&#34;the-current-state-of-agentic-ai-tools&#34;&gt;The Current State of Agentic AI Tools&lt;/h2&gt;
-&lt;p&gt;The diversity of agentic AI tools is both a strength and a weakness. On one hand, it fosters creativity and innovation as
-developers explore various approaches to building autonomous systems. On the other hand, the fragmented landscape leads to:&lt;/p&gt;</description>
+researchers, and organizations eager to adopt these technologies.</p>
+<h2 id="the-current-state-of-agentic-ai-tools">The Current State of Agentic AI Tools</h2>
+<p>The diversity of agentic AI tools is both a strength and a weakness. On one hand, it fosters creativity and innovation as
+developers explore various approaches to building autonomous systems. On the other hand, the fragmented landscape leads to:</p>
+<ul>
+<li><strong>Integration Challenges</strong>: Tools often require different architectures, APIs, and data pipelines, making interoperability difficult.</li>
+<li><strong>Steep Learning Curves</strong>: Developers must learn the nuances of each tool, which can slow down experimentation and implementation.</li>
+<li><strong>Lack of Interoperability</strong>: Moving projects or components between tools often involves significant rework, reducing flexibility.</li>
+</ul>
+<h3 id="comparing-key-tools">Comparing Key Tools</h3>
+<table>
+	<thead>
+			<tr>
+					<th><strong>Tool</strong></th>
+					<th><strong>Strengths</strong></th>
+					<th><strong>Weaknesses</strong></th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>LangChain / LangGraph</td>
+					<td>Modular design; great for chaining tasks</td>
+					<td>Steep learning curve; complex abstractions</td>
+			</tr>
+			<tr>
+					<td>Microsoft AutoGen</td>
+					<td>Highly modular integrated multi-agent workflows</td>
+					<td>High resource consumption; steep learning curve; low portability</td>
+			</tr>
+			<tr>
+					<td>OpenAI Assistant Framework</td>
+					<td>Highly extensible; robust support for various AI workflows</td>
+					<td>Closed-source limitations; tied to OpenAI ecosystem</td>
+			</tr>
+	</tbody>
+</table>
+<p>While each tool has its niche, there’s no unified framework to tie them together, leaving developers to reinvent the
+wheel for common tasks like task management, memory storage, or agent-to-agent communication.</p>
+<h2 id="adoption-challenges">Adoption Challenges</h2>
+<ul>
+<li><strong>Agents need more intelligence</strong>: They cannot perform at high-reliability levels until foundation models achieve AGI and gain real-world understanding.</li>
+<li><strong>Autonomy is risky</strong>: What type of controls will users need to monitor activities? Will they be effective and easy to use? While having an army of assistants may sound useful,
+users may be overwhelmed without self-correcting behaviors.</li>
+<li><strong>Ecosystem of Trust</strong>: We need new frameworks for ensuring trust before meaningful numbers of people will be willing to hand over true responsibility to their AI assistants. The rewards must significantly outweigh the risks.
+Perhaps &ldquo;AI escrow&rdquo; services based on blockchain technologies could play a role here.</li>
+</ul>
+<h2 id="the-path-toward-standardization">The Path Toward Standardization</h2>
+<p>Standardization in agentic AI will require collaboration across the AI community. Potential areas of focus include:</p>
+<ol>
+<li><strong>Interoperable APIs</strong>: Creating a universal API layer for agentic AI tools could simplify integration and allow developers to combine the best features of multiple tools.</li>
+<li><strong>Common Protocols</strong>: Defining protocols for agent communication, data sharing, and task orchestration would make it easier to build multi-agent systems.</li>
+<li><strong>Open-Source Libraries</strong>: Shared libraries for common functionalities, such as memory management or reasoning modules, could reduce redundant development.</li>
+</ol>
+<h2 id="the-role-of-the-community">The Role of the Community</h2>
+<p>To achieve standardization, collaboration is key. Open-source initiatives, cross-industry partnerships, and community-driven benchmarks can accelerate progress. For instance:</p>
+<ul>
+<li><strong>OpenAI</strong> and <strong>Anthropic</strong> could lead efforts to define best practices for agent design.</li>
+<li>Industry groups like the <strong>Partnership on AI</strong> could facilitate discussions around ethical and technical standards.</li>
+<li>Academic institutions could spearhead research into unifying frameworks and protocols.</li>
+</ul>
+<h2 id="why-it-matters">Why It Matters</h2>
+<p>Standardizing the fragmented landscape of agentic AI tools is not just a technical challenge; it’s a necessity for scaling these systems to broader applications. With a unified ecosystem, developers could:</p>
+<ul>
+<li>Deploy solutions faster and with less friction.</li>
+<li>Build more reliable and interoperable systems.</li>
+<li>Drive innovation by focusing on unique problems rather than re-solving foundational issues.</li>
+</ul>
+<p>As agentic AI continues to evolve, embracing standardization could unlock its full potential and make this exciting frontier more accessible to everyone.</p>
+<hr>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

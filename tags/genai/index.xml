@@ -4,7 +4,12 @@
     <title>Genai on MikesBlog</title>
     <link>https://oshea00.github.io/tags/genai/</link>
     <description>Recent content in Genai on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 16 Sep 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/genai/index.xml" rel="self" type="application/rss+xml" />
@@ -13,11 +18,21 @@
       <link>https://oshea00.github.io/posts/recursive-self-improvement/</link>
       <pubDate>Wed, 16 Sep 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/recursive-self-improvement/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cute_infinite_regress.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/cute_infinite_regress.png#center"/> 
+</figure>
 
-A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See  Agentic Orchestration is not a Moat.&lt;/p&gt;</description>
+A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See  Agentic Orchestration is not a Moat.</p>
+<p>We’re now seeing that play out with the explosion of various harnessing frameworks, from Codex to Pi. The key observation is that harnesses can indeed improve the results that large language models produce, sometimes substantially, but they do not eliminate fundamental limits on computation and formal reasoning. Harness code is deterministic—good old-fashioned software—and may itself be Turing complete. But Turing completeness does not imply unlimited reasoning: Turing showed that there are computational questions no general algorithm can decide, while Gödel showed that any consistent, effectively axiomatized formal system expressive enough to describe arithmetic will contain true statements that cannot be proved from within that system. Adding more deterministic machinery can extend what the overall system can do, but it cannot create a system capable of resolving every possible computational or formal question.</p>
+<p>“The Wisdom of Crowds,” as expressed in James Surowiecki’s 2004 book, holds that diverse information, when considered independently by large groups of people, tends to converge on good judgments. But those judgments are based on the totality of what the crowd believes is possible. His book considers the classic problem of people estimating a quantity, whether the weight of an ox or the number of jellybeans in a jar at a county fair. These quantities have plausible lower and upper bounds, and estimates tend to cluster within some distribution around a central value. The people making the guesses may have no statistical knowledge at all, but they live in a world largely composed of measurements that fall within familiar ranges: height, weight, temperatures that might occur during the current season, crop yields, and so on. Their individual guesses therefore reflect an implicit understanding of what values are plausible. When those independent estimates are aggregated, their errors can offset one another, causing the collective estimate—whether expressed as a mean or a median—to converge toward the actual value.</p>
+<p>The underlying issue is that theoretical exploration of genuinely new ideas does not necessarily occur near the center of a known distribution. Important new ideas often begin as outliers. Large language models can generate unusual combinations and hypotheses, but the data from which they learn consists overwhelmingly of what humans have already observed, written, argued, and imagined. Their learned probability distributions therefore provide the strongest support for ideas that resemble what is already represented in that record.</p>
+<p>The problem, then, is one of choice. From a universe of possible outcomes or directions in research, generating possibilities is relatively easy; the harder task is deciding which improbable possibilities represent genuine insight and which are merely plausible guesses. What matters is the mechanism that keeps the enterprise moving toward discovery rather than disappearing down an infinitude of rabbit holes.</p>
+<p>This becomes especially important if we imagine recursive, stair-step improvement using systems built on transformer principles. A model can generate alternatives, critique them, revise them, and use those revisions to generate still better alternatives. But every step upward depends on a choice about which direction is worth pursuing.</p>
+<p>In human research, that choice is often described as taste, judgment, or intuition. These are not simply preferences for what is most probable or most consistent with the existing consensus. Quite often, they operate in opposition to the prevailing zeitgeist. The researcher recognizes that an anomaly, an awkward result, or an unfashionable hypothesis may contain something important and chooses to follow it before there is enough evidence for the choice to appear obvious.</p>
+<p>Until and unless new techniques are discovered that don’t depend primarily on statistical mining of training data, techniques likely more akin to the exploration of ideas, driven by a built-in purpose to self-reward and feed new promising ideas back into the process, we are unlikely to see meaningful recursive self-improvement.</p>
+<p>The kinds of models I’m proposing here would need the capability to retrain in minutes rather than months. Perhaps one day we will see this, although given how current engines are designed to draw power and other resources at scale, I think it will be a long time before we get there. That’s a topic for later consideration.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

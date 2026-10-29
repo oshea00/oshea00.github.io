@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
 <title>MikesBlog</title>
-
-<meta name="description" content="">
-<meta name="author" content="Mike OShea">
+<meta name="keywords" content="llm, agentic ai, mcp, ai engineering, claude, openai">
+<meta name="description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
+<meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -19,6 +19,7 @@
 <meta name="theme-color" content="#2e2e33">
 <meta name="msapplication-TileColor" content="#2e2e33">
 <link rel="alternate" type="application/rss+xml" href="https://oshea00.github.io/index.xml">
+<link rel="alternate" type="application/json" href="https://oshea00.github.io/index.json">
 <link rel="alternate" hreflang="en" href="https://oshea00.github.io/">
 <noscript>
     <style>
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -65,11 +67,14 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="MikesBlog">
+  <meta property="og:description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+      <meta property="og:image" content="https://oshea00.github.io/images/site-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/images/site-card.png">
 <meta name="twitter:title" content="MikesBlog">
-<meta name="twitter:description" content="">
+<meta name="twitter:description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
 
 <script type="application/ld+json">
 {
@@ -77,14 +82,14 @@ document.addEventListener("DOMContentLoaded", function() {
   "@type": "Organization",
   "name": "MikesBlog",
   "url": "https://oshea00.github.io/",
-  "description": "",
+  "description": "Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.",
   "logo": "https://oshea00.github.io/favicon.ico",
   "sameAs": [
-      "https://github.com/oshea00"
+      "https://github.com/oshea00", "https://www.linkedin.com/in/mroshea/", "https://x.com/PeriodicClarity", "index.xml"
   ]
 }
 </script>
-	<meta name="generator" content="Hugo 0.168.0">
+	<meta name="generator" content="Hugo 0.169.0">
 </head>
 
 <body class="list" id="top">
@@ -124,6 +129,11 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -131,6 +141,11 @@ document.addEventListener("DOMContentLoaded", function() {
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -147,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <h1>👋 Mike&rsquo;s Blog</h1>
     </header>
     <div class="entry-content">
-        Hi. This is where I&rsquo;ve begun to post articles that have an emphasis on coding and mathematical topics. Lately, the focus has been on AI.
+        Hands-on experiments and opinion on LLMs, agentic AI, and MCP, plus the economics of what AI is doing to software and the people who build it. Pinned below are good places to start. Follow along on LinkedIn, X, or RSS.
     </div>
     <footer class="entry-footer">
         <div class="social-icons" >
@@ -160,12 +175,46 @@ document.addEventListener("DOMContentLoaded", function() {
     </path>
 </svg>
     </a>
+    <a href="https://www.linkedin.com/in/mroshea/" target="_blank" rel="noopener noreferrer me"
+        title="Connect on LinkedIn">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+</svg>
+    </a>
+    <a href="https://x.com/PeriodicClarity" target="_blank" rel="noopener noreferrer me"
+        title="Follow on X">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path
+        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z">
+    </path>
+</svg>
+    </a>
+    <a href="index.xml" target="_blank" rel="noopener noreferrer me"
+        title="Subscribe via RSS">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+    stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 11a9 9 0 0 1 9 9" />
+    <path d="M4 4a16 16 0 0 1 16 16" />
+    <circle cx="5" cy="19" r="1" />
+</svg>
+    </a>
 </div>
 
     </footer>
 </article>
 
 <article class="post-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels_hu_f032f93017ac62a7.png 360w,https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels_hu_5ec900fe40e2c664.png 480w,https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels_hu_e34bd0f1bf53f5c1.png 720w,https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels_hu_37d966281d12a9e9.png 1080w,https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels.png 1358w'
+                src="https://oshea00.github.io/posts/population-impacts-of-ai/images/cutecomputer-two-funnels.png"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1358" height="1159"
+                alt="Extending Karpathy&#39;s funnel: AI&#39;s benefits concentrate at the top while its costs spread across the wider population.">
+</figure>
   <header class="entry-header">
     <h2 class="entry-hint-parent">The Inverted Funnel: Why AI’s Benefits and Costs Flow in Opposite Directions
     </h2>
@@ -180,19 +229,14 @@ As shown in the exhibits below, this same model can be applied to the benefit an
 </article>
 
 <article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Oh, Brave New World
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p> I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It’s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 “do its thing.” Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Michael OShea</footer>
-  <a class="entry-link" aria-label="post link to Oh, Brave New World" href="https://oshea00.github.io/posts/brave-new-world/"></a>
-</article>
-
-<article class="post-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/bespoke-software/images/cutecomputerwoodworking_hu_30c4739f331251f1.jpg 360w,https://oshea00.github.io/posts/bespoke-software/images/cutecomputerwoodworking_hu_76e3421319edbd9d.jpg 480w,https://oshea00.github.io/posts/bespoke-software/images/cutecomputerwoodworking_hu_7bf03caecfcd7eac.jpg 720w,https://oshea00.github.io/posts/bespoke-software/images/cutecomputerwoodworking.jpg 1024w'
+                src="https://oshea00.github.io/posts/bespoke-software/images/cutecomputerwoodworking.jpg"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1024" height="1024"
+                alt="I replaced Adobe Acrobat with a $20, six-hour Claude-built app. What that means for the economics of internal software.">
+</figure>
   <header class="entry-header">
     <h2 class="entry-hint-parent">The Economics of Bespoke Internal Software
     </h2>
@@ -209,6 +253,47 @@ The total cost of this effort was less than $20, and it took about six hours of 
 
 <article class="post-entry"> 
   <header class="entry-header">
+    <h2 class="entry-hint-parent">AI Adoption - Systems Model
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> Stocks, Flows &amp; Impediments to Rapid Diffusion · 2022–present ↓ Click any stock or resistance node for detail  |  Flows (dashed orange) show rates of change  |  Resistance nodes (red) act as governors limiting flow rates STOCK FLOW RESISTANCE REINFORCING LOOP AI Capability Models, APIs, Tools, Research ▲ High &amp; Accelerating Workforce Readiness Skills, Habits, Comfort Institutional Trust Authorization &amp; Confidence Regulatory Clarity Legal Frameworks &amp; Standards ▼ Currently Low AI Adoption Real Workflow Integration ◈ Primary Output Stock Infrastructure Compute, APIs, Tooling ▲ Growing (uneven) capability exposure → training inflow API/service buildout demonstrated competence use cases define rules authorized deployment legal clearance Job Threat Perception ⊖ slows Publicized AI Failures ⊖ erodes trust Legal / Liability Uncertainty ⊖ chills adoption Legacy System Complexity ⊖ slows R&#43; Early adopter success builds proof cases → trust SYSTEM BOUNDARY: Enterprise AI Adoption B− Balancing loops (resistance nodes) create natural governor on adoption rate — — — </p>
+  </div>
+  <footer class="entry-footer"><span title='2026-02-22 00:00:00 +0000 UTC'>February 22, 2026</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to AI Adoption - Systems Model" href="https://oshea00.github.io/posts/ai-adoption-systems/"></a>
+</article>
+
+<article class="post-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/brave-new-world/images/cutecomputerarcade_hu_5f611421c4bf946a.jpg 360w,https://oshea00.github.io/posts/brave-new-world/images/cutecomputerarcade_hu_9795ae4c3b2ecdba.jpg 480w,https://oshea00.github.io/posts/brave-new-world/images/cutecomputerarcade_hu_a62c687044af3250.jpg 720w,https://oshea00.github.io/posts/brave-new-world/images/cutecomputerarcade.jpg 1024w'
+                src="https://oshea00.github.io/posts/brave-new-world/images/cutecomputerarcade.jpg"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1024" height="1024"
+                alt="A satirical look at a world where any developer can re-create any software from the past with an LLM.">
+</figure>
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Oh, Brave New World
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It’s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 “do its thing.” Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-20 00:00:00 +0000 UTC'>October 20, 2026</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to Oh, Brave New World" href="https://oshea00.github.io/posts/brave-new-world/"></a>
+</article>
+
+<article class="post-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress_hu_6089eb4b09d4874b.png 360w,https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress_hu_751ca8335a759d76.png 480w,https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress_hu_359d4550313061b8.png 720w,https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress_hu_9d3c5ef38c57e269.png 1080w,https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress.png 1358w'
+                src="https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress.png"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1358" height="1159"
+                alt="Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.">
+</figure>
+  <header class="entry-header">
     <h2 class="entry-hint-parent">Limits on Recursive Self Improvement
     </h2>
   </header>
@@ -221,6 +306,14 @@ The total cost of this effort was less than $20, and it took about six hours of 
 </article>
 
 <article class="post-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi_hu_5fee6d8ecf294f97.jpg 360w,https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi_hu_720b669b461d92b.jpg 480w,https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi_hu_66625852ddeb4bb8.jpg 720w,https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi_hu_875a00301f763758.jpg 1080w,https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi.jpg 1147w'
+                src="https://oshea00.github.io/posts/ai-pi-story/images/cuteaidreamsofpi.jpg"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1147" height="912"
+                alt="A memory-palace weekend, 100 digits of Pi, and what it suggests about how LLMs remember.">
+</figure>
   <header class="entry-header">
     <h2 class="entry-hint-parent">Do LLMs Dream of Pi?
     </h2>
@@ -231,20 +324,6 @@ The total cost of this effort was less than $20, and it took about six hours of 
   </div>
   <footer class="entry-footer"><span title='2026-09-01 00:00:00 +0000 UTC'>September 1, 2026</span>&nbsp;·&nbsp;12 min&nbsp;·&nbsp;Michael OShea</footer>
   <a class="entry-link" aria-label="post link to Do LLMs Dream of Pi?" href="https://oshea00.github.io/posts/ai-pi-story/"></a>
-</article>
-
-<article class="post-entry"> 
-  <header class="entry-header">
-    <h2 class="entry-hint-parent">Running Cooler Spark DGX Cluster
-    </h2>
-  </header>
-  <div class="entry-content">
-    <p> I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.
-The two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I’m using llama.cpp’s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.
-...</p>
-  </div>
-  <footer class="entry-footer"><span title='2026-08-13 00:00:00 +0000 UTC'>August 13, 2026</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea</footer>
-  <a class="entry-link" aria-label="post link to Running Cooler Spark DGX Cluster" href="https://oshea00.github.io/posts/running-cool-dgx-cluster/"></a>
 </article>
 <footer class="page-footer">
   <nav class="pagination">

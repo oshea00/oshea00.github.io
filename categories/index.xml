@@ -4,7 +4,12 @@
     <title>Categories on MikesBlog</title>
     <link>https://oshea00.github.io/categories/</link>
     <description>Recent content in Categories on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <atom:link href="https://oshea00.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
   </channel>

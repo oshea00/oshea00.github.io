@@ -7,15 +7,10 @@
 <meta name="robots" content="index, follow">
 <title>Running Cooler Spark DGX Cluster | MikesBlog</title>
 <meta name="keywords" content="llm, dgx, spark, llama.cpp, cluster">
-<meta name="description" content="
-     
-
-
-I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.
-The two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I&rsquo;m using llama.cpp&rsquo;s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.">
+<meta name="description" content="Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/running-cool-dgx-cluster/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -53,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -69,8 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/running-cool-dgx-cluster/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Running Cooler Spark DGX Cluster">
-  <meta property="og:description" content=" I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.
-The two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I’m using llama.cpp’s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.">
+  <meta property="og:description" content="Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -81,14 +76,11 @@ The two Sparks are directly connected over QSFP and use RDMA as the transport. W
     <meta property="article:tag" content="Spark">
     <meta property="article:tag" content="Llama.cpp">
     <meta property="article:tag" content="Cluster">
-<meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://oshea00.github.io/posts/running-cool-dgx-cluster/images/cutebutoverheated.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/running-cool-dgx-cluster/images/cutebutoverheated.png">
 <meta name="twitter:title" content="Running Cooler Spark DGX Cluster">
-<meta name="twitter:description" content="
-     
-
-
-I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.
-The two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I&rsquo;m using llama.cpp&rsquo;s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.">
+<meta name="twitter:description" content="Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.">
 
 
 <script type="application/ld+json">
@@ -117,14 +109,14 @@ The two Sparks are directly connected over QSFP and use RDMA as the transport. W
   "@type": "BlogPosting",
   "headline": "Running Cooler Spark DGX Cluster",
   "name": "Running Cooler Spark DGX Cluster",
-  "description": " I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.\nThe two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I\u0026rsquo;m using llama.cpp\u0026rsquo;s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.\n",
+  "description": "Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.",
   "keywords": [
     "llm", "dgx", "spark", "llama.cpp", "cluster"
   ],
   "articleBody": " I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.\nThe two Sparks are directly connected over QSFP and use RDMA as the transport. With llama-server running on Spark1, and ggml-rpc-server running on Spark2, I’m using llama.cpp’s layer-split configuration with the DeepSeek-V4-Flash-0731-UD-Q4_K_XL model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.\nInference performance is fine at about 12 tokens/sec (tg_s), and the memory usage is split fairly evenly 70G/80G between the two systems, leaving good headroom for other models and tasks; however, I happened to notice Spark2 was running about 9°C degrees hotter than Spark1, even while the cluster was sitting idle.\nOne Core, Fully Busy Looking at btop revealed a single CPU core on Spark2 sitting at 100% utilization while running the ggml-rpc-server process. This process handles communication between the main llama-server process on Spark1 and the distributed tensors on Spark2.\nAlthough the ggml-rpc-server process was only taking 5% of the entire CPU, I could see the C7 core at 100%, even when no inference was being done.\nThis seemed to indicate a busy-polling condition. After looking for issues on the llama.cpp forums, and running some searches on the llama.cpp github repo, the busy-polling appeared to be related to llama.cpp’s RDMA completion handling. The RPC server busy-polls the RDMA completion queue instead of blocking while waiting for work. There are some llama.cpp options for using wait versus busy when using TCP sockets, but these options don’t apply for RDMA. Unless I wanted to start patching llama.cpp code, I needed other options.\nPerformance vs. Efficiency Cores The GB10 CPU in the DGX Spark has 20 Arm cores split between performance and efficiency cores. On the DGX Spark, the cores are interleaved between efficiency and performance as follows:\nEfficiency: C0-C4, C10-C14 2.808 GHz Performance: C5-C9, C15-C19 3.900 GHz Seeing the process on Spark2 running on C7 (see above screenshot) indicated the ggml-rpc-server was landing on a 3.9 GHz high-efficiency core. My guess was that the higher speed core was probably running hot while in this busy-polling mode. Moving the process to an efficiency core running at 2.8 GHZ might run cooler.\nThere is a way to set CPU affinity for running processes using taskset. Looking up the TID of the process, I was able to move it to an efficiency core (C14) using taskset. taskset -cp 14 2266022 This moved the process to C14 and after a minute or so I could see the temperature settle at 52°C. Down from 57°C running on the performance core, this was a 5°C reduction. The polling loop was still running at 100%. I had only changed the kind of CPU core used. This seemed to confirm my guess about the temperature difference when running on the “hotter” CPU core.\nAs for performance, after this change, I found token generation remained at about 12 tokens/sec.\nMaking It Permanent There is a way to force a program to run on particular cores using taskset. I just needed to pin the ggml-rpc-server process to an efficiency core in my startup script as follows:\ntaskset -c 0-4,10-14 ./build/bin/ggml-rpc-server --host 169.254.103.215 --port 50052 --device CUDA0 -c This still gives the process ten CPUs to choose from during initialization, while preventing the long-lived polling thread from migrating onto a performance core.\nAfter the systems had been idle for a while, I was seeing approximately:\nspark1 llama-server ~46C spark2 ggml-rpc-server + RDMA ~51C So this simple affinity change recovered about 5°C of thermal headroom with no measurable loss in inference throughput. Until llama.cpp gets around to addressing this issue in the their GGML RPC server, this should have some general use for anyone clustering models using the RDMA transport.\nPretty “cool” story…\n",
   "wordCount" : "635",
   "inLanguage": "en",
-  "datePublished": "2026-08-13T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/running-cool-dgx-cluster/images/cutebutoverheated.png","datePublished": "2026-08-13T00:00:00Z",
   "dateModified": "2026-08-13T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -183,6 +175,11 @@ The two Sparks are directly connected over QSFP and use RDMA as the transport. W
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -190,6 +187,11 @@ The two Sparks are directly connected over QSFP and use RDMA as the transport. W
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -208,6 +210,9 @@ The two Sparks are directly connected over QSFP and use RDMA as the transport. W
     <h1 class="post-title entry-hint-parent">
       Running Cooler Spark DGX Cluster
     </h1>
+    <div class="post-description">
+      Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.
+    </div>
     <div class="post-meta"><span title='2026-08-13 00:00:00 +0000 UTC'>August 13, 2026</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea
 
 </div>

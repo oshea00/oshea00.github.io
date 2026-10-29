@@ -6,18 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
 <title>Building a Hybrid Summary Evaluation Framework | MikesBlog</title>
-<meta name="keywords" content="llm, openai, prompt engineering, summarization">
-<meta name="description" content="
-     
-
-
-Combining deterministic NLP with LLM-as-Judge for robust evaluation
-Summary Evaluation Challenges
-Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
-has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].">
+<meta name="keywords" content="llm, openai, prompt-engineering, summarization">
+<meta name="description" content="Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/summary-evals/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -55,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -71,8 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/summary-evals/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Building a Hybrid Summary Evaluation Framework">
-  <meta property="og:description" content=" Combining deterministic NLP with LLM-as-Judge for robust evaluation
-Summary Evaluation Challenges Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP) has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].">
+  <meta property="og:description" content="Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -80,18 +73,13 @@ Summary Evaluation Challenges Summary evaluation metrics sometimes fall short in
     <meta property="article:modified_time" content="2025-09-14T00:00:00+00:00">
     <meta property="article:tag" content="Llm">
     <meta property="article:tag" content="Openai">
-    <meta property="article:tag" content="Prompt Engineering">
+    <meta property="article:tag" content="Prompt-Engineering">
     <meta property="article:tag" content="Summarization">
-<meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://oshea00.github.io/posts/summary-evals/images/cutecomputereditor.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/summary-evals/images/cutecomputereditor.png">
 <meta name="twitter:title" content="Building a Hybrid Summary Evaluation Framework">
-<meta name="twitter:description" content="
-     
-
-
-Combining deterministic NLP with LLM-as-Judge for robust evaluation
-Summary Evaluation Challenges
-Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
-has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].">
+<meta name="twitter:description" content="Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.">
 
 
 <script type="application/ld+json">
@@ -120,14 +108,14 @@ has covered a lot of ground in this area. Widely used measures such as ROUGE foc
   "@type": "BlogPosting",
   "headline": "Building a Hybrid Summary Evaluation Framework",
   "name": "Building a Hybrid Summary Evaluation Framework",
-  "description": " Combining deterministic NLP with LLM-as-Judge for robust evaluation\nSummary Evaluation Challenges Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP) has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].\n",
+  "description": "Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.",
   "keywords": [
-    "llm", "openai", "prompt engineering", "summarization"
+    "llm", "openai", "prompt-engineering", "summarization"
   ],
   "articleBody": " Combining deterministic NLP with LLM-as-Judge for robust evaluation\nSummary Evaluation Challenges Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP) has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].\nFor example, consider two summaries that state “The study found 73% improvement” and “Nearly three-quarters showed positive outcomes.” Both express the same underlying fact, yet traditional metrics treat them as distinct. This illustrates how lexical approaches can struggle to account for semantic equivalence and factual consistency.\nI did some experimentation with the Natural Language Toolkit (NLTK) and managed to get a good first cut working with the traditional ML approach, but my accuracy scoring was falling short on many edge cases such as the one above, and others described in [1]. So, a new experiment was needed.\nA Hybrid Approach Initial explorations with established NLP metrics demonstrated their strengths and limitations, but extending these approaches to semantic accuracy was not robust. It seemed LLM-based evaluation might be better for semantic assessment with good prompt design.\nAt the same time, relying solely on LLM-based evaluation for the other more deterministic scores related to coherence and completeness seemed like overkill. When considering the different quality dimensions, I considered a tailored “hybrid” approach:\nAccuracy: Dependent on semantic understanding and factual consistency assessment - LLM Completeness: Amenable to topic extraction and coverage analysis - NLTK Coherence: Supported by established linguistic measures - ROUGE Overall Score: Using weighted average of the above components. This seemed to be worth exploring with some experimentation.\nArchitecture: Three Evaluation Paradigms Accuracy: LLM-as-Judge with Structured Prompting For accuracy, large language models provide the needed semantic reasoning to assess equivalence and factual consistency. Structured prompting ensures consistent, interpretable judgments:\nprompt = f\"Compare the and provided. Using only the information provided in the , characterize the accuracy of the on a scale of 0=Poor, 1=Fair, 2=Good, or 3=Excellent. Provide a short rationale for your score. {source_text} {summary_text} Format as JSON: {{'score': int, 'rationale': str}}\" Key design considerations:\nExplicit source constraint prevents hallucinations or injection of external knowledge Discrete 0–3 scale improves judgment consistency Required rationale encourages reasoning and enables debugging JSON formatting ensures parseable responses The rationale requirement, in particular, enhances judgment quality by prompting more deliberate decisions.\nCompleteness: Enhanced Topic Extraction Completeness is measured through topic extraction methods that extend beyond term frequency analysis. By incorporating document structure knowledge and positional weighting, the evaluation captures salient content more effectively:\n# Weight sentences by position and content characteristics if i == 0 or i == len(sentences) - 1: position_weight = 1.5 elif i \u003c len(sentences) * 0.2 or i \u003e len(sentences) * 0.8: position_weight = 1.2 else: position_weight = 1.0 combined_score = position_weight * tfidf_score * length_weight Semantic similarity (cosine similarity on sentence embeddings) is then used to match extracted topics with summary content. A coverage threshold of 0.4 balances precision and recall. This approach captures topic coverage that lexical matching alone may miss, especially when summaries express concepts using different terminology.\nCoherence: ROUGE Metrics For coherence, established computational linguistics methods are sufficient and efficient:\ncoherence = (0.4 * semantic + 0.25 * discourse + 0.08 * (rouge1+ rouge2+ rougeL+ lexical)) Components:\nROUGE-1/2/L: Official F1 scores using rouge-score library with stemming Semantic coherence: Sentence embedding similarities combined with ROUGE-L Discourse coherence: Penn Discourse Treebank marker analysis Lexical diversity: Type-Token Ratio with windowed normalization Contradiction penalty: 1.0 (no contradictions) to 0.0 (many contradictions) Readability: Flesch-Kincaid grade normalized as max(0, min(1, (20-grade)/20)) Length penalty: 1.0 (normal length) to 0.3 minimum (very short texts) Deterministic methods are appropriate here because coherence has objective, measurable properties and reliable metrics already exist.\nOverall Score Weighting Rationale I chose a 60/25/15 weighting across accuracy, completeness, and coherence to reflect practical priorities: (0.6 * Accuracy + 0.25 * Completeness + 0.15 * Coherence).\nAccuracy receives the greatest emphasis, since factual errors undermine trust. Completeness is weighted significantly, as omission of key information reduces usefulness. Coherence is weighted lower, since awkward phrasing is less harmful than inaccuracy. These weights can be tuned for domain-specific applications.\nPrompt Engineering for Consistent Judgments Reliability in accuracy scoring depends heavily on careful prompt design. Critical elements include:\nConstraining evaluation to provided source material Using a discrete scale rather than continuous ranges Requiring explicit reasoning Enforcing structured output Among these, the source constraint proved particularly important, as unconstrained prompts encouraged models to draw on external knowledge rather than evaluate the given material.\nPerformance Characteristics The hybrid framework yields overall score distributions that align with intuitive quality assessments:\n0.8–1.0: High-quality summaries with minimal issues 0.6–0.8: Good summaries with some gaps in completeness or flow 0.4–0.6: Usable but with noticeable issues 0.0–0.4: Significant problems in accuracy, completeness, or coherence The system captures error types that purely algorithmic methods tend to miss:\nSemantic paraphrasing Factual contradictions expressed with different wording Important topic omissions despite high lexical overlap Issues with discourse and readability The overall scoring establishes levels that can be used to flag summaries for human evaluators to more closely examine.\nSummary Evaluation Using a Standard Baseline To test this framework I chose to use the CNN/DailyMail dataset which contains 287K training articles and summaries of news articles. This is a standard used in many summary evaluation experiments [1].\nSummary Evaluation Tool for CNN/DailyMail Dataset This module provides functionality to evaluate reference summaries from the CNN/DailyMail dataset using a comprehensive SummaryEvaluator with ROUGE-enhanced coherence scoring [2].\nKey Features:\nLoads and samples from CNN/DailyMail dataset (287k+ articles) Evaluates summaries across three dimensions: Accuracy: LLM-as-judge scoring using OpenAI models (GPT-4, GPT-4o) Completeness: Topic coverage analysis using TF-IDF and Semantic similarity Coherence: ROUGE-enhanced scoring with discourse analysis and readability Flexible output formats: pretty console display or CSV export Configurable sampling with optional seeding for reproducibility Command-line interface with comprehensive argument parsing Usage Examples:\npython evalsummary.py # default 5 samples, GPT-4o, pretty output python evalsummary.py -n 10 -m gpt-4.1 # 10 samples with GPT-4.1``` python evalsummary.py -f csv \u003e results.csv # CSV export for analysis``` python evalsummary.py --seed 42 -n 20 # Reproducible results``` Example output 📥 Loading CNN/DailyMail dataset... ✅ Dataset loaded - Train: 287113 🚀 Evaluating 1 random reference summaries using gpt-4o ================================================================================ Article 1 (index 221292): Bradford midfielder Billy Knott has taken to Twitter to thank John Terry for giving his dad a signed shirt following his side's stunning 4-2 FA Cup win against Chelsea on Saturday. The former Chelsea youngster was still revelling in the win on Sunday morning as he posed with his father, Steve, and the famous No 26 shirt of the Blues captain. Knott tweeted: 'Thanks to jt top man give the shirt to my dad. What a day that was every were we goooo [sic].' Billy Knott shows off his signed shirt from... Reference Summary: Billy Knott received signed shirt from John Terry following Bradford's 4-2 FA Cup win against Chelsea. Knott took to Twitter to thank 'top man' Terry for the gift. Bantams are through to FA Cup fifth round following memorable win. -------------------------------------------------------------------------------- 📊 SUMMARY EVALUATION RESULTS: ---------------------------------------- 🎯 Accuracy: 1.000 (100.0%) 📋 Completeness: 0.532 (53.2%) 🔗 Coherence: 0.437 (43.7%) ⭐ Overall: 0.799 (79.9%) 💭 Accuracy Rationale: The summary accurately captures the key points from the source: Billy Knott received a signed shirt from John Terry, he thanked Terry on Twitter, and Bradford's win against Chelsea allowed them to progress to the FA Cup fifth round. The summary is concise and includes all the main elements mentioned in the source. Conclusion The hybrid framework combines evaluation paradigms to provide robust, semantically aware summary assessment. It leverages LLMs for accuracy, structured NLP methods for completeness, and classical measures for coherence, producing a more comprehensive evaluation than any single method alone.\nThe result is an approach that balances semantic nuance with consistency and efficiency, offering a flexible foundation for summary evaluation across diverse domains. With overall scoring establishing levels that can be used to flag summaries for human evaluators to review.\nReferences [1] Fabbri, A. R., et al. (2020). SummEval: Re-evaluating Summarization Evaluation. arXiv preprint arXiv:2007.12626. https://arxiv.org/pdf/2007.12626\n[2] O’Shea, M. (2024). Summary Evaluation Framework. GitHub repository. https://github.com/oshea00/summaryeval\n",
   "wordCount" : "1389",
   "inLanguage": "en",
-  "datePublished": "2025-09-14T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/summary-evals/images/cutecomputereditor.png","datePublished": "2025-09-14T00:00:00Z",
   "dateModified": "2025-09-14T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -186,6 +174,11 @@ has covered a lot of ground in this area. Widely used measures such as ROUGE foc
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -193,6 +186,11 @@ has covered a lot of ground in this area. Widely used measures such as ROUGE foc
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -211,6 +209,9 @@ has covered a lot of ground in this area. Widely used measures such as ROUGE foc
     <h1 class="post-title entry-hint-parent">
       Building a Hybrid Summary Evaluation Framework
     </h1>
+    <div class="post-description">
+      Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.
+    </div>
     <div class="post-meta"><span title='2025-09-14 00:00:00 +0000 UTC'>September 14, 2025</span>&nbsp;·&nbsp;7 min&nbsp;·&nbsp;Michael OShea
 
 </div>
@@ -394,7 +395,7 @@ all the main elements mentioned in the source.
     <ul class="post-tags">
       <li><a href="https://oshea00.github.io/tags/llm/">Llm</a></li>
       <li><a href="https://oshea00.github.io/tags/openai/">Openai</a></li>
-      <li><a href="https://oshea00.github.io/tags/prompt-engineering/">Prompt Engineering</a></li>
+      <li><a href="https://oshea00.github.io/tags/prompt-engineering/">Prompt-Engineering</a></li>
       <li><a href="https://oshea00.github.io/tags/summarization/">Summarization</a></li>
     </ul>
 <nav class="paginav">
@@ -414,7 +415,7 @@ all the main elements mentioned in the source.
 <ul class="share-buttons">
     <li>
         <a target="_blank" rel="noopener noreferrer" aria-label="share Building a Hybrid Summary Evaluation Framework on x"
-            href="https://x.com/intent/tweet/?text=Building%20a%20Hybrid%20Summary%20Evaluation%20Framework&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fsummary-evals%2f&amp;hashtags=llm%2copenai%2cpromptengineering%2csummarization">
+            href="https://x.com/intent/tweet/?text=Building%20a%20Hybrid%20Summary%20Evaluation%20Framework&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fsummary-evals%2f&amp;hashtags=llm%2copenai%2cprompt-engineering%2csummarization">
             <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
                 <path
                     d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />

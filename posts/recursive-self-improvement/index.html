@@ -7,14 +7,10 @@
 <meta name="robots" content="index, follow">
 <title>Limits on Recursive Self Improvement | MikesBlog</title>
 <meta name="keywords" content="llm, rsi, genai, transformers">
-<meta name="description" content="
-     
-
-
-A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See  Agentic Orchestration is not a Moat.">
+<meta name="description" content="Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/recursive-self-improvement/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -52,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -68,7 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/recursive-self-improvement/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Limits on Recursive Self Improvement">
-  <meta property="og:description" content=" A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See Agentic Orchestration is not a Moat.">
+  <meta property="og:description" content="Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -78,13 +75,11 @@ document.addEventListener("DOMContentLoaded", function() {
     <meta property="article:tag" content="Rsi">
     <meta property="article:tag" content="Genai">
     <meta property="article:tag" content="Transformers">
-<meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress.png">
 <meta name="twitter:title" content="Limits on Recursive Self Improvement">
-<meta name="twitter:description" content="
-     
-
-
-A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See  Agentic Orchestration is not a Moat.">
+<meta name="twitter:description" content="Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.">
 
 
 <script type="application/ld+json">
@@ -113,14 +108,14 @@ A few months ago, I wrote, “The recent explosion of social media frenzy over a
   "@type": "BlogPosting",
   "headline": "Limits on Recursive Self Improvement",
   "name": "Limits on Recursive Self Improvement",
-  "description": " A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See Agentic Orchestration is not a Moat.\n",
+  "description": "Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.",
   "keywords": [
     "llm", "rsi", "genai", "transformers"
   ],
   "articleBody": " A few months ago, I wrote, “The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it’s a trivial solution, and it will be copied relentlessly.” See Agentic Orchestration is not a Moat.\nWe’re now seeing that play out with the explosion of various harnessing frameworks, from Codex to Pi. The key observation is that harnesses can indeed improve the results that large language models produce, sometimes substantially, but they do not eliminate fundamental limits on computation and formal reasoning. Harness code is deterministic—good old-fashioned software—and may itself be Turing complete. But Turing completeness does not imply unlimited reasoning: Turing showed that there are computational questions no general algorithm can decide, while Gödel showed that any consistent, effectively axiomatized formal system expressive enough to describe arithmetic will contain true statements that cannot be proved from within that system. Adding more deterministic machinery can extend what the overall system can do, but it cannot create a system capable of resolving every possible computational or formal question.\n“The Wisdom of Crowds,” as expressed in James Surowiecki’s 2004 book, holds that diverse information, when considered independently by large groups of people, tends to converge on good judgments. But those judgments are based on the totality of what the crowd believes is possible. His book considers the classic problem of people estimating a quantity, whether the weight of an ox or the number of jellybeans in a jar at a county fair. These quantities have plausible lower and upper bounds, and estimates tend to cluster within some distribution around a central value. The people making the guesses may have no statistical knowledge at all, but they live in a world largely composed of measurements that fall within familiar ranges: height, weight, temperatures that might occur during the current season, crop yields, and so on. Their individual guesses therefore reflect an implicit understanding of what values are plausible. When those independent estimates are aggregated, their errors can offset one another, causing the collective estimate—whether expressed as a mean or a median—to converge toward the actual value.\nThe underlying issue is that theoretical exploration of genuinely new ideas does not necessarily occur near the center of a known distribution. Important new ideas often begin as outliers. Large language models can generate unusual combinations and hypotheses, but the data from which they learn consists overwhelmingly of what humans have already observed, written, argued, and imagined. Their learned probability distributions therefore provide the strongest support for ideas that resemble what is already represented in that record.\nThe problem, then, is one of choice. From a universe of possible outcomes or directions in research, generating possibilities is relatively easy; the harder task is deciding which improbable possibilities represent genuine insight and which are merely plausible guesses. What matters is the mechanism that keeps the enterprise moving toward discovery rather than disappearing down an infinitude of rabbit holes.\nThis becomes especially important if we imagine recursive, stair-step improvement using systems built on transformer principles. A model can generate alternatives, critique them, revise them, and use those revisions to generate still better alternatives. But every step upward depends on a choice about which direction is worth pursuing.\nIn human research, that choice is often described as taste, judgment, or intuition. These are not simply preferences for what is most probable or most consistent with the existing consensus. Quite often, they operate in opposition to the prevailing zeitgeist. The researcher recognizes that an anomaly, an awkward result, or an unfashionable hypothesis may contain something important and chooses to follow it before there is enough evidence for the choice to appear obvious.\nUntil and unless new techniques are discovered that don’t depend primarily on statistical mining of training data, techniques likely more akin to the exploration of ideas, driven by a built-in purpose to self-reward and feed new promising ideas back into the process, we are unlikely to see meaningful recursive self-improvement.\nThe kinds of models I’m proposing here would need the capability to retrain in minutes rather than months. Perhaps one day we will see this, although given how current engines are designed to draw power and other resources at scale, I think it will be a long time before we get there. That’s a topic for later consideration.\n",
   "wordCount" : "747",
   "inLanguage": "en",
-  "datePublished": "2026-09-16T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/recursive-self-improvement/images/cute_infinite_regress.png","datePublished": "2026-09-16T00:00:00Z",
   "dateModified": "2026-09-16T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -179,6 +174,11 @@ A few months ago, I wrote, “The recent explosion of social media frenzy over a
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -186,6 +186,11 @@ A few months ago, I wrote, “The recent explosion of social media frenzy over a
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -204,6 +209,9 @@ A few months ago, I wrote, “The recent explosion of social media frenzy over a
     <h1 class="post-title entry-hint-parent">
       Limits on Recursive Self Improvement
     </h1>
+    <div class="post-description">
+      Why harnesses and model self-improvement converge on the center of the distribution, and why new ideas live at the edges.
+    </div>
     <div class="post-meta"><span title='2026-09-16 00:00:00 +0000 UTC'>September 16, 2026</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;Michael OShea
 
 </div>
@@ -233,10 +241,10 @@ A few months ago, I wrote, “The recent explosion of social media frenzy over a
       <li><a href="https://oshea00.github.io/tags/transformers/">Transformers</a></li>
     </ul>
 <nav class="paginav">
-  <a class="prev" href="https://oshea00.github.io/posts/bespoke-software/">
+  <a class="prev" href="https://oshea00.github.io/posts/brave-new-world/">
     <span class="title">« Prev</span>
     <br>
-    <span>The Economics of Bespoke Internal Software</span>
+    <span>Oh, Brave New World</span>
   </a>
   <a class="next" href="https://oshea00.github.io/posts/ai-pi-story/">
     <span class="title">Next »</span>

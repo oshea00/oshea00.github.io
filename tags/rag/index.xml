@@ -4,7 +4,12 @@
     <title>Rag on MikesBlog</title>
     <link>https://oshea00.github.io/tags/rag/</link>
     <description>Recent content in Rag on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 18 Jan 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/rag/index.xml" rel="self" type="application/rss+xml" />
@@ -13,13 +18,18 @@
       <link>https://oshea00.github.io/posts/aichat-part1/</link>
       <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/aichat-part1/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cartoon_terminal.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cartoon_terminal.png#center"/> 
+</figure>
 
-&lt;p&gt;If you are a command-line fan and want to experiment with large language models (LLM), you will love &lt;a href=&#34;https://github.com/sigoden/aichat&#34;&gt;&lt;code&gt;AiChat&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;p&gt;There are many popular graphical front ends for working with LLMs, such as OpenAI&amp;rsquo;s ChatGPT, and Anthropic&amp;rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.&lt;/p&gt;
-&lt;p&gt;One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I&amp;rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.&lt;/p&gt;</description>
+<p>If you are a command-line fan and want to experiment with large language models (LLM), you will love <a href="https://github.com/sigoden/aichat"><code>AiChat</code></a>.</p>
+<p>There are many popular graphical front ends for working with LLMs, such as OpenAI&rsquo;s ChatGPT, and Anthropic&rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.</p>
+<p>One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I&rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.</p>
+<!-- raw HTML omitted -->
+<h2 id="next">Next</h2>
+<p>Thanks for watching! Next on this topic I&rsquo;ll cover how to setup LLMs running locally and connecting to them in addition to other providers seamlessly using <code>aichat</code> to do function calling, command line AI assistance, and much more.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

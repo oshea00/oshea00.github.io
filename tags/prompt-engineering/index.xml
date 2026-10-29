@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Prompt Engineering on MikesBlog</title>
+    <title>Prompt-Engineering on MikesBlog</title>
     <link>https://oshea00.github.io/tags/prompt-engineering/</link>
-    <description>Recent content in Prompt Engineering on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <description>Recent content in Prompt-Engineering on MikesBlog</description>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 14 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/prompt-engineering/index.xml" rel="self" type="application/rss+xml" />
@@ -13,26 +18,498 @@
       <link>https://oshea00.github.io/posts/summary-evals/</link>
       <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/summary-evals/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputereditor.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputereditor.png#center"/> 
+</figure>
 
-&lt;em&gt;Combining deterministic NLP with LLM-as-Judge for robust evaluation&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id=&#34;summary-evaluation-challenges&#34;&gt;Summary Evaluation Challenges&lt;/h2&gt;
-&lt;p&gt;Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
-has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].&lt;/p&gt;</description>
+<em>Combining deterministic NLP with LLM-as-Judge for robust evaluation</em></p>
+<h2 id="summary-evaluation-challenges">Summary Evaluation Challenges</h2>
+<p>Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
+has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].</p>
+<p>For example, consider two summaries that state “The study found 73% improvement” and “Nearly three-quarters showed positive outcomes.” Both express the same underlying fact, yet traditional metrics treat them as distinct. This illustrates how lexical approaches can struggle to account for semantic equivalence and factual consistency.</p>
+<p>I did some experimentation with the Natural Language Toolkit (NLTK) and managed to get a good first cut working with the traditional ML approach, but my accuracy scoring was falling short on many edge cases such as the one above, and others described in [1]. So, a new experiment was needed.</p>
+<hr>
+<h2 id="a-hybrid-approach">A Hybrid Approach</h2>
+<p>Initial explorations with established NLP metrics demonstrated their strengths and limitations, but extending these approaches to semantic accuracy was not robust. It seemed LLM-based evaluation might be better for semantic assessment with good prompt design.</p>
+<p>At the same time, relying solely on LLM-based evaluation for the other more deterministic scores related to coherence and completeness seemed like overkill. When considering the different quality dimensions, I considered a tailored &ldquo;hybrid&rdquo; approach:</p>
+<ul>
+<li><strong>Accuracy</strong>: Dependent on semantic understanding and factual consistency assessment - LLM</li>
+<li><strong>Completeness</strong>: Amenable to topic extraction and coverage analysis - NLTK</li>
+<li><strong>Coherence</strong>: Supported by established linguistic measures - ROUGE</li>
+<li><strong>Overall Score</strong>: Using weighted average of the above components.</li>
+</ul>
+<p>This seemed to be worth exploring with some experimentation.</p>
+<hr>
+<h2 id="architecture-three-evaluation-paradigms">Architecture: Three Evaluation Paradigms</h2>
+<h3 id="accuracy-llm-as-judge-with-structured-prompting">Accuracy: LLM-as-Judge with Structured Prompting</h3>
+<p>For accuracy, large language models provide the needed semantic reasoning to assess equivalence and factual consistency. Structured prompting ensures consistent, interpretable judgments:</p>
+<pre tabindex="0"><code>prompt = f&#34;Compare the &lt;source&gt; and &lt;summary&gt; provided. Using only the
+information provided in the &lt;source&gt;, characterize the accuracy of the
+&lt;summary&gt; on a scale of 0=Poor, 1=Fair, 2=Good, or 3=Excellent.
+Provide a short rationale for your score.
+&lt;source&gt;
+{source_text}
+&lt;/source&gt;
+&lt;summary&gt;
+{summary_text}
+&lt;/summary&gt;
+Format as JSON: {{&#39;score&#39;: int, &#39;rationale&#39;: str}}&#34;
+</code></pre><p><strong>Key design considerations:</strong></p>
+<ul>
+<li><strong>Explicit source constraint</strong> prevents hallucinations or injection of external knowledge</li>
+<li><strong>Discrete 0–3 scale</strong> improves judgment consistency</li>
+<li><strong>Required rationale</strong> encourages reasoning and enables debugging</li>
+<li><strong>JSON formatting</strong> ensures parseable responses</li>
+</ul>
+<p>The rationale requirement, in particular, enhances judgment quality by prompting more deliberate decisions.</p>
+<hr>
+<h3 id="completeness-enhanced-topic-extraction">Completeness: Enhanced Topic Extraction</h3>
+<p>Completeness is measured through topic extraction methods that extend beyond term frequency analysis. By incorporating document structure knowledge and positional weighting, the evaluation captures salient content more effectively:</p>
+<pre tabindex="0"><code># Weight sentences by position and content characteristics
+if i == 0 or i == len(sentences) - 1:
+    position_weight = 1.5
+elif i &lt; len(sentences) * 0.2 or i &gt; len(sentences) * 0.8:
+    position_weight = 1.2
+else:
+    position_weight = 1.0
+
+combined_score = position_weight * tfidf_score * length_weight
+</code></pre><p>Semantic similarity (cosine similarity on sentence embeddings) is then used to match extracted topics with summary content. A coverage threshold of 0.4 balances precision and recall. This approach captures topic coverage that lexical matching alone may miss, especially when summaries express concepts using different terminology.</p>
+<hr>
+<h3 id="coherence-rouge-metrics">Coherence: ROUGE Metrics</h3>
+<p>For coherence, established computational linguistics methods are sufficient and efficient:</p>
+<pre tabindex="0"><code>coherence = (0.4 * semantic + 0.25 * discourse + 0.08 * (rouge1+ rouge2+ rougeL+ lexical))
+</code></pre><p><strong>Components:</strong></p>
+<ul>
+<li><strong>ROUGE-1/2/L</strong>: Official F1 scores using rouge-score library with stemming</li>
+<li><strong>Semantic coherence</strong>: Sentence embedding similarities combined with ROUGE-L</li>
+<li><strong>Discourse coherence</strong>: Penn Discourse Treebank marker analysis</li>
+<li><strong>Lexical diversity</strong>: Type-Token Ratio with windowed normalization</li>
+<li><strong>Contradiction penalty</strong>: 1.0 (no contradictions) to 0.0 (many contradictions)</li>
+<li><strong>Readability</strong>: Flesch-Kincaid grade normalized as max(0, min(1, (20-grade)/20))</li>
+<li><strong>Length penalty</strong>: 1.0 (normal length) to 0.3 minimum (very short texts)</li>
+</ul>
+<p>Deterministic methods are appropriate here because coherence has objective, measurable properties and reliable metrics already exist.</p>
+<h3 id="overall-score-weighting-rationale">Overall Score Weighting Rationale</h3>
+<p>I chose a 60/25/15 weighting across accuracy, completeness, and coherence to reflect practical priorities:  <em>(0.6 * Accuracy + 0.25 * Completeness + 0.15 * Coherence)</em>.</p>
+<ul>
+<li><strong>Accuracy</strong> receives the greatest emphasis, since factual errors undermine trust.</li>
+<li><strong>Completeness</strong> is weighted significantly, as omission of key information reduces usefulness.</li>
+<li><strong>Coherence</strong> is weighted lower, since awkward phrasing is less harmful than inaccuracy.</li>
+</ul>
+<p><em>These weights can be tuned for domain-specific applications.</em></p>
+<hr>
+<h2 id="prompt-engineering-for-consistent-judgments">Prompt Engineering for Consistent Judgments</h2>
+<p>Reliability in accuracy scoring depends heavily on careful prompt design. Critical elements include:</p>
+<ul>
+<li>Constraining evaluation to provided source material</li>
+<li>Using a discrete scale rather than continuous ranges</li>
+<li>Requiring explicit reasoning</li>
+<li>Enforcing structured output</li>
+</ul>
+<p>Among these, the source constraint proved particularly important, as unconstrained prompts encouraged models to draw on external knowledge rather than evaluate the given material.</p>
+<h2 id="performance-characteristics">Performance Characteristics</h2>
+<p>The hybrid framework yields overall score distributions that align with intuitive quality assessments:</p>
+<ul>
+<li><strong>0.8–1.0</strong>: High-quality summaries with minimal issues</li>
+<li><strong>0.6–0.8</strong>: Good summaries with some gaps in completeness or flow</li>
+<li><strong>0.4–0.6</strong>: Usable but with noticeable issues</li>
+<li><strong>0.0–0.4</strong>: Significant problems in accuracy, completeness, or coherence</li>
+</ul>
+<p>The system captures error types that purely algorithmic methods tend to miss:</p>
+<ul>
+<li>Semantic paraphrasing</li>
+<li>Factual contradictions expressed with different wording</li>
+<li>Important topic omissions despite high lexical overlap</li>
+<li>Issues with discourse and readability</li>
+</ul>
+<p>The overall scoring establishes levels that can be used to flag summaries for human evaluators to more closely examine.</p>
+<hr>
+<h2 id="summary-evaluation-using-a-standard-baseline">Summary Evaluation Using a Standard Baseline</h2>
+<p>To test this framework I chose to use the <a href="https://huggingface.co/datasets/abisee/cnn_dailymail">CNN/DailyMail</a> dataset which contains 287K training articles and summaries of news articles. This is a standard used in many summary evaluation
+experiments [1].</p>
+<h3 id="summary-evaluation-tool-for-cnndailymail-dataset">Summary Evaluation Tool for CNN/DailyMail Dataset</h3>
+<p>This module provides functionality to evaluate reference summaries from the CNN/DailyMail dataset
+using a comprehensive SummaryEvaluator with ROUGE-enhanced coherence scoring [2].</p>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li>Loads and samples from CNN/DailyMail dataset (287k+ articles)</li>
+<li>Evaluates summaries across three dimensions:
+<ul>
+<li>Accuracy: LLM-as-judge scoring using OpenAI models (GPT-4, GPT-4o)</li>
+<li>Completeness: Topic coverage analysis using TF-IDF and Semantic similarity</li>
+<li>Coherence: ROUGE-enhanced scoring with discourse analysis and readability</li>
+</ul>
+</li>
+<li>Flexible output formats: pretty console display or CSV export</li>
+<li>Configurable sampling with optional seeding for reproducibility</li>
+<li>Command-line interface with comprehensive argument parsing</li>
+</ul>
+<p><strong>Usage Examples</strong>:</p>
+<pre tabindex="0"><code>python evalsummary.py                      # default 5 samples, GPT-4o, pretty output
+python evalsummary.py -n 10 -m gpt-4.1     # 10 samples with GPT-4.1```
+python evalsummary.py -f csv &gt; results.csv # CSV export for analysis```
+python evalsummary.py --seed 42 -n 20      # Reproducible results```
+</code></pre><h2 id="example-output">Example output</h2>
+<pre tabindex="0"><code>📥 Loading CNN/DailyMail dataset...
+✅ Dataset loaded - Train: 287113
+🚀 Evaluating 1 random reference summaries using gpt-4o
+================================================================================
+Article 1 (index 221292):
+Bradford midfielder Billy Knott has taken to Twitter to thank John Terry for 
+giving his dad a signed shirt following his side&#39;s stunning 4-2 FA Cup win 
+against Chelsea on Saturday. The former Chelsea youngster was still revelling 
+in the win on Sunday morning as he posed with his father, Steve, and the 
+famous No 26 shirt of the Blues captain. Knott tweeted: &#39;Thanks to jt top man
+give the shirt to my dad. What a day that was every were we goooo [sic].&#39;
+Billy Knott shows off his signed shirt from...
+
+Reference Summary:
+Billy Knott received signed shirt from John Terry following Bradford&#39;s 
+4-2 FA Cup win against Chelsea. Knott took to Twitter to thank &#39;top man&#39; Terry
+for the gift. Bantams are through to FA Cup fifth round following memorable win.
+--------------------------------------------------------------------------------
+
+📊 SUMMARY EVALUATION RESULTS:
+----------------------------------------
+🎯 Accuracy:     1.000 (100.0%)
+📋 Completeness: 0.532 (53.2%)
+🔗 Coherence:    0.437 (43.7%)
+⭐ Overall:      0.799 (79.9%)
+
+💭 Accuracy Rationale: The summary accurately captures the key points
+from the source: Billy Knott received a signed shirt from John Terry,
+he thanked Terry on Twitter, and Bradford&#39;s win against Chelsea allowed
+them to progress to the FA Cup fifth round. The summary is concise and includes
+all the main elements mentioned in the source.
+</code></pre><h2 id="conclusion">Conclusion</h2>
+<p>The hybrid framework combines evaluation paradigms to provide robust, semantically aware summary assessment. It leverages LLMs for accuracy, structured NLP methods for completeness, and classical measures for coherence, producing a more comprehensive evaluation than any single method alone.</p>
+<p>The result is an approach that balances semantic nuance with consistency and efficiency, offering a flexible foundation for summary evaluation across diverse domains. With overall scoring establishing levels that can be used to flag summaries for human evaluators to review.</p>
+<hr>
+<h2 id="references">References</h2>
+<p>[1] Fabbri, A. R., et al. (2020). SummEval: Re-evaluating Summarization Evaluation. <em>arXiv preprint arXiv:2007.12626</em>. <a href="https://arxiv.org/pdf/2007.12626">https://arxiv.org/pdf/2007.12626</a></p>
+<p>[2] O&rsquo;Shea, M. (2024). Summary Evaluation Framework. <em>GitHub repository</em>. <a href="https://github.com/oshea00/summaryeval">https://github.com/oshea00/summaryeval</a></p>
+]]></content:encoded>
     </item>
     <item>
       <title>Classify With Confidence</title>
       <link>https://oshea00.github.io/posts/classify-with-confidence/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/classify-with-confidence/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutepredictioncartoon.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Getting useful confidence scores from LLM text classification, tested against labeled data with a confusion matrix.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/cutepredictioncartoon.png#center"/> 
+</figure>
 
-Large foundation models like GPT can classify text according to a well-crafted prompt instruction, and it&amp;rsquo;s remarkable how well they can do this, considering there has been no explicit training with labeled datasets. This has traditionally been done using machine learning models and logistic regression techniques.&lt;/p&gt;
-&lt;p&gt;However, with generative model classification, we lose the &amp;lsquo;confidence level&amp;rsquo; or the probability score of the prediction available in logistic regression. Traditional models like logistic regression provide a probability score for each class, indicating the model&amp;rsquo;s confidence level in its predictions. This confidence score is not just valuable; it&amp;rsquo;s essential for decision-making, as it helps users gauge how confident the model is about its classifications. While generative model responses may align well with the intended classification, we don&amp;rsquo;t directly get an explicit probability for each class. This can be a limitation, particularly in high-stakes applications where knowing the model&amp;rsquo;s confidence level is crucial.&lt;/p&gt;</description>
+Large foundation models like GPT can classify text according to a well-crafted prompt instruction, and it&rsquo;s remarkable how well they can do this, considering there has been no explicit training with labeled datasets. This has traditionally been done using machine learning models and logistic regression techniques.</p>
+<p>However, with generative model classification, we lose the &lsquo;confidence level&rsquo; or the probability score of the prediction available in logistic regression. Traditional models like logistic regression provide a probability score for each class, indicating the model&rsquo;s confidence level in its predictions. This confidence score is not just valuable; it&rsquo;s essential for decision-making, as it helps users gauge how confident the model is about its classifications. While generative model responses may align well with the intended classification, we don&rsquo;t directly get an explicit probability for each class. This can be a limitation, particularly in high-stakes applications where knowing the model&rsquo;s confidence level is crucial.</p>
+<p>One way to approach this limitation and gain a better sense of confidence in LLM classification results is to add instructions to the prompt to provide a &ldquo;confidence level&rdquo; over some range, such as 1.0 through 5.0, along with the predicted class of a given text example. But is this confidence value to be trusted?</p>
+<h2 id="an-experiment-is-needed">An Experiment Is Needed</h2>
+<p>To help answer that question, I&rsquo;ve done a little experiment to see if the confidence level passed back in the LLM&rsquo;s response has some statistical significance using an open-source dataset from Hugging Face.</p>
+<p>AG is a collection of more than 1 million news articles. ComeToMyHead, an academic news search engine, has gathered articles from over 2000 news sources in more than one year of activity. The dataset is provided by the academic community for research purposes in data mining (clustering, classification, etc.), information retrieval (ranking, search, etc.), XML, data compression, data streaming, and any other non-commercial activity.</p>
+<p>Xiang Zhang (<a href="mailto:xiang.zhang@nyu.edu">xiang.zhang@nyu.edu</a>) constructed the AG&rsquo;s news topic classification dataset from the dataset above. It is used as a classification benchmark in Zhang, Xiang, Junbo Zhao, and Yann LeCun. &ldquo;Character-level Convolutional Networks for Text Classification.&rdquo; ArXiv:1509.01626.</p>
+<p>This code will download the dataset and cache it locally:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span></span><span class="line"><span class="cl"><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&#34;wangrongsheng/ag_news&#34;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s2">&#34;./data/ag_news&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&#34;train&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">&#34;label&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+</span></span><span class="line"><span class="cl"><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/dfhead_ag.png"/> <figcaption>
+            <p>Figure 1. Sample labeled data of &lsquo;Business&rsquo; topics.</p>
+        </figcaption>
+</figure>
+
+<h2 id="the-classification-prompt">The Classification Prompt</h2>
+<p>Here is the example prompt I used with the GPT-4 model to get classification results for 1000 rows of the data, sampling an even distribution of classes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">classify_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">Examine the text delimited below by ``` and classify it into one
+</span></span></span><span class="line"><span class="cl"><span class="s2">of the following categories: WORLD, SPORTS, BUSINESS, or SCITECH.
+</span></span></span><span class="line"><span class="cl"><span class="s2">```</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">```
+</span></span></span><span class="line"><span class="cl"><span class="s2">output:
+</span></span></span><span class="line"><span class="cl"><span class="s2">On a single line write the category that best fits and 
+</span></span></span><span class="line"><span class="cl"><span class="s2">a confidence score in the range 1 to 5 (1 being the least confident)
+</span></span></span><span class="line"><span class="cl"><span class="s2">separated by a comma.
+</span></span></span><span class="line"><span class="cl"><span class="s2">On the following line write a brief explanation of why you chose that category.
+</span></span></span><span class="line"><span class="cl"><span class="s2">Do not include any other information in your response.
+</span></span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;</span>
+</span></span></code></pre></div><p>The raw response looks like this:</p>
+<pre tabindex="0"><code>WORLD, 5.0
+The text describes a geopolitical event involving an explosion in Baghdad, Iraq, which is a newsworthy incident related to global affairs typically covered in the WORLD news category.
+</code></pre><p>Enhancing the sampled dataset to add these values results in the following table:
+<figure>
+    <img loading="lazy" src="images/sample_df.png"/> <figcaption>
+            <p>Figure 2. Prediction results.</p>
+        </figcaption>
+</figure>
+</p>
+<h2 id="analyzing-results">Analyzing Results</h2>
+<p>I&rsquo;ll extract the labeled and predicted pairs from the data to create a classification report using the following code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">generate_classification_report</span><span class="p">(</span><span class="n">labeled_predicted_pairs</span><span class="p">,</span> <span class="n">label_names</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Extract labels and predictions from the pairs</span>
+</span></span><span class="line"><span class="cl">    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">labeled_predicted_pairs</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">labeled_predicted_pairs</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Map string labels to numerical values</span>
+</span></span><span class="line"><span class="cl">    <span class="n">label_to_num</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">label_names</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_to_num</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num_predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_to_num</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Generate confusion matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conf_matrix</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">num_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Generate classification report</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_report</span> <span class="o">=</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">num_predictions</span><span class="p">,</span> <span class="n">target_names</span><span class="o">=</span><span class="n">label_names</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">conf_matrix</span><span class="p">,</span> <span class="n">class_report</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Get labeled_predicted_pairs from sampled_df</span>
+</span></span><span class="line"><span class="cl"><span class="n">labeled_predicted_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;labelName&#39;</span><span class="p">],</span> <span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;predicted_class&#39;</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl"><span class="n">label_values</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;labelName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Generate report</span>
+</span></span><span class="line"><span class="cl"><span class="n">conf_matrix</span><span class="p">,</span> <span class="n">class_report</span> <span class="o">=</span> <span class="n">generate_classification_report</span><span class="p">(</span><span class="n">labeled_predicted_pairs</span><span class="p">,</span> <span class="n">label_values</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#print(&#34;Confusion Matrix:\n&#34;, conf_matrix)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">Classification Report:</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">class_report</span><span class="p">)</span>
+</span></span></code></pre></div><p>Which produces this:</p>
+<pre tabindex="0"><code>Classification Report:
+               precision    recall  f1-score   support
+
+       WORLD       0.84      0.88      0.86       250
+      SPORTS       0.96      1.00      0.98       250
+    BUSINESS       0.74      0.90      0.82       250
+     SCITECH       0.92      0.63      0.75       250
+
+    accuracy                           0.85      1000
+   macro avg       0.86      0.85      0.85      1000
+weighted avg       0.86      0.85      0.85      1000
+</code></pre><p>The overall accuracy is 85%, which is pretty good, and we can dig a little deeper. The &lsquo;support&rsquo; column shows how many samples of each class was in the dataset. I made sure to select a balanced set of samples for each class.</p>
+<p>To understand how these were broken out into true and false positive and negatives, we&rsquo;ll graph the &ldquo;confusion matrix&rdquo;, which shows actual versus predicted counts of each class. This data is used to calculate the precision/recall and f1-scores in the above report.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Plot confusion matrix</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">conf_matrix</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">,</span> <span class="n">xticklabels</span><span class="o">=</span><span class="n">label_values</span><span class="p">,</span> <span class="n">yticklabels</span><span class="o">=</span><span class="n">label_values</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Predicted&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Actual&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Confusion Matrix&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/confusionmatrix_1.png"/> <figcaption>
+            <p>Figure 3. Multi-class Confusion Matrix.</p>
+        </figcaption>
+</figure>
+
+<h2 id="how-confident-was-the-model">How Confident Was The Model?</h2>
+<p>We can use the confidence level combined with the prediction&rsquo;s &ldquo;correctness&rdquo; score to see how the confidence values were distributed for both true and false predictions as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">true_predictions</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;correct&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">false_predictions</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;correct&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot for true predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">true_predictions</span><span class="p">[</span><span class="s1">&#39;confidence_level&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True Predictions&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot for false predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">false_predictions</span><span class="p">[</span><span class="s1">&#39;confidence_level&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;False Predictions&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Confidence Level&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Normalized Frequency&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Comparison of Confidence Levels between True and False Predictions&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><p><figure>
+    <img loading="lazy" src="images/confidence.png"/> <figcaption>
+            <p>Figure 4. Confidence Distributions.</p>
+        </figcaption>
+</figure>
+
+From this plot, we can see intuitively that true predictions were more heavily distributed towards the high confidence (4.0 and 5.0) values, while false predictions had lower confidence scores, peaking at 4.0 and dropping off near 5.0. Still, are these distributions statistically significant?</p>
+<p>In the next section, I&rsquo;ll use a Logistic Regression to fit the true/false predictions to their associated confidence scores, then check if there&rsquo;s a significant correlation using the calculated <code>p_value</code> and <code>significance_level</code>.</p>
+<h2 id="statistical-tests">Statistical Tests</h2>
+<p>This code will load some <code>scikit-learn</code> tools, along with <code>scipy</code>,<code>stats</code> and<code>statsmodels</code> useful for performing a few tests - the first of which will be the logistic regression and a<code>p_value</code> check.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Independent variable (X) and dependent variable (y)</span>
+</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Estimated coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">coef</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">intercept</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">intercept_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Coefficient for Confidence Level: </span><span class="si">{</span><span class="n">coef</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Intercept: </span><span class="si">{</span><span class="n">intercept</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the odds ratio</span>
+</span></span><span class="line"><span class="cl"><span class="n">odds_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">coef</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Odds Ratio: </span><span class="si">{</span><span class="n">odds_ratio</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Interpretation</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">odds_ratio</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;For each unit increase in confidence level, the odds of a correct prediction increase by </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="n">odds_ratio</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;For each unit increase in confidence level, the odds of a correct prediction decrease by </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">odds_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Fit the model using statsmodels to get p-value</span>
+</span></span><span class="line"><span class="cl"><span class="n">X_with_const</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>  <span class="c1"># Add a constant term for intercept</span>
+</span></span><span class="line"><span class="cl"><span class="n">logit_model</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Logit</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X_with_const</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">result</span> <span class="o">=</span> <span class="n">logit_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Extract p-value for confidence level coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">p_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pvalues</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value for Confidence Level Coefficient: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;The coefficient for confidence level is statistically significant.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;The coefficient for confidence level is not statistically significant.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>The results of this test are as follows. It appears we have a statistically significant result.</p>
+<pre tabindex="0"><code>Coefficient for Confidence Level: 1.4061994575718302
+Intercept: -4.464738502617202
+Odds Ratio: 4.080418095576085
+For each unit increase in confidence level, the odds of a correct prediction
+increase by 308.04%.
+Optimization terminated successfully.
+         Current function value: 0.360052
+         Iterations 7
+                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:                      y   No. Observations:                 1000
+Model:                          Logit   Df Residuals:                      998
+Method:                           MLE   Df Model:                            1
+Date:                Sat, 02 Nov 2024   Pseudo R-squ.:                  0.1339
+Time:                        14:10:07   Log-Likelihood:                -360.05
+converged:                       True   LL-Null:                       -415.71
+Covariance Type:            nonrobust   LLR p-value:                 5.056e-26
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -4.6039      0.664     -6.936      0.000      -5.905      -3.303
+x1             1.4384      0.152      9.449      0.000       1.140       1.737
+==============================================================================
+P-value for Confidence Level Coefficient: 3.416898004216482e-21
+The coefficient for confidence level is statistically significant.
+</code></pre><p>To double-check this initial result, I&rsquo;m going to use a Point-Biserial Correlation test.</p>
+<h3 id="point-biserial-correlation">Point-Biserial Correlation</h3>
+<p>The point-biserial correlation is a special case of the Pearson correlation used when one variable is continuous and the other is binary.
+Use the formula:
+$$
+r_{pb} = \frac{\bar{X}_1 - \bar{X}_0}{s_X} \sqrt{\frac{n_1 n_0}{n^2}}
+$$
+Where:</p>
+<ul>
+<li>$\bar{X}_1$ = Mean confidence level for correct predictions.</li>
+<li>$\bar{X}_0$ = Mean confidence level for incorrect predictions.</li>
+<li>$s_X$ = Standard deviation of all confidence levels.</li>
+<li>$n_1,n_0$ = Number of correct and incorrect predictions.</li>
+<li>$n$ = Total number of predictions.</li>
+</ul>
+<p>Test for significance:</p>
+<ul>
+<li>t-test:
+$$
+t = r_{pb}\sqrt{\frac{n-2}{1-r_{pb}^2}}
+$$</li>
+<li>Degrees of freedom $n-2$</li>
+</ul>
+<p>Let&rsquo;s see how this can be done in code, and what the results are.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Separate the data for correct and incorrect predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">correct_predictions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">incorrect_predictions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the means</span>
+</span></span><span class="line"><span class="cl"><span class="n">mean_correct</span> <span class="o">=</span> <span class="n">correct_predictions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">mean_incorrect</span> <span class="o">=</span> <span class="n">incorrect_predictions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the standard deviation of all confidence levels</span>
+</span></span><span class="line"><span class="cl"><span class="n">std_confidence</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the counts</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_correct</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">correct_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_incorrect</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">incorrect_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate point-biserial correlation coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">r_pb</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_correct</span> <span class="o">-</span> <span class="n">mean_incorrect</span><span class="p">)</span> <span class="o">/</span> <span class="n">std_confidence</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n_correct</span> <span class="o">*</span> <span class="n">n_incorrect</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_total</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Point-Biserial Correlation Coefficient (r_pb): </span><span class="si">{</span><span class="n">r_pb</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test for significance using t-test</span>
+</span></span><span class="line"><span class="cl"><span class="n">t_value</span> <span class="o">=</span> <span class="n">r_pb</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n_total</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r_pb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">degrees_of_freedom</span> <span class="o">=</span> <span class="n">n_total</span> <span class="o">-</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="n">p_value</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">t_value</span><span class="p">),</span> <span class="n">df</span><span class="o">=</span><span class="n">degrees_of_freedom</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;T-value: </span><span class="si">{</span><span class="n">t_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The point-biserial correlation is statistically significant.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The point-biserial correlation is not statistically significant.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>And the results are apparently significant:</p>
+<pre tabindex="0"><code>Point-Biserial Correlation Coefficient (r_pb): 0.3647830613321057
+T-value: 12.37676335481931
+P-value: 0.0
+The point-biserial correlation is statistically significant.
+</code></pre><p>To add another test of significance, I will use a Mann-Whitney U test.</p>
+<h3 id="mann-whitney-u-test">Mann-Whitney U Test</h3>
+<p>The Mann-Whitney U test assesses whether the distributions of confidence levels differ between true and false predictions.</p>
+<p>The code and the results follow:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Perform Mann-Whitney U Test</span>
+</span></span><span class="line"><span class="cl"><span class="n">u_statistic</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">correct_predictions</span><span class="p">,</span> <span class="n">incorrect_predictions</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Mann-Whitney U Statistic: </span><span class="si">{</span><span class="n">u_statistic</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The Mann-Whitney U test is statistically significant, indicating a difference in distributions between correct and incorrect predictions.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The Mann-Whitney U test is not statistically significant, indicating no difference in distributions between correct and incorrect predictions.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Mann-Whitney U Statistic: 90831.5
+P-value: 4.6967698934230915e-26
+The Mann-Whitney U test is statistically significant, indicating a difference in
+distributions between correct and incorrect predictions.
+</code></pre><h2 id="roc-curve">ROC Curve</h2>
+<p>The ROC curve will further measure the significance of the confidence level scores provided by the GPT-4 model.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># ROC Curve</span>
+</span></span><span class="line"><span class="cl"><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">roc_auc</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;ROC Curve (area = </span><span class="si">{</span><span class="n">roc_auc</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Receiver Operating Characteristic (ROC) Curve&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/roc.png"/> <figcaption>
+            <p>Figure 5. ROC Curve</p>
+        </figcaption>
+</figure>
+
+<p>If classes were randomly predicted in association with the confidence scores, the area under the ROC curve would be approximately 50%. As it stands, with these results, the ROC curve area is 73%, which is a significant score, although not an outstanding one.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this small experiment, using the LLM model&rsquo;s estimate of its &ldquo;confidence level&rdquo; combined with its explanation for its decision as asked for in the prompt, it appears there is a statistical significance of the confidence expressed by the model in its predictions.</p>
+<p>A larger study might be worthwhile with different types of text and classification classes, as well as different LLM models, to see if this type of prompting improves classification accuracy or at least provides some way to determine confidence when presenting results for human review.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

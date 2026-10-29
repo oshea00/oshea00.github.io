@@ -4,7 +4,12 @@
     <title>Asyncopenai on MikesBlog</title>
     <link>https://oshea00.github.io/tags/asyncopenai/</link>
     <description>Recent content in Asyncopenai on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 07 Jul 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/asyncopenai/index.xml" rel="self" type="application/rss+xml" />
@@ -13,7 +18,154 @@
       <link>https://oshea00.github.io/posts/async-openai/</link>
       <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/async-openai/</guid>
-      <description>&lt;p&gt;As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.&lt;/p&gt;</description>
+      <description>Categorizing credit card transactions at scale with AsyncOpenAI and concurrent batched requests.</description>
+      <content:encoded><![CDATA[<p>As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/postits_w480.png#center"/> <figcaption>
+            <p>Figure 1. Work, work, work.</p>
+        </figcaption>
+</figure>
+
+<p>My thoughts turned to the bills. Every now and then, I download the transactions from my credit card’s website and attempt to figure out what I&rsquo;m spending and where it is going. The transaction file looks like this.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/cctrans.png#center"/> <figcaption>
+            <p>Figure 2. Raw transactions.</p>
+        </figcaption>
+</figure>
+
+<p>Note the field <strong>Name</strong> and its contents. Normally, I spend 15-30 minutes figuring out how to describe the transactions with tags in a column that I can use to group payments. Looking at row two, I have spent something on Amazon Digital and there’s a unique reference in the <strong>Name</strong> field. My tag might be &lsquo;<em>AMAZON DIGITAL</em>&rsquo;. But I will need to mentally parse each of these and assign the tag manually. This looks like a job for GPT.</p>
+<p>It would be nice if GPT could examine these fields and tag them uniformly based on their contents—thus, turning a half-hour of Excel “clicky” into 30 seconds or so of work. Let&rsquo;s get started.</p>
+<p>For this example, I have decided to use OpenAI&rsquo;s GPT-4o model, and my first task is to develop a prompt capable of doing what I want. After many attempts (another good blog topic on prompt engineering awaits) I came up with this.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;&#34;&#34;Examine the transaction name text delimited by ```.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    The format starts with a company or domain name. Call that portion COMPANY.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    COMPANY will consist of a phrase of one or more words. The first word may be a number.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    DESC follows COMPANY. DESC starts with a non-letter character, a non-english word, or a number.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    All words in COMPANY should be upper case and separated with single spaces.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Output the COMPANY on a single line.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Replace any non-letter characters in COMPANY with spaces.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Do not repeat these instructions as part of your response.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&#34;```</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">```&#34;</span>
+</span></span></code></pre></div><p>Using some Pandas magic and the python OpenAI client, I was able to use this prompt to produce a tag based on the <strong>Name</strong> and insert a column called <strong>Desc</strong> that I could use for grouping.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/cctrans_desc.png#center"/> <figcaption>
+            <p>Figure 3. Tagged transactions in the &lsquo;Desc&rsquo; column.</p>
+        </figcaption>
+</figure>
+
+<p>Note in line [377] that I am post-processing the data from GPT-4o to remove some artifacts I don&rsquo;t like, such as removing names and other &lsquo;PII&rsquo; that might appear in the tags. Also, in some <strong>Name</strong> values, company names were duplicated. So, rather than &lsquo;MICROSOFT MICROSOFT,&rsquo; I wanted just &lsquo;MICROSOFT.&rsquo; This is a good example of adding a step to ensure your data is good, clean, safe, etc., and should be a part of any LLM-generated processing.</p>
+<h2 id="processing-at-scale">Processing at scale</h2>
+<p>Now that I had a reasonably good process for tagging my data, I decided to run all 323 transactions through calls to OpenAI. It took a few minutes.
+A few factors were playing into the total time:</p>
+<ul>
+<li>My tier level on this OpenAI account was only Tier-1.</li>
+<li>I was using the synchronous OpenAI() client.</li>
+</ul>
+<p>Increasing the tier level to Tier-3 required processing a few more tokens for this account. A goal that was achieved fairly quickly as I ran more of these tests. Increasing the tier level allows for processing more tokens per minute (TPM) which allows for sending larger batches.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/tier3limits.png#center"/> <figcaption>
+            <p>Figure 4. Tier-3 limits.</p>
+        </figcaption>
+</figure>
+
+<p>The next part, and the main subject here, was to use batches of parallel queries to improve throughput, and this required the use of <code>asyncio</code> combined with the async client in the openai package: <code>AsyncOpenAI</code>.</p>
+<h3 id="asyncopenai-has-flow-control">AsyncOpenAI has flow control</h3>
+<p>You will find examples of using <code>asyncio</code> and <code>aiohttps</code>, combined with <code>backoff</code> and/or <code>tenacity</code> to call the OpenAI API asychronously using response headers to dynamically adjust calls when token limits are being reached. I don&rsquo;t recommend this approach unless you are trying to write your own library.</p>
+<p>As it turns out, the <code>openai</code>  library already includes a client that does much of this for you called <code>AsyncOpenAI</code>, and it is mostly a drop-in replacement for the synchronous <code>OpenAI</code> client. It will handle flow control and backoff for you, so you don&rsquo;t have to drop down into the details under the covers.</p>
+<p>That is the example I&rsquo;m showing here. Note that other than the &lsquo;async/await&rsquo; keywords, the asynchronous version looks exactly like the synchronous one.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">client</span> <span class="o">=</span> <span class="n">AsyncOpenAI</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">async_completion</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="n">prompt</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&#34;role&#34;</span><span class="p">:</span><span class="s2">&#34;user&#34;</span><span class="p">,</span><span class="s2">&#34;content&#34;</span><span class="p">:</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="n">completion</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">model</span><span class="o">=</span><span class="s2">&#34;gpt-4o&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">max_tokens</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">stream</span><span class="o">=</span><span class="kc">False</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&#34;role&#34;</span><span class="p">:</span><span class="s2">&#34;assistant&#34;</span><span class="p">,</span><span class="s2">&#34;content&#34;</span><span class="p">:</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">completion</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">messages</span>
+</span></span></code></pre></div><p>The next part is batching calls. We need a few helper functions. The first function is simply my own code that handles setting up the prompt and calling the <code>async_completion()</code> function. The next function handles the semaphore.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">reformat_transaction_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span><span class="s1">&#39;system&#39;</span><span class="p">,</span><span class="s1">&#39;content&#39;</span><span class="p">:</span><span class="s1">&#39;you are a helpful named entity recognizer.&#39;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_completion</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="n">get_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">reformat_transaction_with_semaphore</span><span class="p">(</span><span class="n">transaction_name</span><span class="p">,</span> <span class="n">semaphore</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">await</span> <span class="n">reformat_transaction_name</span><span class="p">(</span><span class="n">transaction_name</span><span class="p">)</span>
+</span></span></code></pre></div><p>Now for the batching with <code>Semaphore</code> part.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">Semaphore</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">run_batch</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">semaphore</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">reformat_transaction_with_semaphore</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">semaphore</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">results</span>
+</span></span></code></pre></div><p>In the <code>run_batch(items)</code> function, a semaphore is created to match the size of the batch being processed. The <code>len(items)</code> allows me to adjust this when calling it.</p>
+<h3 id="now-for-the-fun-part">Now for the fun part</h3>
+<p>In this code, I setup and submit the batches based on BATCHSIZE to run <code>run_batch(items)</code> by windowing through the list of items in the Dataframe - doing a bit of accounting along the way.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Batched async</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">BATCHSIZE</span> <span class="o">=</span> <span class="mi">65</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">desc_items</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]),</span><span class="n">BATCHSIZE</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">items</span> <span class="o">=</span> <span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">BATCHSIZE</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_batch</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">desc_items</span> <span class="o">+=</span> <span class="n">results</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Batch completion time: </span><span class="si">{</span><span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="si">}</span><span class="s2"> seconds&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Item count: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc_items</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Items per second: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc_items</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>Here are the results:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Batch completion time: 6.294457197189331 seconds
+</span></span><span class="line"><span class="cl">Item count: <span class="m">323</span>
+</span></span><span class="line"><span class="cl">Items per second: 51.31498870851476
+</span></span></code></pre></div><p>Significantly better than a few minutes at 6.29 seconds.</p>
+<h3 id="on-the-home-stretch">On the home stretch</h3>
+<p>So, at this point, you have enough code examples to go try this on your own, but I will spend a little time talking about testing and costs, etc. If you&rsquo;re able to stick around.</p>
+<h4 id="picking-good-batchsize">Picking good BATCHSIZE</h4>
+<p>It is good to run tests with different batch sizes to determine what gives you the best throughput. Using the timing information from various batch sizes, I found BATCHSIZE=65 to be somewhat optimal; however, as I move up in tier level, I will need to re-check this, as higher limits will allow more TPM to be processed.</p>
+<p>As you can see, there is some variablility in throughput most likely based on how busy OpenAI is. Your mileage will vary.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/batchchart.png#center"/> <figcaption>
+            <p>Figure 5. Batch Size Runs.</p>
+        </figcaption>
+</figure>
+
+<h4 id="how-much-will-this-cost">How much will this cost?</h4>
+<p>Another good practice is to estimate how many tokens you will be using. Using <code>tiktoken</code> and some pricing information can help with that.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tiktoken</span>
+</span></span><span class="line"><span class="cl"><span class="n">token_1M_price</span><span class="o">=</span><span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="n">prompt_text</span> <span class="o">=</span> <span class="n">get_prompt</span><span class="p">(</span><span class="s1">&#39;Amazon web services    aws.amazon.co WA&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&#34;cl100k_base&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">prompt_text</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">prompt_token_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;AMAZON WEB SERVICES&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">response_token_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Prompt length: </span><span class="si">{</span><span class="n">prompt_token_count</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Response length: </span><span class="si">{</span><span class="n">response_token_count</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Item count: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Transaction&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">jobsize</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Transaction&#39;</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">prompt_token_count</span><span class="o">+</span><span class="n">response_token_count</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Total estimated job size in tokens: </span><span class="si">{</span><span class="n">jobsize</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Estimated price per job at $</span><span class="si">{</span><span class="n">token_1M_price</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">/1M_tokens is $</span><span class="si">{</span><span class="p">(</span><span class="n">jobsize</span><span class="o">/</span><span class="mi">1_000_000</span><span class="p">)</span><span class="o">*</span><span class="n">token_1M_price</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Prompt length: <span class="m">128</span>
+</span></span><span class="line"><span class="cl">Response length: <span class="m">5</span>
+</span></span><span class="line"><span class="cl">Item count: <span class="m">323</span>
+</span></span><span class="line"><span class="cl">Total estimated job size in tokens: <span class="m">42959</span>
+</span></span><span class="line"><span class="cl">Estimated price per job at <span class="nv">$5</span>.00/1M_tokens is <span class="nv">$0</span>.21
+</span></span></code></pre></div><p>So, there you have it. I&rsquo;m spending about 21 cents per job.</p>
+<h2 id="final-thoughts">Final thoughts</h2>
+<p>Well, the street is now clean, and I&rsquo;ve finished another blog post.</p>
+<p>You should be well on your way to improving throughput with OpenAI.</p>
+<p>Do come back!</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

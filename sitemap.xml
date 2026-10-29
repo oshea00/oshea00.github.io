@@ -2,6 +2,21 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://oshea00.github.io/posts/population-impacts-of-ai/</loc>
+    <lastmod>2026-10-22T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/bespoke-software/</loc>
+    <lastmod>2026-10-08T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/posts/ai-adoption-systems/</loc>
+    <lastmod>2026-02-22T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://oshea00.github.io/tags/ai/</loc>
     <lastmod>2026-10-22T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -37,11 +52,6 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
-    <loc>https://oshea00.github.io/posts/population-impacts-of-ai/</loc>
-    <lastmod>2026-10-22T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
     <loc>https://oshea00.github.io/posts/brave-new-world/</loc>
     <lastmod>2026-10-20T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -49,11 +59,6 @@
   </url><url>
     <loc>https://oshea00.github.io/tags/satire/</loc>
     <lastmod>2026-10-20T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/posts/bespoke-software/</loc>
-    <lastmod>2026-10-08T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
@@ -139,11 +144,6 @@
   </url><url>
     <loc>https://oshea00.github.io/tags/tools/</loc>
     <lastmod>2026-04-11T00:00:00+00:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/posts/ai-adoption-systems/</loc>
-    <lastmod>2026-02-22T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
@@ -247,6 +247,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
+    <loc>https://oshea00.github.io/series/</loc>
+    <lastmod>2025-05-01T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/series/vibecoding-an-agentic-coder/</loc>
+    <lastmod>2025-05-01T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://oshea00.github.io/posts/agentic-codegen-part2/</loc>
     <lastmod>2025-05-01T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
@@ -258,6 +268,11 @@
     <priority>0.5</priority>
   </url><url>
     <loc>https://oshea00.github.io/tags/aichat/</loc>
+    <lastmod>2025-01-18T00:00:00+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
+    <loc>https://oshea00.github.io/series/llms-at-the-command-line/</loc>
     <lastmod>2025-01-18T00:00:00+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -372,6 +387,10 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url><url>
+    <loc>https://oshea00.github.io/about/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url><url>
     <loc>https://oshea00.github.io/archives/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -381,10 +400,6 @@
     <priority>0.5</priority>
   </url><url>
     <loc>https://oshea00.github.io/search/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url><url>
-    <loc>https://oshea00.github.io/series/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

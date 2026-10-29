@@ -4,7 +4,12 @@
     <title>Satire on MikesBlog</title>
     <link>https://oshea00.github.io/tags/satire/</link>
     <description>Recent content in Satire on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 20 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/satire/index.xml" rel="self" type="application/rss+xml" />
@@ -13,11 +18,17 @@
       <link>https://oshea00.github.io/posts/brave-new-world/</link>
       <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/brave-new-world/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarcade.jpg#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>A satirical look at a world where any developer can re-create any software from the past with an LLM.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerarcade.jpg#center"/> 
+</figure>
 
-&lt;p&gt;I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It&amp;rsquo;s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 &amp;ldquo;do its thing.&amp;rdquo; Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.&lt;/p&gt;</description>
+<p>I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It&rsquo;s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 &ldquo;do its thing.&rdquo; Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.</p>
+<p>And, then, they went ahead and solved math. It&rsquo;s been a good week. Well, anyway, not trying to take that much of the credit here, but I did advise Adobe to &ldquo;watch out&rdquo;.</p>
+<p>So, now that we live in a world where any developer can re-create any software from the past using LLMs, bringing it into the current day, we have to ask what next? The amount of popular entertainment that we can bring back from our ill-spent youth is almost unlimited. We could really use a reprise of Duke Nukem and GTA 5.</p>
+<p>Oh, brave new world. If only we could find a way to dedicate the massive data centers being built to give such power to the masses; they could go forth and solve medicine, politics, and climate change so these efforts could benefit all mankind in their search for better memes. What would we do without the ability to ask chatbots how to search Google, find cheaper gas and food, or solve leetcode problems that AI resume filters still require even though that&rsquo;s not a thing since 1/1/2026?</p>
+<p>This is my hope.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

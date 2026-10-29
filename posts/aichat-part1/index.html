@@ -7,16 +7,10 @@
 <meta name="robots" content="index, follow">
 <title>LLMs At The Command Line - Part 1 | MikesBlog</title>
 <meta name="keywords" content="llm, aichat, rag">
-<meta name="description" content="
-     
-
-
-If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.
-There are many popular graphical front ends for working with LLMs, such as OpenAI&rsquo;s ChatGPT, and Anthropic&rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.
-One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I&rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.">
+<meta name="description" content="Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/aichat-part1/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -54,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -70,9 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/aichat-part1/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="LLMs At The Command Line - Part 1">
-  <meta property="og:description" content=" If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.
-There are many popular graphical front ends for working with LLMs, such as OpenAI’s ChatGPT, and Anthropic’s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.
-One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I’ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.">
+  <meta property="og:description" content="Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -81,15 +74,11 @@ One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmen
     <meta property="article:tag" content="Llm">
     <meta property="article:tag" content="Aichat">
     <meta property="article:tag" content="Rag">
-<meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://oshea00.github.io/posts/aichat-part1/images/cartoon_terminal.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/aichat-part1/images/cartoon_terminal.png">
 <meta name="twitter:title" content="LLMs At The Command Line - Part 1">
-<meta name="twitter:description" content="
-     
-
-
-If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.
-There are many popular graphical front ends for working with LLMs, such as OpenAI&rsquo;s ChatGPT, and Anthropic&rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.
-One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I&rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.">
+<meta name="twitter:description" content="Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.">
 
 
 <script type="application/ld+json">
@@ -118,14 +107,14 @@ One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmen
   "@type": "BlogPosting",
   "headline": "LLMs At The Command Line - Part 1",
   "name": "LLMs At The Command Line - Part 1",
-  "description": " If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.\nThere are many popular graphical front ends for working with LLMs, such as OpenAI\u0026rsquo;s ChatGPT, and Anthropic\u0026rsquo;s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.\nOne such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I\u0026rsquo;ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.\n",
+  "description": "Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.",
   "keywords": [
     "llm", "aichat", "rag"
   ],
   "articleBody": " If you are a command-line fan and want to experiment with large language models (LLM), you will love AiChat.\nThere are many popular graphical front ends for working with LLMs, such as OpenAI’s ChatGPT, and Anthropic’s Claude, but get ready for this little powerhouse for CLI lovers as it has many advanced and useful features.\nOne such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmented Generation) useful for searching existing content. I’ve put together a small demo here that shows how easy it can be to use in a pinch. There are many use cases where such an approach is just the right size.\nNext Thanks for watching! Next on this topic I’ll cover how to setup LLMs running locally and connecting to them in addition to other providers seamlessly using aichat to do function calling, command line AI assistance, and much more.\n",
   "wordCount" : "144",
   "inLanguage": "en",
-  "datePublished": "2025-01-18T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/aichat-part1/images/cartoon_terminal.png","datePublished": "2025-01-18T00:00:00Z",
   "dateModified": "2025-01-18T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -184,6 +173,11 @@ One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmen
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -191,6 +185,11 @@ One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmen
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -209,6 +208,9 @@ One such feature is an easy-to-use, out-of-the-box RAG feature (Retrieval Augmen
     <h1 class="post-title entry-hint-parent">
       LLMs At The Command Line - Part 1
     </h1>
+    <div class="post-description">
+      Using the AiChat CLI for LLM chat and out-of-the-box RAG, straight from the terminal.
+    </div>
     <div class="post-meta"><span title='2025-01-18 00:00:00 +0000 UTC'>January 18, 2025</span>&nbsp;·&nbsp;1 min&nbsp;·&nbsp;Michael OShea
 
 </div>

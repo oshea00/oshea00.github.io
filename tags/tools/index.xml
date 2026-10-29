@@ -4,7 +4,12 @@
     <title>Tools on MikesBlog</title>
     <link>https://oshea00.github.io/tags/tools/</link>
     <description>Recent content in Tools on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 11 Apr 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/tools/index.xml" rel="self" type="application/rss+xml" />
@@ -13,12 +18,224 @@
       <link>https://oshea00.github.io/posts/optimizing-tools-with-monty/</link>
       <pubDate>Sat, 11 Apr 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/optimizing-tools-with-monty/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputercoder.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Letting the LLM write sandboxed Python with Monty to chain tool calls, instead of one round-trip per tool.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputercoder.png#center"/> 
+</figure>
 
-&lt;p&gt;Inspired by &lt;a href=&#34;https://www.anthropic.com/engineering/code-execution-with-mcp&#34;&gt;Anthropic&amp;rsquo;s recent article&lt;/a&gt; on using code execution to improve MCP tool calling, and having just discovered &lt;a href=&#34;https://github.com/pydantic/monty&#34;&gt;Monty&lt;/a&gt; — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.&lt;/p&gt;
-&lt;p&gt;Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The &lt;a href=&#34;https://github.com/oshea00/monty-example&#34;&gt;monty-example&lt;/a&gt; project explores a different approach: let the model &lt;em&gt;write code&lt;/em&gt; that orchestrates tool calls and executes that code in a sandbox running within your code!&lt;/p&gt;</description>
+<p>Inspired by <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Anthropic&rsquo;s recent article</a> on using code execution to improve MCP tool calling, and having just discovered <a href="https://github.com/pydantic/monty">Monty</a> — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.</p>
+<p>Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The <a href="https://github.com/oshea00/monty-example">monty-example</a> project explores a different approach: let the model <em>write code</em> that orchestrates tool calls and executes that code in a sandbox running within your code!</p>
+<h2 id="monty-a-sandboxed-python-runtime">Monty: A Sandboxed Python Runtime</h2>
+<p><a href="https://github.com/pydantic/monty">Monty</a> is a Rust-based sandboxed Python runtime. It compiles a subset of Python into its own bytecode and runs it in its own VM, in-process on the calling thread. Crucially, it has no direct access to networking or OS I/O — but it <em>can</em> call a set of external host functions that you explicitly expose. This makes it a practical execution environment for LLM-generated code: the model gets a real Python interpreter with real control flow, and the host retains control over what the code can actually touch.</p>
+<h2 id="the-three-phase-pattern">The Three-Phase Pattern</h2>
+<p>The key idea is to split each conversational turn into up to three phases: tool discovery, optional code generation, and final synthesis back to the user.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/flowchart.png#center"/> <figcaption>
+            <p>Figure 1. Three-phase orchestration flow.</p>
+        </figcaption>
+</figure>
+
+<p><strong>Phase 1 — Tool Discovery (and direct answer when possible)</strong></p>
+<p>The model receives the user prompt, conversation history, and OpenAI tool schemas derived from a set of functions to be used by the agent. If the data needed to answer is already present in the conversation history, the model answers directly — no further LLM calls are made. If new data is required, the LLM will return tool calls in its response — signalling that tools are needed — and Phase 2 begins.</p>
+<p><strong>Phase 2 — Code Generation + Monty (Python) Execution</strong></p>
+<p>The model writes Python code using type stubs generated from the host tool functions. It decides which functions to call, in what order, and how to combine results, including <code>asyncio.gather</code> for parallel fetches. That code runs in the Monty sandbox, which calls back to the external host functions. If the generated code fails to compile or run, the error is fed back to the model and it retries up to a max number of attempts. The result is collected as a <code>&lt;tool_results&gt;</code> context block added to the conversation.</p>
+<p><strong>Phase 3 — Final Answer</strong></p>
+<p>The original prompt plus the tool results are sent to the model as part of the final prompt, no tools array provided, as any data will come from the context data/results inserted from Phase 2. The model produces a data-grounded natural-language reply.</p>
+<p>Conversation history retains only the user prompt and assistant reply — keeping context compact across turns.</p>
+<h2 id="demo-session">Demo Session</h2>
+<p>The left pane tails the session log showing phase details and actions; the right pane shows the chat.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/demo-preview.gif#center" width="100%"/> <figcaption>
+            <p>Figure 2. Demo session showing the three-phase pattern in action.</p>
+        </figcaption>
+</figure>
+
+<h2 id="code-generation-in-action">Code Generation in Action</h2>
+<p>For the example, a set of functions and data related to an expense management system are provided. The agent is given these, along with a system prompt:</p>
+<pre tabindex="0"><code>_PHASE1_SYSTEM = (
+    &#34;You are a helpful assistant that analyses team expense data. &#34;
+    &#34;First check the conversation history — if the data needed to answer the &#34;
+    &#34;user&#39;s question is already present (e.g. in a prior &lt;tool_results&gt; block), &#34;
+    &#34;answer directly using that data without calling any tools. &#34;
+    &#34;Only call tools when genuinely new data is required that is not already &#34;
+    &#34;in the conversation.&#34;
+)
+</code></pre><p>Here is an example of the code the model generates for the prompt <em>&ldquo;fetch all flight expenses across the team&rdquo;</em>. Phase 1 detects that expense data is needed and hands off to Phase 2, where the model writes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">department</span> <span class="o">=</span> <span class="s1">&#39;Engineering&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">quarter</span> <span class="o">=</span> <span class="s1">&#39;Q3&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;travel&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">members_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_team_members</span><span class="p">(</span><span class="n">department</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">members</span> <span class="o">=</span> <span class="n">members_data</span><span class="p">[</span><span class="s1">&#39;members&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">expenses_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_expenses</span><span class="p">(</span><span class="n">member</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_list</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">expenses_tasks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filtered_expenses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">expenses</span> <span class="ow">in</span> <span class="n">expenses_list</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="s1">&#39;flight&#39;</span> <span class="ow">in</span> <span class="n">expense</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">filtered_expenses</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">                <span class="s1">&#39;user_id&#39;</span><span class="p">:</span> <span class="n">expenses</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="s1">&#39;expense&#39;</span><span class="p">:</span> <span class="n">expense</span>
+</span></span><span class="line"><span class="cl">            <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filtered_expenses</span>
+</span></span></code></pre></div><p>All five team members&rsquo; expenses are fetched in parallel via <code>asyncio.gather</code>, then filtered in a single Monty execution. The model only sees the final result — not five intermediate round-trips.</p>
+<p>Follow-up turns that ask for reformatting or aggregation are answered by Phase 1 directly from context, with no tool calls at all.</p>
+<h2 id="session-logging">Session Logging</h2>
+<p>Session logging makes the token and time breakdown visible per turn, and is useful to see how the example is working. In a real-world example you&rsquo;d use Open Telemetry and observability tools, like <a href="https://pydantic.dev/logfire">Pydantic Logfire</a>, but the simple logging here is easy to use for debugging (see Demo Session above in the left pane).</p>
+<h2 id="when-code-generation-goes-wrong">When Code Generation Goes Wrong</h2>
+<p>The following are examples of mishaps I encountered along the way.</p>
+<h3 id="assignment-statement-as-last-expression-breaks-things">Assignment statement as last expression breaks things</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;get the first expense line for Bob Smith and tell me the items on it&rdquo;</em></p>
+<p>The generated code correctly located Bob Smith (user_id 2) and fetched his expenses, but ended with an assignment statement rather than a bare expression:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">members_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_team_members</span><span class="p">(</span><span class="s1">&#39;Engineering&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">members</span> <span class="o">=</span> <span class="n">members_data</span><span class="p">[</span><span class="s1">&#39;members&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">bob_id</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="s1">&#39;bob smith&#39;</span> <span class="ow">in</span> <span class="n">member</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bob_id</span> <span class="o">=</span> <span class="n">member</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_expenses</span><span class="p">(</span><span class="n">bob_id</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;travel&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">expenses</span> <span class="o">=</span> <span class="n">expenses_data</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">first_expense</span> <span class="o">=</span> <span class="n">expenses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">expenses</span> <span class="k">else</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">result</span> <span class="o">=</span> <span class="n">first_expense</span>   <span class="c1"># ← assignment, not a bare expression</span>
+</span></span></code></pre></div><p>Monty evaluates the last expression as the return value. An assignment statement has no value, so the sandbox returned <code>null</code>. Phase 3 received <code>null</code> as its tool result and (correctly) reported that no expenses were found.</p>
+<p><strong>Fix:</strong> the code generation rules now explicitly require that the last line be a bare expression, not an assignment — e.g. <code>first_expense</code> rather than <code>result = first_expense</code>.</p>
+<hr>
+<h3 id="over-fetching-due-to-unnecessary-parameter-combinations">Over-fetching due to unnecessary parameter combinations</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;try looking for user id 2&rdquo;</em> (follow-up after the <code>null</code> result above)</p>
+<p>With the user_id supplied directly, the model generated code that iterated over all quarters and categories rather than making a single call:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">quarters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Q1&#39;</span><span class="p">,</span> <span class="s1">&#39;Q2&#39;</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;Q4&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;travel&#39;</span><span class="p">,</span> <span class="s1">&#39;meals&#39;</span><span class="p">,</span> <span class="s1">&#39;accommodation&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">quarter</span> <span class="ow">in</span> <span class="n">quarters</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_expenses</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span></span></code></pre></div><p>Because <code>get_expenses</code> ignores the <code>quarter</code> and <code>category</code> arguments and always returns the same full expense list, this produced 12 identical responses — 572 lines of duplicate JSON. Phase 3 received 5,620 prompt tokens to answer what was a trivial single-call lookup. The session log made the cost immediately visible:</p>
+<pre tabindex="0"><code>[TURN STATS]
+  phase 1 :    ...
+  phase 2 :  1,004 tokens (1 attempt)  ...
+  phase 3 :  5,620p + ...
+  subtotal:  7,229 tokens  (code-gen: 1,004  non-code: 6,225)  13.45s LLM
+</code></pre><p><strong>Root cause:</strong> the model learned from the Phase 2 type stubs that <code>get_expenses</code> accepts <code>quarter</code> and <code>category</code> parameters, and assumed (reasonably) that they were filters. Because the stub does not signal that the parameters are currently ignored, the model hedged by fetching all combinations.</p>
+<p><strong>Takeaway:</strong> keep tool semantics honest in docstrings and stubs. If a parameter is accepted but not yet filtering, document that clearly so the model does not over-fetch defensively.</p>
+<hr>
+<h3 id="logic-wrapped-in-an-uncalled-function--silent-failure">Logic wrapped in an uncalled function — silent failure</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;itemize member&rsquo;s expenses that have &lsquo;flight&rsquo; in the description&rdquo;</em></p>
+<p>The generated code placed all fetching and filtering logic inside an <code>async def main()</code> function but never called it:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">expenses_results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">[</span><span class="n">get_expenses</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;travel&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="n">user_ids</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flight_expenses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expenses_results</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="s1">&#39;flight&#39;</span> <span class="ow">in</span> <span class="n">expense</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="n">flight_expenses</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flight_expenses</span>  <span class="c1"># ← inside the function body, never reached</span>
+</span></span></code></pre></div><p>From Monty&rsquo;s perspective, the top-level code was a single <code>async def</code> statement — a declaration with no value. The sandbox returned <code>null</code> without error. Phase 3 received <code>null</code> and faithfully reported that no flight expenses existed.</p>
+<p>This failure is particularly insidious because the retry loop only triggers on exceptions. A silent <code>null</code> passes straight through to Phase 3.</p>
+<p><strong>Fixes applied (two layers):</strong></p>
+<ol>
+<li>
+<p><strong>Prompt hardening</strong> — The code-gen system prompt was strengthened from the vague <em>&ldquo;do not define functions&rdquo;</em> to an explicit prohibition: <em>&ldquo;NEVER use <code>def</code> or <code>async def</code> — not even a helper. Every <code>await</code> must appear at the top level.&rdquo;</em></p>
+</li>
+<li>
+<p><strong>Deterministic pre-check</strong> — Before compilation, the generated code is scanned for the pattern <code>\bdef\s+\w</code>. If found, the attempt is rejected immediately with a clear error message fed back to the model, without ever running the code:</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&#34;\bdef\s+\w&#34;</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">last_error</span> <span class="o">=</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Code contains a `def` or `async def` statement, which is forbidden. &#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;All logic must be written as flat top-level async code.&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span></code></pre></div><ol start="3">
+<li><strong>Null-result guard</strong> — Even if a future pattern produces <code>None</code> without defining a function (e.g. the last line is an assignment), the executor now rejects <code>None</code> as a retriable error rather than passing it to Phase 3.</li>
+</ol>
+<p><strong>Broader principle:</strong> prompt rules alone are insufficient for constraints that have a clear syntactic signature. Pair each important rule with a deterministic code scan so violations are caught before they silently corrupt results. Other candidates for the same treatment: <code>next()</code> (not available in Monty&rsquo;s builtins — scan for <code>\bnext\s*\(</code>), <code>return</code> statements at the top level, and bare <code>import</code> of third-party libraries.</p>
+<hr>
+<h3 id="llm-arithmetic-in-phase-3-produces-wrong-totals">LLM arithmetic in Phase 3 produces wrong totals</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;itemize member&rsquo;s expenses that have &lsquo;flight&rsquo; in the description&rdquo;</em> (same prompt as Failure 3, different manifestation once the null was fixed)</p>
+<p>After the null fix, Phase 2 correctly returned a list of 15 flight expense items. Phase 3 was then asked to present the results and computed the total in prose — but large language models are unreliable at arithmetic. Across multiple runs the same 15 items produced totals of 8,530, 9,370, and 11,950 depending on the run, when the correct answer is 10,510.</p>
+<p><strong>Root cause:</strong> Phase 3 model call was doing the sum itself from the raw item list rather than reading a pre-computed value from the Phase 2 result.</p>
+<p><strong>Fix — add a bookkeeping tool and require its use:</strong></p>
+<p>A <code>sum_amounts</code> external function was added to <code>external_tools.py</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">sum_amounts</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;amount&#34;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;Sum a numeric field across a list of dicts.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">field</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span>
+</span></span></code></pre></div><p>Because it is registered in <code>TOOL_FUNCTIONS</code>, <code>OPENAI_TOOLS</code>, and <code>MONTY_TOOLS</code>, it is visible to Phase 2&rsquo;s code generator as a callable. A new code-gen rule was added to the system prompt:</p>
+<blockquote>
+<p><em>&ldquo;Always compute totals and subtotals using <code>sum_amounts</code> and include them in the returned dict or list. Never leave arithmetic to the final answer phase — if you return a list of expense items, wrap it: <code>{&quot;items&quot;: [...], &quot;total&quot;: await sum_amounts(items)}</code>.&rdquo;</em></p>
+</blockquote>
+<p>With this in place, Phase 2 returns, for example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;items&#34;</span><span class="p">:</span> <span class="p">[</span><span class="err">...</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total&#34;</span><span class="p">:</span> <span class="mf">10510.0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Phase 3 reads <code>10510.0</code> directly — no arithmetic required, no rounding errors, no hallucinated sums.</p>
+<p><strong>Broader principle:</strong> any value that requires exact computation (sums, counts, percentages, date arithmetic) should be calculated in Python by Phase 2 and surfaced as a named field in the return value. Phase 3&rsquo;s role is narration, not calculation.</p>
+<h2 id="final-takeaways">Final Takeaways</h2>
+<h3 id="performance-observations">Performance observations</h3>
+<table>
+	<thead>
+			<tr>
+					<th></th>
+					<th>Tokens</th>
+					<th>Time</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Code Generation</td>
+					<td>3,957 (32%)</td>
+					<td>0.005s</td>
+			</tr>
+			<tr>
+					<td>Model Processing</td>
+					<td>8,299 (68%)</td>
+					<td>23.86s</td>
+			</tr>
+			<tr>
+					<td><strong>Total</strong></td>
+					<td><strong>12,256</strong></td>
+					<td><strong>23.865s</strong></td>
+			</tr>
+	</tbody>
+</table>
+<p><em>Table 1. Session totals from the demo conversation.</em></p>
+<p><strong>Code execution is essentially free.</strong> The entire session required 0.005 seconds of code execution time. In a standard sequential tool-calling setup, each of those fetches would have required a round-trip back to the LLM to decide what to call next.</p>
+<p><strong>Code generation overhead is real but bounded.</strong> Code-generated tokens (3,957) accounted for about 32% of total token spend. That cost is paid once per turn that requires new data, not once per tool call. Turns five and six in the demo were answered directly from context — no code generated, no tools called — so the overhead only appears when it&rsquo;s actually needed.</p>
+<p><strong>Conversation history stays compact.</strong> Rather than accumulating individual tool call/response pairs for every intermediate step, the history retains only the user prompt, a single <code>&lt;tool_results&gt;</code> block with the computed result, and the assistant reply. This trimmed-down context helps improve model performance.</p>
+<h3 id="other-considerations">Other considerations</h3>
+<p><strong>Evaluations are not optional.</strong> During development I encountered &ldquo;happy mistakes&rdquo; in the generated code — cases where the model produced the right answer for the wrong reasons. In a production setting, keep your model &ldquo;Honest ABE&rdquo; (Always Be Evaluating) to detect new edge cases and make adjustments.</p>
+<p><strong>Prompts alone won&rsquo;t hold the line.</strong> Code-generation constraints are expressed in the system prompt, but the model ignores them often enough that prompt rules alone are insufficient. The more reliable pattern is to pair each important rule with a deterministic check that runs before the code is compiled and run. A couple of targeted regexes (<code>\bdef\s+\w</code>, <code>\bnext\s*\(</code>) catch whole classes of silent failures cheaply.</p>
+<p><strong>Fit matters.</strong> This approach works best when the tools map cleanly to the domain and the data shapes are predictable. As the failure cases above show, good docstrings and type stubs matter a lot. The Anthropic article [3] referenced at the top covers similar tradeoffs in the context of MCP and is worth reading alongside this example.</p>
+<h2 id="references">References</h2>
+<p>[1] oshea00, &ldquo;monty-example: LLM + Monty Tool Calling,&rdquo; <em>GitHub</em>, 2025. Available: <a href="https://github.com/oshea00/monty-example">https://github.com/oshea00/monty-example</a></p>
+<p>[2] pydantic, &ldquo;Monty: Sandboxed Python Runtime,&rdquo; <em>GitHub</em>, 2025. Available: <a href="https://github.com/pydantic/monty">https://github.com/pydantic/monty</a></p>
+<p>[3] Anthropic, &ldquo;Code execution with MCP,&rdquo; <em>Anthropic Engineering</em>, 2025. Available: <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">https://www.anthropic.com/engineering/code-execution-with-mcp</a></p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

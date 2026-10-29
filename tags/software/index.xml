@@ -4,7 +4,12 @@
     <title>Software on MikesBlog</title>
     <link>https://oshea00.github.io/tags/software/</link>
     <description>Recent content in Software on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 22 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/software/index.xml" rel="self" type="application/rss+xml" />
@@ -13,45 +18,71 @@
       <link>https://oshea00.github.io/posts/population-impacts-of-ai/</link>
       <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/population-impacts-of-ai/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputer-two-funnels.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Extending Karpathy&amp;#39;s funnel: AI&amp;#39;s benefits concentrate at the top while its costs spread across the wider population.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputer-two-funnels.png#center"/> 
+</figure>
 
-&lt;p&gt;In his &lt;a href=&#34;https://x.com/karpathy/status/2109361546505966046&#34;&gt;recent post on X&lt;/a&gt;, Andrej Karpathy uses the funnel as an analogy for the AI understanding gap — that gap being largely one of scale in terms of population exposure to the models. The same analogy also helps illustrate the cost and benefit gaps, the inverted nature of which are colliding with popular acceptance of AI.&lt;/p&gt;
-&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/Understanding.png#center&#34;/&gt; 
-&lt;/figure&gt;
+<p>In his <a href="https://x.com/karpathy/status/2109361546505966046">recent post on X</a>, Andrej Karpathy uses the funnel as an analogy for the AI understanding gap — that gap being largely one of scale in terms of population exposure to the models. The same analogy also helps illustrate the cost and benefit gaps, the inverted nature of which are colliding with popular acceptance of AI.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/Understanding.png#center"/> 
+</figure>
 
-&lt;p&gt;As shown in the exhibits below, this same model can be applied to the benefit and cost gaps experienced by the same populations.&lt;/p&gt;</description>
-    </item>
-    <item>
-      <title>Oh, Brave New World</title>
-      <link>https://oshea00.github.io/posts/brave-new-world/</link>
-      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
-      <guid>https://oshea00.github.io/posts/brave-new-world/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarcade.jpg#center&#34;/&gt; 
-&lt;/figure&gt;
+<p>As shown in the exhibits below, this same model can be applied to the benefit and cost gaps experienced by the same populations.</p>
+<p>I think it&rsquo;s important to understand that the popular adoption, or uptake, of this technology will depend on the actual benefits and costs to the larger population — as they see them. The current pitch from the hyperscalers is that the benefits will come &ldquo;in the future,&rdquo; so just wait, while the majority of the world enjoys higher electricity bills and the destabilizing effects of rogue agents and AI-generated propaganda.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/ExhibitA.png#center"/> 
+</figure>
 
-&lt;p&gt;I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It&amp;rsquo;s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 &amp;ldquo;do its thing.&amp;rdquo; Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.&lt;/p&gt;</description>
+<figure class="align-center ">
+    <img loading="lazy" src="images/ExhibitB.png#center"/> 
+</figure>
+
+]]></content:encoded>
     </item>
     <item>
       <title>The Economics of Bespoke Internal Software</title>
       <link>https://oshea00.github.io/posts/bespoke-software/</link>
       <pubDate>Thu, 08 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/bespoke-software/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerwoodworking.jpg#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>I replaced Adobe Acrobat with a $20, six-hour Claude-built app. What that means for the economics of internal software.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerwoodworking.jpg#center"/> 
+</figure>
 
-&lt;p&gt;I&amp;rsquo;m probably not the only one annoyed at Adobe Software&amp;rsquo;s licensing model, with its ever-increasing subscription pricing, combined with the incessant cross-selling ads in the products, and intrusive update reminders. So I decided to replace Adobe Acrobat with my own internal product written using Claude Code and Opus 5.5. It is called &amp;ldquo;MyPDF.&amp;rdquo;&lt;/p&gt;
-&lt;figure&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/MyPdfScreen.png&#34;/&gt; &lt;figcaption&gt;
-            &lt;p&gt;Figure 1. MyPDF Screenshot.&lt;/p&gt;
-        &lt;/figcaption&gt;
-&lt;/figure&gt;
+<p>I&rsquo;m probably not the only one annoyed at Adobe Software&rsquo;s licensing model, with its ever-increasing subscription pricing, combined with the incessant cross-selling ads in the products, and intrusive update reminders. So I decided to replace Adobe Acrobat with my own internal product written using Claude Code and Opus 5.5. It is called &ldquo;MyPDF.&rdquo;</p>
+<figure>
+    <img loading="lazy" src="images/MyPdfScreen.png"/> <figcaption>
+            <p>Figure 1. MyPDF Screenshot.</p>
+        </figcaption>
+</figure>
 
-&lt;p&gt;The total cost of this effort was less than $20, and it took about six hours of my time. It is checked into a private repository on Github, and I can deploy new releases, as needed, in a matter of minutes. I&amp;rsquo;ve uninstalled Adobe Acrobat from all my internal systems and made &amp;ldquo;MyPDF&amp;rdquo; the default for &lt;code&gt;*.pdf&lt;/code&gt; files.&lt;/p&gt;</description>
+<p>The total cost of this effort was less than $20, and it took about six hours of my time. It is checked into a private repository on Github, and I can deploy new releases, as needed, in a matter of minutes. I&rsquo;ve uninstalled Adobe Acrobat from all my internal systems and made &ldquo;MyPDF&rdquo; the default for <code>*.pdf</code> files.</p>
+<p>To be fair to Adobe, they are not the only software company charging subscription fees, and rent taking on old properties, so I&rsquo;m not calling them out in particular, but this exercise has me thinking there will be a sea change in this practice in the very, very near future.</p>
+<p>I&rsquo;m not the only one having these thoughts, either. For example, a company called ArtCraft was recently featured in an Ars Technica article, <em>&quot;&lsquo;Software Is Over&rsquo;: Bold AI Developer Takes Aim at Adobe with Open Source Clones,&quot;</em> which details developer Brandon Thomas&rsquo;s effort to build free open-source replacements for Adobe&rsquo;s tools [1].</p>
+<p>I don&rsquo;t plan to ever release MyPDF as an open-source project. It is for internal use only, and will stay that way for now. It&rsquo;s just that my primary motivation is to save the hassle of dealing with subscriptions and the behavior of products, such as Acrobat, that border on actual malware, not to mention the cost of ongoing fees. I&rsquo;m done with that and very happy about it.</p>
+<p>Also, I don&rsquo;t think this kind of product will add value as an open-source product. In fact, it would just be another instance of &ldquo;AI slop,&rdquo; alongside all the other tens or hundreds of vibe-coded alternatives we are seeing even now. It doesn&rsquo;t need to be. The fact that I used AI coding to create it gives me the ability to economically create a product purpose-built for my needs with none of the &ldquo;extras&rdquo; (and drawbacks noted above) that come along with using someone else&rsquo;s product, whether open-source or proprietary. I think many other companies, and individual developers, will soon come to the same conclusion.</p>
+<p>The implications here are worth considering. What if new AI-enabled open-source projects simply consist of product specifications that permit any capable LLM model, including open weight models, to re-create a basic product that&rsquo;s extensible by the users and created on demand?</p>
+<p>The economics of this may be worth studying. For now, I&rsquo;m happy not to be paying $240 or more each year for this particular product.</p>
+<p>[1] Orland, Kyle. &ldquo;&lsquo;Software Is Over&rsquo;: Bold AI Developer Takes Aim at Adobe with Open Source Clones.&rdquo; <em>Ars Technica</em>, October 7, 2026. <a href="https://arstechnica.com/ai/2026/10/software-is-over-bold-ai-developer-takes-aim-at-adobe-with-open-source-clones/">https://arstechnica.com/ai/2026/10/software-is-over-bold-ai-developer-takes-aim-at-adobe-with-open-source-clones/</a>.</p>
+]]></content:encoded>
+    </item>
+    <item>
+      <title>Oh, Brave New World</title>
+      <link>https://oshea00.github.io/posts/brave-new-world/</link>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/posts/brave-new-world/</guid>
+      <description>A satirical look at a world where any developer can re-create any software from the past with an LLM.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerarcade.jpg#center"/> 
+</figure>
+
+<p>I called this phenomenon out just last week, somewhat coincidentally, when I decided to generate an Adobe Acrobat replacement using Claude. It&rsquo;s now taking on a life of its own. I did not reverse engineer Acrobat. I took the approach of describing it, then letting Claude Opus 5.5 &ldquo;do its thing.&rdquo; Of course, not to be left behind, my colleagues decided to go next level and just ask Claude to turn the original machine code for the entire Adobe product suite into open source projects.</p>
+<p>And, then, they went ahead and solved math. It&rsquo;s been a good week. Well, anyway, not trying to take that much of the credit here, but I did advise Adobe to &ldquo;watch out&rdquo;.</p>
+<p>So, now that we live in a world where any developer can re-create any software from the past using LLMs, bringing it into the current day, we have to ask what next? The amount of popular entertainment that we can bring back from our ill-spent youth is almost unlimited. We could really use a reprise of Duke Nukem and GTA 5.</p>
+<p>Oh, brave new world. If only we could find a way to dedicate the massive data centers being built to give such power to the masses; they could go forth and solve medicine, politics, and climate change so these efforts could benefit all mankind in their search for better memes. What would we do without the ability to ask chatbots how to search Google, find cheaper gas and food, or solve leetcode problems that AI resume filters still require even though that&rsquo;s not a thing since 1/1/2026?</p>
+<p>This is my hope.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

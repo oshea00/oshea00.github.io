@@ -4,7 +4,12 @@
     <title>Llama.cpp on MikesBlog</title>
     <link>https://oshea00.github.io/tags/llama.cpp/</link>
     <description>Recent content in Llama.cpp on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 13 Aug 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/llama.cpp/index.xml" rel="self" type="application/rss+xml" />
@@ -13,12 +18,49 @@
       <link>https://oshea00.github.io/posts/running-cool-dgx-cluster/</link>
       <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/running-cool-dgx-cluster/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutebutoverheated.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Diagnosing a single pegged CPU core and thermal throttling in a two-node DGX Spark llama.cpp RPC cluster.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutebutoverheated.png#center"/> 
+</figure>
 
-&lt;p&gt;I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.&lt;/p&gt;
-&lt;p&gt;The two Sparks are directly connected over QSFP and use RDMA as the transport. With &lt;code&gt;llama-server&lt;/code&gt; running on Spark1, and &lt;code&gt;ggml-rpc-server&lt;/code&gt; running on Spark2, I&amp;rsquo;m using llama.cpp&amp;rsquo;s layer-split configuration with the &lt;code&gt;DeepSeek-V4-Flash-0731-UD-Q4_K_XL&lt;/code&gt; model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.&lt;/p&gt;</description>
+<p>I recently ran into an interesting thermal issue while running two NVIDIA DGX Sparks as a small distributed inference cluster using llama.cpp.</p>
+<p>The two Sparks are directly connected over QSFP and use RDMA as the transport. With <code>llama-server</code> running on Spark1, and <code>ggml-rpc-server</code> running on Spark2, I&rsquo;m using llama.cpp&rsquo;s layer-split configuration with the <code>DeepSeek-V4-Flash-0731-UD-Q4_K_XL</code> model. The model is too large to run on a single Spark, thus the need to layer it over two Sparks.</p>
+<p>Inference performance is fine at about 12 tokens/sec (tg_s), and the memory usage is split fairly evenly 70G/80G between the two systems, leaving good headroom for other models and tasks; however, I happened to notice Spark2 was running about <strong>9°C degrees hotter</strong> than Spark1, even while the cluster was sitting idle.</p>
+<h2 id="one-core-fully-busy">One Core, Fully Busy</h2>
+<p>Looking at <code>btop</code> revealed a single CPU core on Spark2 sitting at <strong>100% utilization</strong> while running the <code>ggml-rpc-server</code> process. This process handles communication between the main <code>llama-server</code> process on Spark1 and the distributed tensors on Spark2.</p>
+<p>Although the <code>ggml-rpc-server</code> process was only taking 5% of the entire CPU, I could see the <strong>C7</strong> core at 100%, even when no inference was being done.</p>
+<p>This seemed to indicate a busy-polling condition. After looking for issues on the llama.cpp forums, and running some searches on the <a href="https://github.com/ggml-org/llama.cpp">llama.cpp github repo</a>, the busy-polling appeared to be related to llama.cpp&rsquo;s RDMA completion handling. The RPC server busy-polls the RDMA completion queue instead of blocking while waiting for work. There are some llama.cpp options for using wait versus busy when using TCP sockets, but these options don&rsquo;t apply for RDMA. Unless I wanted to start patching llama.cpp code, I needed other options.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/spark2ggmlperf.png#center"/> 
+</figure>
+
+<h2 id="performance-vs-efficiency-cores">Performance vs. Efficiency Cores</h2>
+<p>The GB10 CPU in the DGX Spark has 20 Arm cores split between performance and efficiency cores. On the DGX Spark, the cores are interleaved between efficiency and performance as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Efficiency:   C0-C4, C10-C14    2.808 GHz
+</span></span><span class="line"><span class="cl">Performance:  C5-C9, C15-C19    3.900 GHz
+</span></span></code></pre></div><p>Seeing the process on Spark2 running on <strong>C7</strong> (see above screenshot) indicated the <code>ggml-rpc-server</code> was landing on a 3.9 GHz high-efficiency core. My guess was that the higher speed core was probably running hot while in this busy-polling mode. Moving the process to an efficiency core running at 2.8 GHZ <em>might</em> run cooler.</p>
+<p>There is a way to set CPU affinity for running processes using <code>taskset</code>. Looking up the TID of the process, I was able to move it to an efficiency core (<strong>C14</strong>) using <code>taskset</code>.
+<figure class="align-center ">
+    <img loading="lazy" src="images/ggmltid.png#center"/> 
+</figure>
+</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">taskset -cp <span class="m">14</span> <span class="m">2266022</span>
+</span></span></code></pre></div><p>This moved the process to C14 and after a minute or so I could see the temperature settle at 52°C. Down from 57°C running on the performance core, this was a 5°C reduction. The polling loop was still running at 100%. I had only changed the kind of CPU core used. This seemed to confirm my guess about the temperature difference when running on the &ldquo;hotter&rdquo; CPU core.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/spark2ggmlefficient.png#center"/> 
+</figure>
+
+<p>As for performance, after this change, I found token generation remained at about <strong>12 tokens/sec</strong>.</p>
+<h2 id="making-it-permanent">Making It Permanent</h2>
+<p>There is a way to force a program to run on particular cores using <code>taskset</code>. I just needed to pin the <code>ggml-rpc-server</code> process to an efficiency core in my startup script as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">taskset -c 0-4,10-14 ./build/bin/ggml-rpc-server --host 169.254.103.215 --port <span class="m">50052</span> --device CUDA0 -c
+</span></span></code></pre></div><p>This still gives the process ten CPUs to choose from during initialization, while preventing the long-lived polling thread from migrating onto a performance core.</p>
+<p>After the systems had been idle for a while, I was seeing approximately:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">spark1  llama-server              ~46C
+</span></span><span class="line"><span class="cl">spark2  ggml-rpc-server + RDMA    ~51C
+</span></span></code></pre></div><p>So this simple affinity change recovered about 5°C of thermal headroom with no measurable loss in inference throughput. Until llama.cpp gets around to addressing this issue in the their GGML RPC server, this should have some general use for anyone clustering models using the RDMA transport.</p>
+<p>Pretty &ldquo;cool&rdquo; story&hellip;</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

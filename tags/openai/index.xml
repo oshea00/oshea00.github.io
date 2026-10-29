@@ -4,7 +4,12 @@
     <title>Openai on MikesBlog</title>
     <link>https://oshea00.github.io/tags/openai/</link>
     <description>Recent content in Openai on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 04 Jan 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/openai/index.xml" rel="self" type="application/rss+xml" />
@@ -13,56 +18,1116 @@
       <link>https://oshea00.github.io/posts/chat-with-tools/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/chat-with-tools/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerchat.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>A hands-on example of calling MCP tools through OpenAI-compatible APIs, with a simple MCP server and diagrams.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerchat.png#center"/> 
+</figure>
 
-&lt;p&gt;The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.&lt;/p&gt;</description>
+<p>The Model Context Protocol (MCP) allows large language models (LLMs) to call external tools while answering user prompts. In practice, most people use chat-based tools like Claude or Copilot rather than interacting directly with model APIs, and these tools make it easy to configure MCP servers without writing code. That said, if you want to connect your own data sources or custom functions as MCP tools, or connect your code to MCP tools, you’ll have to roll up your sleeves and do some hands-on work.</p>
+<p>With that in mind, I&rsquo;ve put together an example that shows how the pieces fit together, including a simple mcp server, to illustrate what it takes to use these MCP tools using OpenAI-compatible API calls. I wanted to create an example with a minimum of dependencies (FastMCP, OpenAI) so that the major ideas are not obfuscated behind too many abstractions.</p>
+<p>The code can be found here <a href="https://github.com/oshea00/mcp-chatwithtools/tree/main">mcp-chatwithtools project repo</a>.</p>
+<h2 id="overview">Overview</h2>
+<p><code>chatwithtools.py</code> demonstrates how to integrate MCP (Model Context Protocol) into a &ldquo;tools with chat&rdquo; application.</p>
+<h2 id="architecture">Architecture</h2>
+<p>The system consists of four main participants:</p>
+<ol>
+<li><strong>User</strong> - Interacts via command-line interface</li>
+<li><strong>ChatSession</strong> - Orchestrates conversation flow and OpenAI API communication</li>
+<li><strong>MCPToolExecutor</strong> - Translates between OpenAI tool calls and MCP server protocol</li>
+<li><strong>MCP Servers</strong> - External processes providing tools via stdio (e.g., weather, calculator)</li>
+</ol>
+<h2 id="component-description">Component Description</h2>
+<h3 id="chatsession-class">ChatSession Class</h3>
+<p>The <code>ChatSession</code> class implements the &ldquo;tools with chat&rdquo; pattern, orchestrating the complete conversation flow with OpenAI.</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li><strong>Chat Orchestration</strong>: Manages conversation history and sends requests to OpenAI with tools array</li>
+<li><strong>Tool Array Preparation</strong>: Calls <code>MCPToolExecutor.initialize_tools()</code> to get MCP tools formatted for OpenAI</li>
+<li><strong>Tool Call Detection</strong>: Monitors OpenAI responses for <code>tool_calls</code> array</li>
+<li><strong>Tool Execution Coordination</strong>: Delegates tool execution to MCPToolExecutor and adds results to conversation</li>
+<li><strong>Response Synthesis</strong>: Sends tool results back to OpenAI for final response generation</li>
+</ul>
+<p><strong>Key Methods:</strong></p>
+<ul>
+<li><code>initialize()</code> - Loads MCP tools via <code>tool_executor.initialize_tools()</code> for the tools array</li>
+<li><code>send_message(user_message)</code> - Orchestrates the full chat completion cycle including tool calls</li>
+<li><code>run()</code> - Interactive command-line loop</li>
+</ul>
+<p><strong>Key Pattern:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Phase 1: Chat with tools array</span>
+</span></span><span class="line"><span class="cl"><span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">messages</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span>  <span class="c1"># Formatted by MCPToolExecutor</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tool_choice</span><span class="o">=</span><span class="s2">&#34;auto&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Phase 2: Execute tools if requested</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">        <span class="c1"># Add result to messages</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># Phase 3: Get final response with tool results</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="mcptoolexecutor-class">MCPToolExecutor Class</h3>
+<p>The <code>MCPToolExecutor</code> class acts as a <strong>translation layer</strong> between OpenAI&rsquo;s function calling format and MCP&rsquo;s protocol:</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li><strong>Tool Discovery</strong>: Uses <code>get_tools()</code> from <code>get_mcp_tools.py</code> to fetch tools from all MCP servers</li>
+<li><strong>Format Translation</strong>: Converts MCP tool schemas to OpenAI function calling format (tools array)</li>
+<li><strong>Tool Routing</strong>: Maps tool names to their source MCP servers</li>
+<li><strong>Call Translation</strong>: Translates OpenAI tool call format into MCP <code>call_tool</code> requests</li>
+<li><strong>Connection Management</strong>: Establishes stdio connections to MCP servers for each tool execution</li>
+</ul>
+<p><strong>Key Methods:</strong></p>
+<ul>
+<li><code>initialize_tools()</code> - Calls <code>get_tools(config_path)</code> and transforms schemas to OpenAI format</li>
+<li><code>execute_tool(tool_name, arguments)</code> - Translates and executes tool call on appropriate MCP server</li>
+</ul>
+<p><strong>Translation Process:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># MCP Format (from server)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Get weather for location&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;object&#34;</span><span class="p">,</span> <span class="s2">&#34;properties&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># OpenAI Format (for chat completions)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;function&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;function&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;Get weather for location&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;parameters&#34;</span><span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;object&#34;</span><span class="p">,</span> <span class="s2">&#34;properties&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span> <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="get_tools-function-from-get_mcp_toolspy">get_tools() Function (from get_mcp_tools.py)</h3>
+<p>Utility function used by MCPToolExecutor during initialization:</p>
+<p><strong>Responsibilities:</strong></p>
+<ul>
+<li>Loads <code>mcp.json</code> configuration</li>
+<li>Connects to each MCP server via stdio</li>
+<li>Calls <code>session.list_tools()</code> to retrieve tool definitions</li>
+<li>Returns array of tools with their schemas in MCP format</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="p">[</span>
+</span></span><span class="line"><span class="cl">    <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;server&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;tools&#34;</span><span class="p">:</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">            <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;get_weather&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;description&#34;</span><span class="p">:</span> <span class="s2">&#34;...&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">],</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;tool_count&#34;</span><span class="p">:</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">]</span>
+</span></span></code></pre></div><h3 id="configuration">Configuration</h3>
+<p>The system uses a json configuration file that defines the MCP servers you want to include <a href="https://gofastmcp.com/integrations/mcp-json-configuration">mcp configuration reference</a>. You can use any file name you want, but <code>mcp.json</code> is what I&rsquo;m using. The code accepts this as a parameter.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;mcpServers&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;utilities&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;command&#34;</span><span class="p">:</span> <span class="s2">&#34;python3&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;args&#34;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&#34;server.py&#34;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="nt">&#34;env&#34;</span><span class="p">:</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="interaction-flow">Interaction Flow</h2>
+<h3 id="initialization-sequence">Initialization Sequence</h3>
+<p>This diagram shows how MCP tools are discovered and formatted for OpenAI during startup. The main purpose of this flow is to create the &ldquo;tools array&rdquo; content that you pass as a parameter to the LLM.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Main as main()
+    participant Chat as ChatSession
+    participant Executor as MCPToolExecutor
+    participant GetTools as get_tools()
+    participant MCP1 as MCP Server 1
+    participant MCP2 as MCP Server 2
+
+    Main-&gt;&gt;Chat: ChatSession(config_path, model)
+    Chat-&gt;&gt;Executor: MCPToolExecutor(config_path)
+    Executor-&gt;&gt;Executor: Load mcp.json
+
+    Main-&gt;&gt;Chat: await chat.initialize()
+    Chat-&gt;&gt;Executor: await initialize_tools()
+
+    Note over Executor,GetTools: Tool Discovery Phase
+    Executor-&gt;&gt;GetTools: await get_tools(config_path)
+    GetTools-&gt;&gt;GetTools: Load mcp.json
+
+    par Connect to all servers
+        GetTools-&gt;&gt;MCP1: stdio_client() connection
+        GetTools-&gt;&gt;MCP1: session.initialize()
+        GetTools-&gt;&gt;MCP1: session.list_tools()
+        MCP1-&gt;&gt;GetTools: [tool1, tool2] (MCP format)
+    and
+        GetTools-&gt;&gt;MCP2: stdio_client() connection
+        GetTools-&gt;&gt;MCP2: session.initialize()
+        GetTools-&gt;&gt;MCP2: session.list_tools()
+        MCP2-&gt;&gt;GetTools: [tool3] (MCP format)
+    end
+
+    GetTools-&gt;&gt;Executor: [{server: &#34;srv1&#34;, tools: [...]}, ...]
+
+    Note over Executor: Translation Phase
+    loop For each server&#39;s tools
+        Executor-&gt;&gt;Executor: Convert MCP schema → OpenAI format
+        Executor-&gt;&gt;Executor: Map tool_name → server_name
+    end
+
+    Executor-&gt;&gt;Chat: [OpenAI formatted tools array]
+    Chat-&gt;&gt;Main: Ready with tools
+
+    Note over Chat: Now ready to send chat.completions&lt;br/&gt;with tools parameter
+</pre>
+<h3 id="standard-message-flows">Standard Message Flows</h3>
+<p>If the prompt being evaluated by the LLM doesn&rsquo;t contain any &ldquo;trigger&rdquo; words or phrases that might indicate the need to look for a tool - things like &ldquo;query for that latest&hellip;&rsquo;, &ldquo;calculate xyx&hellip;&rdquo;, &ldquo;what is the weather like in&hellip;&rdquo;, etc., then it simply responds as normal. Otherwise, one or more tools calls will be requested by the LLM.</p>
+<pre class="mermaid">sequenceDiagram
+    participant User
+    participant Chat as ChatSession
+    participant LLM as OpenAI LLM
+    
+    User-&gt;&gt;Chat: Enter message
+    Chat-&gt;&gt;LLM: Send message + available tools
+    LLM-&gt;&gt;Chat: Response (no tool calls)
+    Chat-&gt;&gt;User: Display response
+</pre>
+<h3 id="tool-assisted-message-flow">Tool-Assisted Message Flow</h3>
+<p>This diagram shows the complete sequence when OpenAI requests tool execution (tool_calls will be presented by the LLM).</p>
+<pre class="mermaid">sequenceDiagram
+    participant User
+    participant Chat as ChatSession
+    participant OpenAI as OpenAI API
+    participant Executor as MCPToolExecutor&lt;br/&gt;(Translation Layer)
+    participant MCP as MCP Server
+
+    User-&gt;&gt;Chat: &#34;What&#39;s the weather in Paris?&#34;
+
+    Note over Chat,OpenAI: Phase 1: Initial Chat Completion
+    Chat-&gt;&gt;Chat: Add user message to history
+    Chat-&gt;&gt;OpenAI: chat.completions.create(&lt;br/&gt;messages=[...],&lt;br/&gt;tools=[...],&lt;br/&gt;tool_choice=&#34;auto&#34;)
+    OpenAI-&gt;&gt;Chat: Response with tool_calls array:&lt;br/&gt;[{id: &#34;call_123&#34;, function: {&lt;br/&gt;name: &#34;get_weather&#34;,&lt;br/&gt;arguments: &#39;{&#34;location&#34;: &#34;Paris&#34;}&#39;}}]
+
+    Note over Chat,MCP: Phase 2: Tool Execution via Translation Layer
+    Chat-&gt;&gt;Chat: Detect tool_calls in response
+    Chat-&gt;&gt;Chat: Add assistant message with tool_calls to history
+
+    loop For each tool_call
+        Chat-&gt;&gt;Executor: execute_tool(&lt;br/&gt;&#34;get_weather&#34;,&lt;br/&gt;{&#34;location&#34;: &#34;Paris&#34;})
+
+        Note over Executor: Translate OpenAI → MCP
+        Executor-&gt;&gt;Executor: Lookup server for &#34;get_weather&#34;&lt;br/&gt;→ &#34;utilities&#34; server
+        Executor-&gt;&gt;MCP: stdio_client(command, args)
+        Executor-&gt;&gt;MCP: session.initialize()
+        Executor-&gt;&gt;MCP: session.call_tool(&lt;br/&gt;&#34;get_weather&#34;,&lt;br/&gt;{&#34;location&#34;: &#34;Paris&#34;})
+        MCP-&gt;&gt;Executor: CallToolResult:&lt;br/&gt;content: [TextContent(&lt;br/&gt;text=&#34;Weather in Paris: Sunny, 72°F&#34;)]
+
+        Note over Executor: Extract result
+        Executor-&gt;&gt;Executor: Extract text from content array
+        Executor-&gt;&gt;Chat: &#34;Weather in Paris: Sunny, 72°F&#34;
+
+        Chat-&gt;&gt;Chat: Add tool result to history:&lt;br/&gt;{role: &#34;tool&#34;,&lt;br/&gt;tool_call_id: &#34;call_123&#34;,&lt;br/&gt;content: &#34;...&#34;}
+    end
+
+    Note over Chat,OpenAI: Phase 3: Final Response Synthesis
+    Chat-&gt;&gt;OpenAI: chat.completions.create(&lt;br/&gt;messages=[..., tool_results])
+    OpenAI-&gt;&gt;Chat: Final response synthesized&lt;br/&gt;from tool results
+    Chat-&gt;&gt;User: &#34;The weather in Paris is&lt;br/&gt;sunny with 72°F&#34;
+</pre>
+<h2 id="key-design-features">Key Design Features</h2>
+<h3 id="translation-layer-pattern">Translation Layer Pattern</h3>
+<p><strong>MCPToolExecutor</strong> acts as a protocol translator between OpenAI and MCP:</p>
+<p><strong>During Tools Initialization:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># MCP → OpenAI Format Translation</span>
+</span></span><span class="line"><span class="cl"><span class="n">MCP</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;inputSchema&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}</span>
+</span></span><span class="line"><span class="cl">  <span class="err">↓</span>
+</span></span><span class="line"><span class="cl"><span class="n">OpenAI</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;type&#34;</span><span class="p">:</span> <span class="s2">&#34;function&#34;</span><span class="p">,</span> <span class="s2">&#34;function&#34;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;parameters&#34;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">}}}</span>
+</span></span></code></pre></div><p><strong>During Tool Execution:</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># OpenAI → MCP Call Translation</span>
+</span></span><span class="line"><span class="cl"><span class="n">OpenAI</span><span class="p">:</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">arguments</span>
+</span></span><span class="line"><span class="cl">  <span class="err">↓</span>
+</span></span><span class="line"><span class="cl"><span class="n">MCP</span><span class="p">:</span> <span class="n">session</span><span class="o">.</span><span class="n">call_tool</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">arguments</span><span class="p">)</span>
+</span></span></code></pre></div><p>This allows MCP servers to be used with any LLM API that supports function calling.</p>
+<h3 id="tools-with-chat-pattern">Tools with Chat Pattern</h3>
+<p><strong>ChatSession</strong> demonstrates the standard &ldquo;tools with chat&rdquo; workflow:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Pattern: Discovery → Format → Call → Translate → Execute → Respond</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">initialize</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Get MCP tools formatted for OpenAI</span>
+</span></span><span class="line"><span class="cl">    <span class="bp">self</span><span class="o">.</span><span class="n">tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">initialize_tools</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="n">user_message</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Send with tools parameter</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tools</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1"># If tool calls requested, execute via translation layer</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">            <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">execute_tool</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="c1"># Add to conversation</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">        <span class="c1"># Get final response with tool results</span>
+</span></span><span class="line"><span class="cl">        <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="automatic-tool-discovery">Automatic Tool Discovery</h3>
+<p>The system dynamically discovers all tools from configured MCP servers using <code>get_tools()</code>:</p>
+<ul>
+<li>No hardcoded tool definitions</li>
+<li>Supports any number of MCP servers</li>
+<li>Tools are discovered at runtime during initialization</li>
+<li>New tools automatically available when servers are updated</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># All tools fetched dynamically via get_tools()</span>
+</span></span><span class="line"><span class="cl"><span class="n">server_tools</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_tools</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Then translated to OpenAI format</span>
+</span></span></code></pre></div><h3 id="multi-server-tool-routing">Multi-Server Tool Routing</h3>
+<p>MCPToolExecutor maintains a routing map to execute tools on the correct server:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Built during initialization</span>
+</span></span><span class="line"><span class="cl"><span class="bp">self</span><span class="o">.</span><span class="n">tool_to_server</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;get_weather&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;calculate&#34;</span><span class="p">:</span> <span class="s2">&#34;utilities&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;other_tool&#34;</span><span class="p">:</span> <span class="s2">&#34;different_server&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Used during execution</span>
+</span></span><span class="line"><span class="cl"><span class="n">server_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tool_to_server</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">tool_name</span><span class="p">)</span>
+</span></span></code></pre></div><h3 id="key-takeaways">Key Takeaways</h3>
+<p>This example shows that integrating MCP into a &ldquo;tools with chat&rdquo; application requires:</p>
+<ol>
+<li>A <strong>formatting component</strong> (<code>get_tools()</code>) to fetch tool schemas</li>
+<li>A <strong>translation component</strong> (MCPToolExecutor) to convert between formats</li>
+<li>A <strong>orchestration component</strong> (ChatSession) to manage the chat flow</li>
+</ol>
+<p>This three-layer architecture cleanly separates MCP protocol details from application logic.</p>
+<h3 id="example-interaction">Example Interaction</h3>
+<pre tabindex="0"><code>Initializing MCP tools...
+[01/04/26 15:53:25] INFO     Processing request of type ListToolsRequest                                                                           server.py:558
+Loaded 2 tools from MCP servers
+
+Chat session started. Type &#39;exit&#39; or &#39;quit&#39; to end the session.
+============================================================
+
+You: what is the product of five and three?
+Calling tool: calculate with args: {&#39;operator&#39;: &#39;multiply&#39;, &#39;argument1&#39;: &#39;5&#39;, &#39;argument2&#39;: &#39;3&#39;}
+[01/04/26 15:53:36] INFO     Processing request of type CallToolRequest                                                                            server.py:558
+
+Assistant: The product of five and three is fifteen (15).
+
+You: what is the temperature in Paris right now?
+Calling tool: get_weather with args: {&#39;location&#39;: &#39;Paris&#39;}
+[01/04/26 15:54:01] INFO     Processing request of type CallToolRequest                                                                            server.py:558
+
+Assistant: The current temperature in Paris is 72°F and it&#39;s sunny.
+
+You: write a haiku about the weather in Paris
+
+Assistant: Sunny skies above,  
+Paris basking in warm light,  
+Joyful hearts take flight.
+
+You: quit
+Goodbye!
+</code></pre><h3 id="final-thoughts">Final Thoughts</h3>
+<p>Once you&rsquo;ve understood the underlying mechanisms demonstrated here, it helps to understand more complex parts of the MCP specification - such as Authorization - and where that might fit into the overall workflow. Many tools and packages are already available to help wire these services up: MCP aggregators, directories, agentic frameworks, etc., and they offer a lot of flexibilty. At the end of the day, under the covers, a list of tools and their parameter specifications are being passed to the LLM&rsquo;s API.</p>
+<p>Context engineering is still a factor to consider. This example shows how you could pass every tool offered by an MCP server and how that all becomes part of the context window (a limited resource). A fully functional implementation of this would need to consider how to filter for just the tools you really need - as there is a limit to context (and tools array size is limited to 128 entries for OpenAI). These are features you would find in something like <a href="https://www.arcade.dev">arcade.dev</a>, but now you have some idea why and where these features are needed.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Building a Hybrid Summary Evaluation Framework</title>
       <link>https://oshea00.github.io/posts/summary-evals/</link>
       <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/summary-evals/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputereditor.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Combining deterministic NLP metrics with LLM-as-judge for more robust evaluation of generated summaries.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputereditor.png#center"/> 
+</figure>
 
-&lt;em&gt;Combining deterministic NLP with LLM-as-Judge for robust evaluation&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id=&#34;summary-evaluation-challenges&#34;&gt;Summary Evaluation Challenges&lt;/h2&gt;
-&lt;p&gt;Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
-has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].&lt;/p&gt;</description>
+<em>Combining deterministic NLP with LLM-as-Judge for robust evaluation</em></p>
+<h2 id="summary-evaluation-challenges">Summary Evaluation Challenges</h2>
+<p>Summary evaluation metrics sometimes fall short in capturing the qualities most relevant to assessing summary quality. Traditional machine learning for natural language processing (NLP)
+has covered a lot of ground in this area. Widely used measures such as ROUGE focus on surface-level token overlap and n-gram matches. While effective for evaluating lexical similarity, these approaches offer limited insight into aspects such as factual accuracy or semantic completeness [1].</p>
+<p>For example, consider two summaries that state “The study found 73% improvement” and “Nearly three-quarters showed positive outcomes.” Both express the same underlying fact, yet traditional metrics treat them as distinct. This illustrates how lexical approaches can struggle to account for semantic equivalence and factual consistency.</p>
+<p>I did some experimentation with the Natural Language Toolkit (NLTK) and managed to get a good first cut working with the traditional ML approach, but my accuracy scoring was falling short on many edge cases such as the one above, and others described in [1]. So, a new experiment was needed.</p>
+<hr>
+<h2 id="a-hybrid-approach">A Hybrid Approach</h2>
+<p>Initial explorations with established NLP metrics demonstrated their strengths and limitations, but extending these approaches to semantic accuracy was not robust. It seemed LLM-based evaluation might be better for semantic assessment with good prompt design.</p>
+<p>At the same time, relying solely on LLM-based evaluation for the other more deterministic scores related to coherence and completeness seemed like overkill. When considering the different quality dimensions, I considered a tailored &ldquo;hybrid&rdquo; approach:</p>
+<ul>
+<li><strong>Accuracy</strong>: Dependent on semantic understanding and factual consistency assessment - LLM</li>
+<li><strong>Completeness</strong>: Amenable to topic extraction and coverage analysis - NLTK</li>
+<li><strong>Coherence</strong>: Supported by established linguistic measures - ROUGE</li>
+<li><strong>Overall Score</strong>: Using weighted average of the above components.</li>
+</ul>
+<p>This seemed to be worth exploring with some experimentation.</p>
+<hr>
+<h2 id="architecture-three-evaluation-paradigms">Architecture: Three Evaluation Paradigms</h2>
+<h3 id="accuracy-llm-as-judge-with-structured-prompting">Accuracy: LLM-as-Judge with Structured Prompting</h3>
+<p>For accuracy, large language models provide the needed semantic reasoning to assess equivalence and factual consistency. Structured prompting ensures consistent, interpretable judgments:</p>
+<pre tabindex="0"><code>prompt = f&#34;Compare the &lt;source&gt; and &lt;summary&gt; provided. Using only the
+information provided in the &lt;source&gt;, characterize the accuracy of the
+&lt;summary&gt; on a scale of 0=Poor, 1=Fair, 2=Good, or 3=Excellent.
+Provide a short rationale for your score.
+&lt;source&gt;
+{source_text}
+&lt;/source&gt;
+&lt;summary&gt;
+{summary_text}
+&lt;/summary&gt;
+Format as JSON: {{&#39;score&#39;: int, &#39;rationale&#39;: str}}&#34;
+</code></pre><p><strong>Key design considerations:</strong></p>
+<ul>
+<li><strong>Explicit source constraint</strong> prevents hallucinations or injection of external knowledge</li>
+<li><strong>Discrete 0–3 scale</strong> improves judgment consistency</li>
+<li><strong>Required rationale</strong> encourages reasoning and enables debugging</li>
+<li><strong>JSON formatting</strong> ensures parseable responses</li>
+</ul>
+<p>The rationale requirement, in particular, enhances judgment quality by prompting more deliberate decisions.</p>
+<hr>
+<h3 id="completeness-enhanced-topic-extraction">Completeness: Enhanced Topic Extraction</h3>
+<p>Completeness is measured through topic extraction methods that extend beyond term frequency analysis. By incorporating document structure knowledge and positional weighting, the evaluation captures salient content more effectively:</p>
+<pre tabindex="0"><code># Weight sentences by position and content characteristics
+if i == 0 or i == len(sentences) - 1:
+    position_weight = 1.5
+elif i &lt; len(sentences) * 0.2 or i &gt; len(sentences) * 0.8:
+    position_weight = 1.2
+else:
+    position_weight = 1.0
+
+combined_score = position_weight * tfidf_score * length_weight
+</code></pre><p>Semantic similarity (cosine similarity on sentence embeddings) is then used to match extracted topics with summary content. A coverage threshold of 0.4 balances precision and recall. This approach captures topic coverage that lexical matching alone may miss, especially when summaries express concepts using different terminology.</p>
+<hr>
+<h3 id="coherence-rouge-metrics">Coherence: ROUGE Metrics</h3>
+<p>For coherence, established computational linguistics methods are sufficient and efficient:</p>
+<pre tabindex="0"><code>coherence = (0.4 * semantic + 0.25 * discourse + 0.08 * (rouge1+ rouge2+ rougeL+ lexical))
+</code></pre><p><strong>Components:</strong></p>
+<ul>
+<li><strong>ROUGE-1/2/L</strong>: Official F1 scores using rouge-score library with stemming</li>
+<li><strong>Semantic coherence</strong>: Sentence embedding similarities combined with ROUGE-L</li>
+<li><strong>Discourse coherence</strong>: Penn Discourse Treebank marker analysis</li>
+<li><strong>Lexical diversity</strong>: Type-Token Ratio with windowed normalization</li>
+<li><strong>Contradiction penalty</strong>: 1.0 (no contradictions) to 0.0 (many contradictions)</li>
+<li><strong>Readability</strong>: Flesch-Kincaid grade normalized as max(0, min(1, (20-grade)/20))</li>
+<li><strong>Length penalty</strong>: 1.0 (normal length) to 0.3 minimum (very short texts)</li>
+</ul>
+<p>Deterministic methods are appropriate here because coherence has objective, measurable properties and reliable metrics already exist.</p>
+<h3 id="overall-score-weighting-rationale">Overall Score Weighting Rationale</h3>
+<p>I chose a 60/25/15 weighting across accuracy, completeness, and coherence to reflect practical priorities:  <em>(0.6 * Accuracy + 0.25 * Completeness + 0.15 * Coherence)</em>.</p>
+<ul>
+<li><strong>Accuracy</strong> receives the greatest emphasis, since factual errors undermine trust.</li>
+<li><strong>Completeness</strong> is weighted significantly, as omission of key information reduces usefulness.</li>
+<li><strong>Coherence</strong> is weighted lower, since awkward phrasing is less harmful than inaccuracy.</li>
+</ul>
+<p><em>These weights can be tuned for domain-specific applications.</em></p>
+<hr>
+<h2 id="prompt-engineering-for-consistent-judgments">Prompt Engineering for Consistent Judgments</h2>
+<p>Reliability in accuracy scoring depends heavily on careful prompt design. Critical elements include:</p>
+<ul>
+<li>Constraining evaluation to provided source material</li>
+<li>Using a discrete scale rather than continuous ranges</li>
+<li>Requiring explicit reasoning</li>
+<li>Enforcing structured output</li>
+</ul>
+<p>Among these, the source constraint proved particularly important, as unconstrained prompts encouraged models to draw on external knowledge rather than evaluate the given material.</p>
+<h2 id="performance-characteristics">Performance Characteristics</h2>
+<p>The hybrid framework yields overall score distributions that align with intuitive quality assessments:</p>
+<ul>
+<li><strong>0.8–1.0</strong>: High-quality summaries with minimal issues</li>
+<li><strong>0.6–0.8</strong>: Good summaries with some gaps in completeness or flow</li>
+<li><strong>0.4–0.6</strong>: Usable but with noticeable issues</li>
+<li><strong>0.0–0.4</strong>: Significant problems in accuracy, completeness, or coherence</li>
+</ul>
+<p>The system captures error types that purely algorithmic methods tend to miss:</p>
+<ul>
+<li>Semantic paraphrasing</li>
+<li>Factual contradictions expressed with different wording</li>
+<li>Important topic omissions despite high lexical overlap</li>
+<li>Issues with discourse and readability</li>
+</ul>
+<p>The overall scoring establishes levels that can be used to flag summaries for human evaluators to more closely examine.</p>
+<hr>
+<h2 id="summary-evaluation-using-a-standard-baseline">Summary Evaluation Using a Standard Baseline</h2>
+<p>To test this framework I chose to use the <a href="https://huggingface.co/datasets/abisee/cnn_dailymail">CNN/DailyMail</a> dataset which contains 287K training articles and summaries of news articles. This is a standard used in many summary evaluation
+experiments [1].</p>
+<h3 id="summary-evaluation-tool-for-cnndailymail-dataset">Summary Evaluation Tool for CNN/DailyMail Dataset</h3>
+<p>This module provides functionality to evaluate reference summaries from the CNN/DailyMail dataset
+using a comprehensive SummaryEvaluator with ROUGE-enhanced coherence scoring [2].</p>
+<p><strong>Key Features</strong>:</p>
+<ul>
+<li>Loads and samples from CNN/DailyMail dataset (287k+ articles)</li>
+<li>Evaluates summaries across three dimensions:
+<ul>
+<li>Accuracy: LLM-as-judge scoring using OpenAI models (GPT-4, GPT-4o)</li>
+<li>Completeness: Topic coverage analysis using TF-IDF and Semantic similarity</li>
+<li>Coherence: ROUGE-enhanced scoring with discourse analysis and readability</li>
+</ul>
+</li>
+<li>Flexible output formats: pretty console display or CSV export</li>
+<li>Configurable sampling with optional seeding for reproducibility</li>
+<li>Command-line interface with comprehensive argument parsing</li>
+</ul>
+<p><strong>Usage Examples</strong>:</p>
+<pre tabindex="0"><code>python evalsummary.py                      # default 5 samples, GPT-4o, pretty output
+python evalsummary.py -n 10 -m gpt-4.1     # 10 samples with GPT-4.1```
+python evalsummary.py -f csv &gt; results.csv # CSV export for analysis```
+python evalsummary.py --seed 42 -n 20      # Reproducible results```
+</code></pre><h2 id="example-output">Example output</h2>
+<pre tabindex="0"><code>📥 Loading CNN/DailyMail dataset...
+✅ Dataset loaded - Train: 287113
+🚀 Evaluating 1 random reference summaries using gpt-4o
+================================================================================
+Article 1 (index 221292):
+Bradford midfielder Billy Knott has taken to Twitter to thank John Terry for 
+giving his dad a signed shirt following his side&#39;s stunning 4-2 FA Cup win 
+against Chelsea on Saturday. The former Chelsea youngster was still revelling 
+in the win on Sunday morning as he posed with his father, Steve, and the 
+famous No 26 shirt of the Blues captain. Knott tweeted: &#39;Thanks to jt top man
+give the shirt to my dad. What a day that was every were we goooo [sic].&#39;
+Billy Knott shows off his signed shirt from...
+
+Reference Summary:
+Billy Knott received signed shirt from John Terry following Bradford&#39;s 
+4-2 FA Cup win against Chelsea. Knott took to Twitter to thank &#39;top man&#39; Terry
+for the gift. Bantams are through to FA Cup fifth round following memorable win.
+--------------------------------------------------------------------------------
+
+📊 SUMMARY EVALUATION RESULTS:
+----------------------------------------
+🎯 Accuracy:     1.000 (100.0%)
+📋 Completeness: 0.532 (53.2%)
+🔗 Coherence:    0.437 (43.7%)
+⭐ Overall:      0.799 (79.9%)
+
+💭 Accuracy Rationale: The summary accurately captures the key points
+from the source: Billy Knott received a signed shirt from John Terry,
+he thanked Terry on Twitter, and Bradford&#39;s win against Chelsea allowed
+them to progress to the FA Cup fifth round. The summary is concise and includes
+all the main elements mentioned in the source.
+</code></pre><h2 id="conclusion">Conclusion</h2>
+<p>The hybrid framework combines evaluation paradigms to provide robust, semantically aware summary assessment. It leverages LLMs for accuracy, structured NLP methods for completeness, and classical measures for coherence, producing a more comprehensive evaluation than any single method alone.</p>
+<p>The result is an approach that balances semantic nuance with consistency and efficiency, offering a flexible foundation for summary evaluation across diverse domains. With overall scoring establishing levels that can be used to flag summaries for human evaluators to review.</p>
+<hr>
+<h2 id="references">References</h2>
+<p>[1] Fabbri, A. R., et al. (2020). SummEval: Re-evaluating Summarization Evaluation. <em>arXiv preprint arXiv:2007.12626</em>. <a href="https://arxiv.org/pdf/2007.12626">https://arxiv.org/pdf/2007.12626</a></p>
+<p>[2] O&rsquo;Shea, M. (2024). Summary Evaluation Framework. <em>GitHub repository</em>. <a href="https://github.com/oshea00/summaryeval">https://github.com/oshea00/summaryeval</a></p>
+]]></content:encoded>
     </item>
     <item>
       <title>Classify With Confidence</title>
       <link>https://oshea00.github.io/posts/classify-with-confidence/</link>
       <pubDate>Sat, 02 Nov 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/classify-with-confidence/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutepredictioncartoon.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Getting useful confidence scores from LLM text classification, tested against labeled data with a confusion matrix.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/cutepredictioncartoon.png#center"/> 
+</figure>
 
-Large foundation models like GPT can classify text according to a well-crafted prompt instruction, and it&amp;rsquo;s remarkable how well they can do this, considering there has been no explicit training with labeled datasets. This has traditionally been done using machine learning models and logistic regression techniques.&lt;/p&gt;
-&lt;p&gt;However, with generative model classification, we lose the &amp;lsquo;confidence level&amp;rsquo; or the probability score of the prediction available in logistic regression. Traditional models like logistic regression provide a probability score for each class, indicating the model&amp;rsquo;s confidence level in its predictions. This confidence score is not just valuable; it&amp;rsquo;s essential for decision-making, as it helps users gauge how confident the model is about its classifications. While generative model responses may align well with the intended classification, we don&amp;rsquo;t directly get an explicit probability for each class. This can be a limitation, particularly in high-stakes applications where knowing the model&amp;rsquo;s confidence level is crucial.&lt;/p&gt;</description>
+Large foundation models like GPT can classify text according to a well-crafted prompt instruction, and it&rsquo;s remarkable how well they can do this, considering there has been no explicit training with labeled datasets. This has traditionally been done using machine learning models and logistic regression techniques.</p>
+<p>However, with generative model classification, we lose the &lsquo;confidence level&rsquo; or the probability score of the prediction available in logistic regression. Traditional models like logistic regression provide a probability score for each class, indicating the model&rsquo;s confidence level in its predictions. This confidence score is not just valuable; it&rsquo;s essential for decision-making, as it helps users gauge how confident the model is about its classifications. While generative model responses may align well with the intended classification, we don&rsquo;t directly get an explicit probability for each class. This can be a limitation, particularly in high-stakes applications where knowing the model&rsquo;s confidence level is crucial.</p>
+<p>One way to approach this limitation and gain a better sense of confidence in LLM classification results is to add instructions to the prompt to provide a &ldquo;confidence level&rdquo; over some range, such as 1.0 through 5.0, along with the predicted class of a given text example. But is this confidence value to be trusted?</p>
+<h2 id="an-experiment-is-needed">An Experiment Is Needed</h2>
+<p>To help answer that question, I&rsquo;ve done a little experiment to see if the confidence level passed back in the LLM&rsquo;s response has some statistical significance using an open-source dataset from Hugging Face.</p>
+<p>AG is a collection of more than 1 million news articles. ComeToMyHead, an academic news search engine, has gathered articles from over 2000 news sources in more than one year of activity. The dataset is provided by the academic community for research purposes in data mining (clustering, classification, etc.), information retrieval (ranking, search, etc.), XML, data compression, data streaming, and any other non-commercial activity.</p>
+<p>Xiang Zhang (<a href="mailto:xiang.zhang@nyu.edu">xiang.zhang@nyu.edu</a>) constructed the AG&rsquo;s news topic classification dataset from the dataset above. It is used as a classification benchmark in Zhang, Xiang, Junbo Zhao, and Yann LeCun. &ldquo;Character-level Convolutional Networks for Text Classification.&rdquo; ArXiv:1509.01626.</p>
+<p>This code will download the dataset and cache it locally:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">datasets</span> <span class="kn">import</span> <span class="n">load_dataset</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span></span><span class="line"><span class="cl"><span class="n">dataset</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&#34;wangrongsheng/ag_news&#34;</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s2">&#34;./data/ag_news&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">labels</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="s2">&#34;train&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="s2">&#34;label&#34;</span><span class="p">]</span><span class="o">.</span><span class="n">names</span>
+</span></span><span class="line"><span class="cl"><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/dfhead_ag.png"/> <figcaption>
+            <p>Figure 1. Sample labeled data of &lsquo;Business&rsquo; topics.</p>
+        </figcaption>
+</figure>
+
+<h2 id="the-classification-prompt">The Classification Prompt</h2>
+<p>Here is the example prompt I used with the GPT-4 model to get classification results for 1000 rows of the data, sampling an even distribution of classes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">classify_prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="cl"><span class="s2">Examine the text delimited below by ``` and classify it into one
+</span></span></span><span class="line"><span class="cl"><span class="s2">of the following categories: WORLD, SPORTS, BUSINESS, or SCITECH.
+</span></span></span><span class="line"><span class="cl"><span class="s2">```</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="s2">```
+</span></span></span><span class="line"><span class="cl"><span class="s2">output:
+</span></span></span><span class="line"><span class="cl"><span class="s2">On a single line write the category that best fits and 
+</span></span></span><span class="line"><span class="cl"><span class="s2">a confidence score in the range 1 to 5 (1 being the least confident)
+</span></span></span><span class="line"><span class="cl"><span class="s2">separated by a comma.
+</span></span></span><span class="line"><span class="cl"><span class="s2">On the following line write a brief explanation of why you chose that category.
+</span></span></span><span class="line"><span class="cl"><span class="s2">Do not include any other information in your response.
+</span></span></span><span class="line"><span class="cl"><span class="s2">&#34;&#34;&#34;</span>
+</span></span></code></pre></div><p>The raw response looks like this:</p>
+<pre tabindex="0"><code>WORLD, 5.0
+The text describes a geopolitical event involving an explosion in Baghdad, Iraq, which is a newsworthy incident related to global affairs typically covered in the WORLD news category.
+</code></pre><p>Enhancing the sampled dataset to add these values results in the following table:
+<figure>
+    <img loading="lazy" src="images/sample_df.png"/> <figcaption>
+            <p>Figure 2. Prediction results.</p>
+        </figcaption>
+</figure>
+</p>
+<h2 id="analyzing-results">Analyzing Results</h2>
+<p>I&rsquo;ll extract the labeled and predicted pairs from the data to create a classification report using the following code:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">generate_classification_report</span><span class="p">(</span><span class="n">labeled_predicted_pairs</span><span class="p">,</span> <span class="n">label_names</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="c1"># Extract labels and predictions from the pairs</span>
+</span></span><span class="line"><span class="cl">    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">labeled_predicted_pairs</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">labeled_predicted_pairs</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Map string labels to numerical values</span>
+</span></span><span class="line"><span class="cl">    <span class="n">label_to_num</span> <span class="o">=</span> <span class="p">{</span><span class="n">label</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">label_names</span><span class="p">)}</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_to_num</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">num_predictions</span> <span class="o">=</span> <span class="p">[</span><span class="n">label_to_num</span><span class="p">[</span><span class="n">pred</span><span class="p">]</span> <span class="k">for</span> <span class="n">pred</span> <span class="ow">in</span> <span class="n">predictions</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Generate confusion matrix</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conf_matrix</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">num_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="c1"># Generate classification report</span>
+</span></span><span class="line"><span class="cl">    <span class="n">class_report</span> <span class="o">=</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">num_labels</span><span class="p">,</span> <span class="n">num_predictions</span><span class="p">,</span> <span class="n">target_names</span><span class="o">=</span><span class="n">label_names</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">conf_matrix</span><span class="p">,</span> <span class="n">class_report</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Get labeled_predicted_pairs from sampled_df</span>
+</span></span><span class="line"><span class="cl"><span class="n">labeled_predicted_pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;labelName&#39;</span><span class="p">],</span> <span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;predicted_class&#39;</span><span class="p">]))</span>
+</span></span><span class="line"><span class="cl"><span class="n">label_values</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;labelName&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Generate report</span>
+</span></span><span class="line"><span class="cl"><span class="n">conf_matrix</span><span class="p">,</span> <span class="n">class_report</span> <span class="o">=</span> <span class="n">generate_classification_report</span><span class="p">(</span><span class="n">labeled_predicted_pairs</span><span class="p">,</span> <span class="n">label_values</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1">#print(&#34;Confusion Matrix:\n&#34;, conf_matrix)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">Classification Report:</span><span class="se">\n</span><span class="s2">&#34;</span><span class="p">,</span> <span class="n">class_report</span><span class="p">)</span>
+</span></span></code></pre></div><p>Which produces this:</p>
+<pre tabindex="0"><code>Classification Report:
+               precision    recall  f1-score   support
+
+       WORLD       0.84      0.88      0.86       250
+      SPORTS       0.96      1.00      0.98       250
+    BUSINESS       0.74      0.90      0.82       250
+     SCITECH       0.92      0.63      0.75       250
+
+    accuracy                           0.85      1000
+   macro avg       0.86      0.85      0.85      1000
+weighted avg       0.86      0.85      0.85      1000
+</code></pre><p>The overall accuracy is 85%, which is pretty good, and we can dig a little deeper. The &lsquo;support&rsquo; column shows how many samples of each class was in the dataset. I made sure to select a balanced set of samples for each class.</p>
+<p>To understand how these were broken out into true and false positive and negatives, we&rsquo;ll graph the &ldquo;confusion matrix&rdquo;, which shows actual versus predicted counts of each class. This data is used to calculate the precision/recall and f1-scores in the above report.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Plot confusion matrix</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">conf_matrix</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Blues&#39;</span><span class="p">,</span> <span class="n">xticklabels</span><span class="o">=</span><span class="n">label_values</span><span class="p">,</span> <span class="n">yticklabels</span><span class="o">=</span><span class="n">label_values</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Predicted&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Actual&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Confusion Matrix&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/confusionmatrix_1.png"/> <figcaption>
+            <p>Figure 3. Multi-class Confusion Matrix.</p>
+        </figcaption>
+</figure>
+
+<h2 id="how-confident-was-the-model">How Confident Was The Model?</h2>
+<p>We can use the confidence level combined with the prediction&rsquo;s &ldquo;correctness&rdquo; score to see how the confidence values were distributed for both true and false predictions as follows:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">true_predictions</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;correct&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">false_predictions</span> <span class="o">=</span> <span class="n">sampled_df</span><span class="p">[</span><span class="n">sampled_df</span><span class="p">[</span><span class="s1">&#39;correct&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot for true predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">true_predictions</span><span class="p">[</span><span class="s1">&#39;confidence_level&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True Predictions&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Plot for false predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">false_predictions</span><span class="p">[</span><span class="s1">&#39;confidence_level&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;False Predictions&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Confidence Level&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Normalized Frequency&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Comparison of Confidence Levels between True and False Predictions&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><p><figure>
+    <img loading="lazy" src="images/confidence.png"/> <figcaption>
+            <p>Figure 4. Confidence Distributions.</p>
+        </figcaption>
+</figure>
+
+From this plot, we can see intuitively that true predictions were more heavily distributed towards the high confidence (4.0 and 5.0) values, while false predictions had lower confidence scores, peaking at 4.0 and dropping off near 5.0. Still, are these distributions statistically significant?</p>
+<p>In the next section, I&rsquo;ll use a Logistic Regression to fit the true/false predictions to their associated confidence scores, then check if there&rsquo;s a significant correlation using the calculated <code>p_value</code> and <code>significance_level</code>.</p>
+<h2 id="statistical-tests">Statistical Tests</h2>
+<p>This code will load some <code>scikit-learn</code> tools, along with <code>scipy</code>,<code>stats</code> and<code>statsmodels</code> useful for performing a few tests - the first of which will be the logistic regression and a<code>p_value</code> check.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+</span></span><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">roc_curve</span><span class="p">,</span> <span class="n">auc</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Independent variable (X) and dependent variable (y)</span>
+</span></span><span class="line"><span class="cl"><span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">model</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Estimated coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">coef</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">intercept</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">intercept_</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Coefficient for Confidence Level: </span><span class="si">{</span><span class="n">coef</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Intercept: </span><span class="si">{</span><span class="n">intercept</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the odds ratio</span>
+</span></span><span class="line"><span class="cl"><span class="n">odds_ratio</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">coef</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Odds Ratio: </span><span class="si">{</span><span class="n">odds_ratio</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Interpretation</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">odds_ratio</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;For each unit increase in confidence level, the odds of a correct prediction increase by </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="n">odds_ratio</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;For each unit increase in confidence level, the odds of a correct prediction decrease by </span><span class="si">{</span><span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">odds_ratio</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">%.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Fit the model using statsmodels to get p-value</span>
+</span></span><span class="line"><span class="cl"><span class="n">X_with_const</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>  <span class="c1"># Add a constant term for intercept</span>
+</span></span><span class="line"><span class="cl"><span class="n">logit_model</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">Logit</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">X_with_const</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">result</span> <span class="o">=</span> <span class="n">logit_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Extract p-value for confidence level coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">p_value</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">pvalues</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value for Confidence Level Coefficient: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;The coefficient for confidence level is statistically significant.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;The coefficient for confidence level is not statistically significant.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>The results of this test are as follows. It appears we have a statistically significant result.</p>
+<pre tabindex="0"><code>Coefficient for Confidence Level: 1.4061994575718302
+Intercept: -4.464738502617202
+Odds Ratio: 4.080418095576085
+For each unit increase in confidence level, the odds of a correct prediction
+increase by 308.04%.
+Optimization terminated successfully.
+         Current function value: 0.360052
+         Iterations 7
+                           Logit Regression Results                           
+==============================================================================
+Dep. Variable:                      y   No. Observations:                 1000
+Model:                          Logit   Df Residuals:                      998
+Method:                           MLE   Df Model:                            1
+Date:                Sat, 02 Nov 2024   Pseudo R-squ.:                  0.1339
+Time:                        14:10:07   Log-Likelihood:                -360.05
+converged:                       True   LL-Null:                       -415.71
+Covariance Type:            nonrobust   LLR p-value:                 5.056e-26
+==============================================================================
+                 coef    std err          z      P&gt;|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -4.6039      0.664     -6.936      0.000      -5.905      -3.303
+x1             1.4384      0.152      9.449      0.000       1.140       1.737
+==============================================================================
+P-value for Confidence Level Coefficient: 3.416898004216482e-21
+The coefficient for confidence level is statistically significant.
+</code></pre><p>To double-check this initial result, I&rsquo;m going to use a Point-Biserial Correlation test.</p>
+<h3 id="point-biserial-correlation">Point-Biserial Correlation</h3>
+<p>The point-biserial correlation is a special case of the Pearson correlation used when one variable is continuous and the other is binary.
+Use the formula:
+$$
+r_{pb} = \frac{\bar{X}_1 - \bar{X}_0}{s_X} \sqrt{\frac{n_1 n_0}{n^2}}
+$$
+Where:</p>
+<ul>
+<li>$\bar{X}_1$ = Mean confidence level for correct predictions.</li>
+<li>$\bar{X}_0$ = Mean confidence level for incorrect predictions.</li>
+<li>$s_X$ = Standard deviation of all confidence levels.</li>
+<li>$n_1,n_0$ = Number of correct and incorrect predictions.</li>
+<li>$n$ = Total number of predictions.</li>
+</ul>
+<p>Test for significance:</p>
+<ul>
+<li>t-test:
+$$
+t = r_{pb}\sqrt{\frac{n-2}{1-r_{pb}^2}}
+$$</li>
+<li>Degrees of freedom $n-2$</li>
+</ul>
+<p>Let&rsquo;s see how this can be done in code, and what the results are.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Separate the data for correct and incorrect predictions</span>
+</span></span><span class="line"><span class="cl"><span class="n">correct_predictions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">incorrect_predictions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the means</span>
+</span></span><span class="line"><span class="cl"><span class="n">mean_correct</span> <span class="o">=</span> <span class="n">correct_predictions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">mean_incorrect</span> <span class="o">=</span> <span class="n">incorrect_predictions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the standard deviation of all confidence levels</span>
+</span></span><span class="line"><span class="cl"><span class="n">std_confidence</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate the counts</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_correct</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">correct_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_incorrect</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">incorrect_predictions</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Calculate point-biserial correlation coefficient</span>
+</span></span><span class="line"><span class="cl"><span class="n">r_pb</span> <span class="o">=</span> <span class="p">(</span><span class="n">mean_correct</span> <span class="o">-</span> <span class="n">mean_incorrect</span><span class="p">)</span> <span class="o">/</span> <span class="n">std_confidence</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n_correct</span> <span class="o">*</span> <span class="n">n_incorrect</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_total</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Point-Biserial Correlation Coefficient (r_pb): </span><span class="si">{</span><span class="n">r_pb</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Test for significance using t-test</span>
+</span></span><span class="line"><span class="cl"><span class="n">t_value</span> <span class="o">=</span> <span class="n">r_pb</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">n_total</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r_pb</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">degrees_of_freedom</span> <span class="o">=</span> <span class="n">n_total</span> <span class="o">-</span> <span class="mi">2</span>
+</span></span><span class="line"><span class="cl"><span class="n">p_value</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">t_value</span><span class="p">),</span> <span class="n">df</span><span class="o">=</span><span class="n">degrees_of_freedom</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;T-value: </span><span class="si">{</span><span class="n">t_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The point-biserial correlation is statistically significant.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The point-biserial correlation is not statistically significant.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>And the results are apparently significant:</p>
+<pre tabindex="0"><code>Point-Biserial Correlation Coefficient (r_pb): 0.3647830613321057
+T-value: 12.37676335481931
+P-value: 0.0
+The point-biserial correlation is statistically significant.
+</code></pre><p>To add another test of significance, I will use a Mann-Whitney U test.</p>
+<h3 id="mann-whitney-u-test">Mann-Whitney U Test</h3>
+<p>The Mann-Whitney U test assesses whether the distributions of confidence levels differ between true and false predictions.</p>
+<p>The code and the results follow:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Perform Mann-Whitney U Test</span>
+</span></span><span class="line"><span class="cl"><span class="n">u_statistic</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">mannwhitneyu</span><span class="p">(</span><span class="n">correct_predictions</span><span class="p">,</span> <span class="n">incorrect_predictions</span><span class="p">,</span> <span class="n">alternative</span><span class="o">=</span><span class="s1">&#39;two-sided&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Mann-Whitney U Statistic: </span><span class="si">{</span><span class="n">u_statistic</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;P-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Check significance level</span>
+</span></span><span class="line"><span class="cl"><span class="n">significance_level</span> <span class="o">=</span> <span class="mf">0.05</span>
+</span></span><span class="line"><span class="cl"><span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">significance_level</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The Mann-Whitney U test is statistically significant, indicating a difference in distributions between correct and incorrect predictions.&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s2">&#34;The Mann-Whitney U test is not statistically significant, indicating no difference in distributions between correct and incorrect predictions.&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><pre tabindex="0"><code>Mann-Whitney U Statistic: 90831.5
+P-value: 4.6967698934230915e-26
+The Mann-Whitney U test is statistically significant, indicating a difference in
+distributions between correct and incorrect predictions.
+</code></pre><h2 id="roc-curve">ROC Curve</h2>
+<p>The ROC curve will further measure the significance of the confidence level scores provided by the GPT-4 model.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># ROC Curve</span>
+</span></span><span class="line"><span class="cl"><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;Prediction_Correctness&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Confidence_Level&#39;</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl"><span class="n">roc_auc</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;ROC Curve (area = </span><span class="si">{</span><span class="n">roc_auc</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;False Positive Rate&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;True Positive Rate&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Receiver Operating Characteristic (ROC) Curve&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</span></span></code></pre></div><figure>
+    <img loading="lazy" src="images/roc.png"/> <figcaption>
+            <p>Figure 5. ROC Curve</p>
+        </figcaption>
+</figure>
+
+<p>If classes were randomly predicted in association with the confidence scores, the area under the ROC curve would be approximately 50%. As it stands, with these results, the ROC curve area is 73%, which is a significant score, although not an outstanding one.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this small experiment, using the LLM model&rsquo;s estimate of its &ldquo;confidence level&rdquo; combined with its explanation for its decision as asked for in the prompt, it appears there is a statistical significance of the confidence expressed by the model in its predictions.</p>
+<p>A larger study might be worthwhile with different types of text and classification classes, as well as different LLM models, to see if this type of prompting improves classification accuracy or at least provides some way to determine confidence when presenting results for human review.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Comparing Prompt Results - A Rose By Any Other Name</title>
       <link>https://oshea00.github.io/posts/a-rose-by-any-other-name/</link>
       <pubDate>Tue, 20 Aug 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/a-rose-by-any-other-name/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/androidrose.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Using embeddings and vector distance to compare LLM prompt outputs when exact string matching fails.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/androidrose.png#center"/> 
+</figure>
 
-You might want to test an expected response from a prompt sent to a large language model, but string comparisons will not help you. The inherent variability in large language model (LLM) responses will require you to find new ways to compare generated prompt results.&lt;/p&gt;
-&lt;p&gt;There are a few reasons why a generated prompt result will not exactly match a prior result: the prompt itself may have changed, the model parameters may have changed, or the model&amp;rsquo;s inherent variability may inject a small amount of change in the results.&lt;/p&gt;</description>
+You might want to test an expected response from a prompt sent to a large language model, but string comparisons will not help you. The inherent variability in large language model (LLM) responses will require you to find new ways to compare generated prompt results.</p>
+<p>There are a few reasons why a generated prompt result will not exactly match a prior result: the prompt itself may have changed, the model parameters may have changed, or the model&rsquo;s inherent variability may inject a small amount of change in the results.</p>
+<p>One technique for dealing with &ldquo;fuzzy&rdquo; comparisons is to use embeddings to compare texts. Embeddings can be thought of as a multidimensional space of meaning, within which any fragment of text can be assigned a location to a point in that space using a coordinate. The coordinate is the &ldquo;embedding&rdquo;. The ability to express the distance between any two points in such a space can be used as a proxy for &ldquo;sameness in meaning.&rdquo; Birds of a feather flock together.</p>
+<p>A coordinate list (or tuple) of two numbers, such as (x, y), is needed to assign a unique point location in a two-dimensional space. To extend this to an n-dimensional space, a list of length n is required. Embedding models typically assign coordinates in spaces of over 100 dimensions. This depends on the particular embedding model chosen. For OpenAI embedding models such as<code>'text-embedding-ada-002'</code>and<code>'text-embedding-3-small'</code>, the embedding will be a list of 1,536 float values - a coordinate in a 1,536 dimensional space.</p>
+<p>I&rsquo;ve always found it fascinating that no matter how many dimentions there are, the distance between any two points in n-dimensions is always a single number.</p>
+<p>There are a couple of choices you can use to determine distance between n-dimensional coordinates, the most straightforward being the &ldquo;Euclidean distance&rdquo; (or norm) which most high school algebra students will remember as: $$ d = \sqrt{(x_1-x_2)^2 + (y_1-y_2)^2} $$ or, more generally, for any n-dimensional Euclidean space:</p>
+<p>$$
+d(p,q) = \sqrt{\sum_{i=1}^{n}(q_i - p_i)^2}
+$$</p>
+<p>Another choice is the Cosine similarity, which considers the angle between two coordinate vectors. Embeddings can be interpreted as a vector from the origin to the coordinate the embedding represents. The length of the embedding vector is always normalized to 1.0. If the vectors point in the same direction, they have similar meaning. Birds of a feather flock together <em>and</em> fly in the same direction too:</p>
+<p>$$
+cos(\theta) = \frac{A \cdot B}{\left|A\right| \left|B\right|}
+$$</p>
+<p>If the two embedding vectors are identical, the angle between them will be 0, so the angle&rsquo;s cosine will be 1. The possible values range from -1 to 1, where -1 means opposite in meaning, 0 means no overlap in meaning, and 1 is identical. In practical terms, the values we are concerned with range from 0 to 1.</p>
+<p>For the following code examples, I will use Cosine similarity. Rather than roll my own from the above formula, I will use a helper function found in the<code>torch.nn</code>package, <code>nn.CosineSimilarity()</code>. This function will take advantage of the GPU, if present, and will also handle a few edge cases and singularities that may arise from comparing embedding vectors.</p>
+<p>Setting up a few functions to help generate prompt results and compare results:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">openai</span> <span class="kn">import</span> <span class="n">OpenAI</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_prompt_result</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">top_p</span><span class="p">:</span><span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">      <span class="n">model</span><span class="o">=</span><span class="s2">&#34;gpt-4o&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;role&#34;</span><span class="p">:</span> <span class="s2">&#34;user&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">          <span class="s2">&#34;content&#34;</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">      <span class="p">],</span>
+</span></span><span class="line"><span class="cl">      <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">      <span class="n">top_p</span><span class="o">=</span><span class="n">top_p</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_embedding</span><span class="p">(</span><span class="n">text</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;text-embedding-ada-002&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">input</span><span class="o">=</span><span class="p">[</span><span class="n">text</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">    <span class="n">model</span><span class="o">=</span><span class="n">model</span> <span class="c1"># text-embedding-3-small</span>
+</span></span><span class="line"><span class="cl">  <span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_similarity</span><span class="p">(</span><span class="n">embedding1</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">embedding2</span><span class="p">:</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="n">cosine_similarity</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">CosineSimilarity</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">  <span class="n">similarity</span> <span class="o">=</span> <span class="n">cosine_similarity</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">embedding1</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">embedding2</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">  <span class="k">return</span> <span class="n">similarity</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">describe_similarity</span><span class="p">(</span><span class="n">value</span><span class="p">:</span><span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">  <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.99</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;identical&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.95</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;very similar&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.9</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;similar&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mf">0.8</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;somewhat similar&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="k">else</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;not similar&#34;</span>    
+</span></span></code></pre></div><p>Let&rsquo;s show how different prompts can produce different results even if the prompts themselves seem to be asking nearly the same question:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">baseline_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">current_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;Describe a few good places to visit in Paris?&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>returns these results:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Paris is a city rich in history, culture, and beauty, offering a wide array of attractions for visitors. Here are some must-see places in Paris:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1. **Eiffel Tower**: The iconic symbol of Paris, offering stunning views of the city from its observation decks.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. **Notre-Dame Cathedral**: A masterpiece of Gothic architecture, though currently under restoration following the 2019 fire.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. **Champs-Élysées and Arc de Triomphe**: A famous avenue leading to the monumental arch, which offers panoramic views of Paris.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">5. **Montmartre and Sacré-Cœur Basilica**: A historic district known for its artistic history, charming streets, and the beautiful basilica with its stunning views.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">6. **Musée d&#39;Orsay**: An art museum housed in a former railway station, featuring an extensive collection of Impressionist and Post-Impressionist masterpieces.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">7. **Palace of Versailles**: Located just outside Paris, this opulent palace and its gardens are a testament to the grandeur of French royalty.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">8. **Seine River Cruise**: A boat tour along the Seine River offers a unique perspective of Paris&#39;s landmarks, especially beautiful at night.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">9. **Luxembourg Gardens**: A beautiful park perfect for a leisurely stroll, with statues, fountains, and the Luxembourg Palace.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">10. **Le Marais**: A historic district known for its narrow medieval streets, trendy boutiques, and vibrant nightlife.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">11. **Panthéon**: A neoclassical mausoleum containing the remains of distinguished French citizens, with impressive architecture and a crypt.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">12. **Centre Pompidou**: A modern art museum with a distinctive architectural design, housing a vast collection of contemporary art.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">13. **Sainte-Chapelle**: A stunning Gothic chapel known for its magnificent stained glass windows.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">14. **Opéra Garnier**: A grand opera house with opulent interiors, worth visiting for its architecture and performances.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">15. **Père Lachaise Cemetery**: The final resting place of many famous individuals, including Jim Morrison, Oscar Wilde, and Edith Piaf.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">These are just a few highlights, and Paris has much more to offer depending on your interests, from charming neighborhoods and cafes to world-class shopping and dining experiences.t
+</span></span></code></pre></div><p>and&hellip;</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">Paris, often referred to as &#34;The City of Light,&#34; is renowned for its rich history, stunning architecture, and vibrant culture. Here are a few must-visit places in Paris:
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">1. **Eiffel Tower**: No trip to Paris is complete without visiting its most iconic landmark. You can take an elevator ride to the top for a breathtaking view of the city or enjoy a picnic on the Champ de Mars with the tower as your backdrop.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">2. **Louvre Museum**: Home to thousands of works of art, including the Mona Lisa and the Venus de Milo, the Louvre is the world&#39;s largest art museum and a historic monument in Paris. The glass pyramid entrance is a modern architectural marvel.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">3. **Notre-Dame Cathedral**: This masterpiece of French Gothic architecture is famous for its stunning facade, intricate sculptures, and beautiful stained glass windows. Although it suffered damage from a fire in 2019, it remains a symbol of Parisian heritage.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">4. **Montmartre and the Basilica of the Sacré-Cœur**: Perched atop a hill, Montmartre is known for its bohemian atmosphere, artists, and charming streets. The Basilica of the Sacré-Cœur offers panoramic views of Paris and is a beautiful example of Romano-Byzantine architecture.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">5. **Champs-Élysées and Arc de Triomphe**: The Champs-Élysées is one of the most famous avenues in the world, lined with shops, theaters, and cafes. At its western end stands the Arc de Triomphe, a monument honoring those who fought and died for France.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">6. **Musée d&#39;Orsay**: Housed in a former railway station, this museum is renowned for its extensive collection of Impressionist and Post-Impressionist masterpieces by artists such as Monet, Van Gogh, and Degas.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">7. **Seine River Cruise**: A boat cruise on the Seine River offers a unique perspective of Paris&#39;s landmarks, including the Eiffel Tower, Notre-Dame Cathedral, and the Louvre. It&#39;s a relaxing way to see the city, especially at night when the buildings are illuminated.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">8. **Palace of Versailles**: Just a short trip from Paris, the Palace of Versailles is a UNESCO World Heritage site known for its opulent architecture, stunning gardens, and the Hall of Mirrors. It was the royal residence of Louis XIV.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">9. **Le Marais**: This historic district is known for its narrow medieval streets, trendy boutiques, art galleries, and vibrant nightlife. It&#39;s also home to the Jewish Quarter and the beautiful Place des Vosges.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">10. **Luxembourg Gardens**: These beautifully manicured gardens are perfect for a leisurely stroll or a relaxing afternoon. The gardens feature statues, fountains, and the Luxembourg Palace, which houses the French Senate.
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Each of these locations offers a unique glimpse into the rich tapestry of Parisian culture and history. Whether you&#39;re an art lover, history buff, or simply looking to soak in the city&#39;s ambiance, Paris has something to offer everyone.
+</span></span></code></pre></div><p>They are slightly different in that the first prompt returns fifteen locations and the second prompt only ten. Let&rsquo;s calculate the embeddings and compare them:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">similarity</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">baseline_embedding</span><span class="p">,</span> <span class="n">current_embedding</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span><span class="n">describe_similarity</span><span class="p">(</span><span class="n">similarity</span><span class="p">))</span>
+</span></span></code></pre></div><pre tabindex="0"><code>&gt; 0.9737002849578857 very similar
+</code></pre><p>So, not identical, but essentially the same. You might have some testing added to your code that uses this metric to determine if anticipated results are &ldquo;drifting&rdquo; beyond some pre-determined limit. In this case, the ranges I chose might alert for the need to look at possible model changes that have crept into the process, or perhaps a prompt was changed in a recent release.</p>
+<p>We can compare results using the same exact prompt twice. Notice that the default<code>temperature</code>for the prompt generation function<code>get_prompt_result()</code>is set to &ldquo;0&rdquo; - which should provide the most &ldquo;repeatable&rdquo; output from<code>gpt-4o</code>. In practice there is always a tiny bit of variablilty even with temperature set to the most stable value. This varies between different LLMs:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">baseline_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">current_result_text</span> <span class="o">=</span> <span class="n">get_prompt_result</span><span class="p">(</span><span class="s2">&#34;What are some nice places to visit in Paris?&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">similarity</span> <span class="o">=</span> <span class="n">get_similarity</span><span class="p">(</span><span class="n">get_embedding</span><span class="p">(</span><span class="n">baseline_result_text</span><span class="p">),</span> <span class="n">get_embedding</span><span class="p">(</span><span class="n">current_result_text</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="n">similarity</span><span class="p">,</span> <span class="n">describe_similarity</span><span class="p">(</span><span class="n">similarity</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Is baseline_result_text == current_result_text? </span><span class="si">{</span><span class="n">baseline_result_text</span> <span class="o">==</span> <span class="n">current_result_text</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>However, by comparing the embeddings, we can determine them to be identical for practical purposes, even if they are not exactly identical as strings.</p>
+<pre tabindex="0"><code>&gt; 0.997055172920227 identical
+&gt; Is baseline_result_text == current_result_text? False
+</code></pre><p>The code above allows for changing the model parameters used in the prompt generation. You can play with this code yourself and get a feel for how these values can change repeatability of the results. You might find this useful to add to your prompt testing and processing in live systems.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Scaling OpenAI With AsyncOpenAI</title>
       <link>https://oshea00.github.io/posts/async-openai/</link>
       <pubDate>Sun, 07 Jul 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/async-openai/</guid>
-      <description>&lt;p&gt;As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.&lt;/p&gt;</description>
+      <description>Categorizing credit card transactions at scale with AsyncOpenAI and concurrent batched requests.</description>
+      <content:encoded><![CDATA[<p>As I stood outside and looked at the neighborhood wasteland that post-July 4th left behind, the whiff of gunpowder still hanging in the air, I felt a burst of good neighbor energy flow through me, so I grabbed a broom. Sweeping up the street gave me time to think about the other chores I had for the day, including the writing of a new blog post, and I began to wonder how I could use ChatGPT to help me speed some things up.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/postits_w480.png#center"/> <figcaption>
+            <p>Figure 1. Work, work, work.</p>
+        </figcaption>
+</figure>
+
+<p>My thoughts turned to the bills. Every now and then, I download the transactions from my credit card’s website and attempt to figure out what I&rsquo;m spending and where it is going. The transaction file looks like this.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/cctrans.png#center"/> <figcaption>
+            <p>Figure 2. Raw transactions.</p>
+        </figcaption>
+</figure>
+
+<p>Note the field <strong>Name</strong> and its contents. Normally, I spend 15-30 minutes figuring out how to describe the transactions with tags in a column that I can use to group payments. Looking at row two, I have spent something on Amazon Digital and there’s a unique reference in the <strong>Name</strong> field. My tag might be &lsquo;<em>AMAZON DIGITAL</em>&rsquo;. But I will need to mentally parse each of these and assign the tag manually. This looks like a job for GPT.</p>
+<p>It would be nice if GPT could examine these fields and tag them uniformly based on their contents—thus, turning a half-hour of Excel “clicky” into 30 seconds or so of work. Let&rsquo;s get started.</p>
+<p>For this example, I have decided to use OpenAI&rsquo;s GPT-4o model, and my first task is to develop a prompt capable of doing what I want. After many attempts (another good blog topic on prompt engineering awaits) I came up with this.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">def</span> <span class="nf">get_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="s2">&#34;&#34;&#34;Examine the transaction name text delimited by ```.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    The format starts with a company or domain name. Call that portion COMPANY.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    COMPANY will consist of a phrase of one or more words. The first word may be a number.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    DESC follows COMPANY. DESC starts with a non-letter character, a non-english word, or a number.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    All words in COMPANY should be upper case and separated with single spaces.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Output the COMPANY on a single line.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Replace any non-letter characters in COMPANY with spaces.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    Do not repeat these instructions as part of your response.
+</span></span></span><span class="line"><span class="cl"><span class="s2">    &#34;&#34;&#34;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&#34;```</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">```&#34;</span>
+</span></span></code></pre></div><p>Using some Pandas magic and the python OpenAI client, I was able to use this prompt to produce a tag based on the <strong>Name</strong> and insert a column called <strong>Desc</strong> that I could use for grouping.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/cctrans_desc.png#center"/> <figcaption>
+            <p>Figure 3. Tagged transactions in the &lsquo;Desc&rsquo; column.</p>
+        </figcaption>
+</figure>
+
+<p>Note in line [377] that I am post-processing the data from GPT-4o to remove some artifacts I don&rsquo;t like, such as removing names and other &lsquo;PII&rsquo; that might appear in the tags. Also, in some <strong>Name</strong> values, company names were duplicated. So, rather than &lsquo;MICROSOFT MICROSOFT,&rsquo; I wanted just &lsquo;MICROSOFT.&rsquo; This is a good example of adding a step to ensure your data is good, clean, safe, etc., and should be a part of any LLM-generated processing.</p>
+<h2 id="processing-at-scale">Processing at scale</h2>
+<p>Now that I had a reasonably good process for tagging my data, I decided to run all 323 transactions through calls to OpenAI. It took a few minutes.
+A few factors were playing into the total time:</p>
+<ul>
+<li>My tier level on this OpenAI account was only Tier-1.</li>
+<li>I was using the synchronous OpenAI() client.</li>
+</ul>
+<p>Increasing the tier level to Tier-3 required processing a few more tokens for this account. A goal that was achieved fairly quickly as I ran more of these tests. Increasing the tier level allows for processing more tokens per minute (TPM) which allows for sending larger batches.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/tier3limits.png#center"/> <figcaption>
+            <p>Figure 4. Tier-3 limits.</p>
+        </figcaption>
+</figure>
+
+<p>The next part, and the main subject here, was to use batches of parallel queries to improve throughput, and this required the use of <code>asyncio</code> combined with the async client in the openai package: <code>AsyncOpenAI</code>.</p>
+<h3 id="asyncopenai-has-flow-control">AsyncOpenAI has flow control</h3>
+<p>You will find examples of using <code>asyncio</code> and <code>aiohttps</code>, combined with <code>backoff</code> and/or <code>tenacity</code> to call the OpenAI API asychronously using response headers to dynamically adjust calls when token limits are being reached. I don&rsquo;t recommend this approach unless you are trying to write your own library.</p>
+<p>As it turns out, the <code>openai</code>  library already includes a client that does much of this for you called <code>AsyncOpenAI</code>, and it is mostly a drop-in replacement for the synchronous <code>OpenAI</code> client. It will handle flow control and backoff for you, so you don&rsquo;t have to drop down into the details under the covers.</p>
+<p>That is the example I&rsquo;m showing here. Note that other than the &lsquo;async/await&rsquo; keywords, the asynchronous version looks exactly like the synchronous one.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="n">client</span> <span class="o">=</span> <span class="n">AsyncOpenAI</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">async_completion</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="n">prompt</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&#34;role&#34;</span><span class="p">:</span><span class="s2">&#34;user&#34;</span><span class="p">,</span><span class="s2">&#34;content&#34;</span><span class="p">:</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="n">completion</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">model</span><span class="o">=</span><span class="s2">&#34;gpt-4o&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">temperature</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">top_p</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">max_tokens</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">stream</span><span class="o">=</span><span class="kc">False</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&#34;role&#34;</span><span class="p">:</span><span class="s2">&#34;assistant&#34;</span><span class="p">,</span><span class="s2">&#34;content&#34;</span><span class="p">:</span><span class="sa">f</span><span class="s2">&#34;</span><span class="si">{</span><span class="n">completion</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">messages</span>
+</span></span></code></pre></div><p>The next part is batching calls. We need a few helper functions. The first function is simply my own code that handles setting up the prompt and calling the <code>async_completion()</code> function. The next function handles the semaphore.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">reformat_transaction_name</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+</span></span><span class="line"><span class="cl">        <span class="p">{</span><span class="s1">&#39;role&#39;</span><span class="p">:</span><span class="s1">&#39;system&#39;</span><span class="p">,</span><span class="s1">&#39;content&#39;</span><span class="p">:</span><span class="s1">&#39;you are a helpful named entity recognizer.&#39;</span><span class="p">},</span>
+</span></span><span class="line"><span class="cl">    <span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_completion</span><span class="p">(</span><span class="n">messages</span><span class="p">,</span><span class="n">get_prompt</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">response</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;content&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">reformat_transaction_with_semaphore</span><span class="p">(</span><span class="n">transaction_name</span><span class="p">,</span> <span class="n">semaphore</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="k">async</span> <span class="k">with</span> <span class="n">semaphore</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="k">await</span> <span class="n">reformat_transaction_name</span><span class="p">(</span><span class="n">transaction_name</span><span class="p">)</span>
+</span></span></code></pre></div><p>Now for the batching with <code>Semaphore</code> part.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">from</span> <span class="nn">asyncio</span> <span class="kn">import</span> <span class="n">Semaphore</span>
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">run_batch</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">semaphore</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">reformat_transaction_with_semaphore</span><span class="p">(</span><span class="n">name</span><span class="p">,</span><span class="n">semaphore</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">results</span>
+</span></span></code></pre></div><p>In the <code>run_batch(items)</code> function, a semaphore is created to match the size of the batch being processed. The <code>len(items)</code> allows me to adjust this when calling it.</p>
+<h3 id="now-for-the-fun-part">Now for the fun part</h3>
+<p>In this code, I setup and submit the batches based on BATCHSIZE to run <code>run_batch(items)</code> by windowing through the list of items in the Dataframe - doing a bit of accounting along the way.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># Batched async</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">time</span>
+</span></span><span class="line"><span class="cl"><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="n">BATCHSIZE</span> <span class="o">=</span> <span class="mi">65</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">desc_items</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">]),</span><span class="n">BATCHSIZE</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">items</span> <span class="o">=</span> <span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Name&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="n">BATCHSIZE</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">results</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">run_batch</span><span class="p">(</span><span class="n">items</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">desc_items</span> <span class="o">+=</span> <span class="n">results</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">end_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Batch completion time: </span><span class="si">{</span><span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="si">}</span><span class="s2"> seconds&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Item count: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc_items</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Items per second: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc_items</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">end_time</span><span class="o">-</span><span class="n">start_time</span><span class="p">)</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><p>Here are the results:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Batch completion time: 6.294457197189331 seconds
+</span></span><span class="line"><span class="cl">Item count: <span class="m">323</span>
+</span></span><span class="line"><span class="cl">Items per second: 51.31498870851476
+</span></span></code></pre></div><p>Significantly better than a few minutes at 6.29 seconds.</p>
+<h3 id="on-the-home-stretch">On the home stretch</h3>
+<p>So, at this point, you have enough code examples to go try this on your own, but I will spend a little time talking about testing and costs, etc. If you&rsquo;re able to stick around.</p>
+<h4 id="picking-good-batchsize">Picking good BATCHSIZE</h4>
+<p>It is good to run tests with different batch sizes to determine what gives you the best throughput. Using the timing information from various batch sizes, I found BATCHSIZE=65 to be somewhat optimal; however, as I move up in tier level, I will need to re-check this, as higher limits will allow more TPM to be processed.</p>
+<p>As you can see, there is some variablility in throughput most likely based on how busy OpenAI is. Your mileage will vary.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/batchchart.png#center"/> <figcaption>
+            <p>Figure 5. Batch Size Runs.</p>
+        </figcaption>
+</figure>
+
+<h4 id="how-much-will-this-cost">How much will this cost?</h4>
+<p>Another good practice is to estimate how many tokens you will be using. Using <code>tiktoken</code> and some pricing information can help with that.</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">tiktoken</span>
+</span></span><span class="line"><span class="cl"><span class="n">token_1M_price</span><span class="o">=</span><span class="mi">5</span>
+</span></span><span class="line"><span class="cl"><span class="n">prompt_text</span> <span class="o">=</span> <span class="n">get_prompt</span><span class="p">(</span><span class="s1">&#39;Amazon web services    aws.amazon.co WA&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tiktoken</span><span class="o">.</span><span class="n">get_encoding</span><span class="p">(</span><span class="s2">&#34;cl100k_base&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">prompt_text</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">prompt_token_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;AMAZON WEB SERVICES&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">response_token_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Prompt length: </span><span class="si">{</span><span class="n">prompt_token_count</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Response length: </span><span class="si">{</span><span class="n">response_token_count</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Item count: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Transaction&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">jobsize</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">cctrans</span><span class="p">[</span><span class="s1">&#39;Transaction&#39;</span><span class="p">])</span><span class="o">*</span><span class="p">(</span><span class="n">prompt_token_count</span><span class="o">+</span><span class="n">response_token_count</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Total estimated job size in tokens: </span><span class="si">{</span><span class="n">jobsize</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&#34;Estimated price per job at $</span><span class="si">{</span><span class="n">token_1M_price</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">/1M_tokens is $</span><span class="si">{</span><span class="p">(</span><span class="n">jobsize</span><span class="o">/</span><span class="mi">1_000_000</span><span class="p">)</span><span class="o">*</span><span class="n">token_1M_price</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&#34;</span><span class="p">)</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Prompt length: <span class="m">128</span>
+</span></span><span class="line"><span class="cl">Response length: <span class="m">5</span>
+</span></span><span class="line"><span class="cl">Item count: <span class="m">323</span>
+</span></span><span class="line"><span class="cl">Total estimated job size in tokens: <span class="m">42959</span>
+</span></span><span class="line"><span class="cl">Estimated price per job at <span class="nv">$5</span>.00/1M_tokens is <span class="nv">$0</span>.21
+</span></span></code></pre></div><p>So, there you have it. I&rsquo;m spending about 21 cents per job.</p>
+<h2 id="final-thoughts">Final thoughts</h2>
+<p>Well, the street is now clean, and I&rsquo;ve finished another blog post.</p>
+<p>You should be well on your way to improving throughput with OpenAI.</p>
+<p>Do come back!</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

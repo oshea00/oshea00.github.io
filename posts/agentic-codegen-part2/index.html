@@ -6,16 +6,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="robots" content="index, follow">
 <title>Vibecoding an Agentic Coder - Part 2 | MikesBlog</title>
-<meta name="keywords" content="Agentic AI, Codegen, Claude Desktop">
-<meta name="description" content="
-     
-
-
-In this segment, I&rsquo;ll generate many candidate applications using my experimental framework, CodeAgents, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I&rsquo;ll compare and contrast the solutions. Along the way, I&rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.
-It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would &ldquo;maintainability,&rdquo; as that&rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.">
+<meta name="keywords" content="agentic-ai, codegen, claude-desktop">
+<meta name="description" content="Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.">
 <meta name="author" content="Michael OShea">
 <link rel="canonical" href="https://oshea00.github.io/posts/agentic-codegen-part2/">
-<link crossorigin="anonymous" href="/assets/css/stylesheet.0c496a50128109a0d4076866e90e8deed01aaa9221dafd8ea7ba3a4676972b96.css" integrity="sha256-DElqUBKBCaDUB2hm6Q6N7tAaqpIh2v2Op7o6RnaXK5Y=" rel="preload stylesheet" as="style">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
 <link rel="icon" href="https://oshea00.github.io/favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
@@ -53,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 
+
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
       <script>
         var doNotTrack = false;
@@ -69,24 +65,21 @@ document.addEventListener("DOMContentLoaded", function() {
       </script><meta property="og:url" content="https://oshea00.github.io/posts/agentic-codegen-part2/">
   <meta property="og:site_name" content="MikesBlog">
   <meta property="og:title" content="Vibecoding an Agentic Coder - Part 2">
-  <meta property="og:description" content=" In this segment, I’ll generate many candidate applications using my experimental framework, CodeAgents, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I’ll compare and contrast the solutions. Along the way, I’ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.
-It isn’t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would “maintainability,” as that’s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.">
+  <meta property="og:description" content="Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.">
   <meta property="og:locale" content="en-us">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2025-05-01T00:00:00+00:00">
     <meta property="article:modified_time" content="2025-05-01T00:00:00+00:00">
-    <meta property="article:tag" content="Agentic AI">
+    <meta property="article:tag" content="Agentic-Ai">
     <meta property="article:tag" content="Codegen">
-    <meta property="article:tag" content="Claude Desktop">
-<meta name="twitter:card" content="summary">
+    <meta property="article:tag" content="Claude-Desktop">
+    <meta property="og:image" content="https://oshea00.github.io/posts/agentic-codegen-part2/images/agentflock.png">
+      <meta property="og:see_also" content="https://oshea00.github.io/posts/agentic-codegen-part1/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/posts/agentic-codegen-part2/images/agentflock.png">
 <meta name="twitter:title" content="Vibecoding an Agentic Coder - Part 2">
-<meta name="twitter:description" content="
-     
-
-
-In this segment, I&rsquo;ll generate many candidate applications using my experimental framework, CodeAgents, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I&rsquo;ll compare and contrast the solutions. Along the way, I&rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.
-It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would &ldquo;maintainability,&rdquo; as that&rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.">
+<meta name="twitter:description" content="Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.">
 
 
 <script type="application/ld+json">
@@ -115,14 +108,14 @@ It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible m
   "@type": "BlogPosting",
   "headline": "Vibecoding an Agentic Coder - Part 2",
   "name": "Vibecoding an Agentic Coder - Part 2",
-  "description": " In this segment, I\u0026rsquo;ll generate many candidate applications using my experimental framework, CodeAgents, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I\u0026rsquo;ll compare and contrast the solutions. Along the way, I\u0026rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.\nIt isn\u0026rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would \u0026ldquo;maintainability,\u0026rdquo; as that\u0026rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.\n",
+  "description": "Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.",
   "keywords": [
-    "Agentic AI", "Codegen", "Claude Desktop"
+    "agentic-ai", "codegen", "claude-desktop"
   ],
   "articleBody": " In this segment, I’ll generate many candidate applications using my experimental framework, CodeAgents, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I’ll compare and contrast the solutions. Along the way, I’ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.\nIt isn’t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would “maintainability,” as that’s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.\nOther subjective measures of the generated application are difficult to quantify. For example, UX (User Experience) and how well the problem was solved are more difficult to measure and automate. Still, a combination of all these metrics may serve as a good proxy for choosing the best candidates.\nI will use radon, a Python tool that extracts various metrics from source code, and PyTest to pull other statistics:\nRaw statistics: Logical lines of code (LLOC) - Every LLOC contains exactly one statement and is a good proxy for how “chatty” the code is. Chatty code is typically more complicated. Halstead metrics: Difficulty - another measure of complexity. Time to program (sec) - a size metric. Delivered bugs - estimated bug rate. Cyclomatic Complexity: Average complexity - measures path complexity in the code. Test coverage percentage - using PyTest coverage reporting. Lastly, I will add a 1-5 score of the UX based on my interaction with the application. This score will include a sense of how well it addresses the given problem and how easy it is to use generally.\nI will only use three of these metrics to compare solutions: UX score, time to program, and average complexity, but I will include the other metrics to double-check how the various statistics relate and compare. This approach will favor the best UX and tie-break using the other two size and complexity metrics.\nThe Good, The Bad… Key Points How do the models compare (time to generate, variability, prompting, and overall quality) From the general to the specific - updating the problem to improve overall quality. Further areas to explore: performance, change management, AI-coding vs. Human-coding, mixing models. The Problem Version 1 of the problem asks for a basic four-function calculator as a command line REPL (Read-Eval-Print-Loop)\ncreate a cli calculator that runs in a REPL loop and handles basic arithmetic. Ensure that operations follow the precedence rules for arithmetic, and handle negative number literals properly, keeping in mind that consecutive minus signs can precede a unary expression. For example: --3 is equal to 3. The negative sign should have higher precedence when preceding a unary expression. The basic arithmetic operations (+,-,/,*) when used to take two arguments should treat multiplication and division with higher priority than addition and subtraction. When precedent is equal, operations are handled in sequence. The problem stated above was originally given without all the details about precedence, but using that description caused all the models to generate code that badly fumbled the arithmetic. So, I needed to add more context to improve the generated applications.\nTip: the more context you can provide to the AI models, the better the solutions will be—sometimes in surprising ways. However, a follow-up to this tip would be to add only as much context as needed. Don’t overdo it.\nProblem One Results GPT-4.1 The experiments are ordered as shown in the sort statement, with UX descending, and ascending by time-to-code, and complexity. This will be consistent throughout the following examples, leaving the top 2 experiments as the best candidates.\nThe sixth and second runs gave the best results, but there were some bad examples in experiments three and four - where the code did not recognize parentheses. This will cause me to add some more context to the problem later on (see Tip 1)\nSpeed-wise, GPT-4o is the fastest model, followed by GPT-4.1 and Claude 3.7. Another interesting thing to note is that LLOC and complexity will typically be low in the higher-ranked solutions, even though I’m not explicitly sorting by these features.\nExample session: GPT-4o and Claude 3.7 produced similar results on this problem, so I will skip ahead to the revised problem, adding in the mention of parentheses handling, and also adding a requirement for a ‘help’ command.\nProblem Update 1 I added this context to the problem:\nAllow expressions to be inside parentheses. Provide a help command that explains how to use the calculator. GPT-4.1 GPT-4o Claude 3.7 All the models produced good solutions to this revised problem, with some surprises.\nNote the variability in LLOC and difficulty. The metrics related to complexity and size are more or less scattered depending on the model. Of these, Claude 3.7 shows the most variability. Surprisingly, Claude produced both the best and the worst solution in this run.\nI need to add more data to confirm my intuition that Claude 3.7 tends to produce more complex and diverse solutions than GPT-4.1 and GPT-4o, yet I’ve noticed this in other projects. It can produce very high-quality solutions, but it’s hard to predict what you’ll get. Adding more context often improves the result, but adding more cases is a little painful, as Claude is chatty and slower than GPT-4.1 or GPT-4o.\nI don’t want to pick on Claude 3.7. I think I may also need to provide better (or different) agent prompting to my framework tuned specifically to Claude 3.7—that may help as well.\nWith all this said, Claude produced the best version, which included command line history, even though I didn’t ask for that. So, was this “creativity” at work or something else? I’ll leave that discussion for another day.\nExample session: Final Version In the final iteration, I added:\nthe calculator should support command line history via up/down arrow. Overall, for this exercise, GPT-4.1 turned out to be the best option, as it shows more consistent results and runs faster than Claude 3.7.\nGPT-4.1 Example session: Further Areas to Explore This experimental framework has been a useful and fun tool for exploring AI code generation.\nA key takeaway is the value of adding context to the initial prompt used for code generation. This technique proves useful across all the models.\nChoosing metrics to evaluate solutions is still an art form. In many cases, I think the way AI models generate code is based on the human examples they have been trained on. So, for now, some of these metrics are still useful for automated evaluation—especially ones related to complexity and code coverage. In the future who knows?\nWe still need a “human in the loop” to evaluate the user experience, but perhaps a mixture of automated evaluations can help us narrow down the candidates for review.\nOther topics:\nChange management - how to minimize the impact of new requirements. Performance - how to scale the generation of code. Evaluation - more ideas are needed. Computer Language Are AI’s limited by human-designed languages? Could they do better with languages designed by AI’s themselves? What metrics would apply to evaluating these? I’ll explore more on these topics in future posts.\nEspecially that last one 😀.\n",
   "wordCount" : "1219",
   "inLanguage": "en",
-  "datePublished": "2025-05-01T00:00:00Z",
+  "image":"https://oshea00.github.io/posts/agentic-codegen-part2/images/agentflock.png","datePublished": "2025-05-01T00:00:00Z",
   "dateModified": "2025-05-01T00:00:00Z",
   "author":[{
     "@type": "Person",
@@ -181,6 +174,11 @@ It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible m
         </div>
         <ul id="menu">
             <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
                 <a href="https://oshea00.github.io/archives" title="Archive">
                     <span>Archive</span>
                 </a>
@@ -188,6 +186,11 @@ It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible m
             <li>
                 <a href="https://oshea00.github.io/tags/" title="Tags">
                     <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
                 </a>
             </li>
             <li>
@@ -206,6 +209,9 @@ It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible m
     <h1 class="post-title entry-hint-parent">
       Vibecoding an Agentic Coder - Part 2
     </h1>
+    <div class="post-description">
+      Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.
+    </div>
     <div class="post-meta"><span title='2025-05-01 00:00:00 +0000 UTC'>May 1, 2025</span>&nbsp;·&nbsp;6 min&nbsp;·&nbsp;Michael OShea
 
 </div>
@@ -345,9 +351,9 @@ Provide a help command that explains how to use the calculator.
 
   <footer class="post-footer">
     <ul class="post-tags">
-      <li><a href="https://oshea00.github.io/tags/agentic-ai/">Agentic AI</a></li>
+      <li><a href="https://oshea00.github.io/tags/agentic-ai/">Agentic-Ai</a></li>
       <li><a href="https://oshea00.github.io/tags/codegen/">Codegen</a></li>
-      <li><a href="https://oshea00.github.io/tags/claude-desktop/">Claude Desktop</a></li>
+      <li><a href="https://oshea00.github.io/tags/claude-desktop/">Claude-Desktop</a></li>
     </ul>
 <nav class="paginav">
   <a class="prev" href="https://oshea00.github.io/posts/summary-evals/">
@@ -366,7 +372,7 @@ Provide a help command that explains how to use the calculator.
 <ul class="share-buttons">
     <li>
         <a target="_blank" rel="noopener noreferrer" aria-label="share Vibecoding an Agentic Coder - Part 2 on x"
-            href="https://x.com/intent/tweet/?text=Vibecoding%20an%20Agentic%20Coder%20-%20Part%202&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fagentic-codegen-part2%2f&amp;hashtags=AgenticAI%2cCodegen%2cClaudeDesktop">
+            href="https://x.com/intent/tweet/?text=Vibecoding%20an%20Agentic%20Coder%20-%20Part%202&amp;url=https%3a%2f%2foshea00.github.io%2fposts%2fagentic-codegen-part2%2f&amp;hashtags=agentic-ai%2ccodegen%2cclaude-desktop">
             <svg version="1.1" viewBox="0 0 512 512" xml:space="preserve" height="30px" width="30px" fill="currentColor">
                 <path
                     d="M512 62.554 L 512 449.446 C 512 483.97 483.97 512 449.446 512 L 62.554 512 C 28.03 512 0 483.97 0 449.446 L 0 62.554 C 0 28.03 28.029 0 62.554 0 L 449.446 0 C 483.971 0 512 28.03 512 62.554 Z M 269.951 190.75 L 182.567 75.216 L 56 75.216 L 207.216 272.95 L 63.9 436.783 L 125.266 436.783 L 235.9 310.383 L 332.567 436.783 L 456 436.783 L 298.367 228.367 L 432.367 75.216 L 371.033 75.216 Z M 127.633 110 L 164.101 110 L 383.481 400.065 L 349.5 400.065 Z" />

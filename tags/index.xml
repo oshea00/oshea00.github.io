@@ -4,12 +4,17 @@
     <title>Tags on MikesBlog</title>
     <link>https://oshea00.github.io/tags/</link>
     <description>Recent content in Tags on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 22 Oct 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>AI</title>
+      <title>Ai</title>
       <link>https://oshea00.github.io/tags/ai/</link>
       <pubDate>Thu, 22 Oct 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/ai/</guid>
@@ -163,7 +168,7 @@
       <description></description>
     </item>
     <item>
-      <title>MCP</title>
+      <title>Mcp</title>
       <link>https://oshea00.github.io/tags/mcp/</link>
       <pubDate>Sun, 04 Jan 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/mcp/</guid>
@@ -184,7 +189,7 @@
       <description></description>
     </item>
     <item>
-      <title>A2A</title>
+      <title>A2a</title>
       <link>https://oshea00.github.io/tags/a2a/</link>
       <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/a2a/</guid>
@@ -198,7 +203,7 @@
       <description></description>
     </item>
     <item>
-      <title>Prompt Engineering</title>
+      <title>Prompt-Engineering</title>
       <link>https://oshea00.github.io/tags/prompt-engineering/</link>
       <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/prompt-engineering/</guid>
@@ -212,14 +217,14 @@
       <description></description>
     </item>
     <item>
-      <title>Agentic AI</title>
+      <title>Agentic-Ai</title>
       <link>https://oshea00.github.io/tags/agentic-ai/</link>
       <pubDate>Thu, 01 May 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/agentic-ai/</guid>
       <description></description>
     </item>
     <item>
-      <title>Claude Desktop</title>
+      <title>Claude-Desktop</title>
       <link>https://oshea00.github.io/tags/claude-desktop/</link>
       <pubDate>Thu, 01 May 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/claude-desktop/</guid>
@@ -247,14 +252,14 @@
       <description></description>
     </item>
     <item>
-      <title>AI Tools</title>
+      <title>Ai-Tools</title>
       <link>https://oshea00.github.io/tags/ai-tools/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/ai-tools/</guid>
       <description></description>
     </item>
     <item>
-      <title>AI Development</title>
+      <title>Ai-Development</title>
       <link>https://oshea00.github.io/tags/ai-development/</link>
       <pubDate>Sun, 15 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/tags/ai-development/</guid>

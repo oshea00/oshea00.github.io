@@ -4,8 +4,28 @@
     <title>Series on MikesBlog</title>
     <link>https://oshea00.github.io/series/</link>
     <description>Recent content in Series on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
+    <lastBuildDate>Thu, 01 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/series/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vibecoding an Agentic Coder</title>
+      <link>https://oshea00.github.io/series/vibecoding-an-agentic-coder/</link>
+      <pubDate>Thu, 01 May 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/series/vibecoding-an-agentic-coder/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LLMs at the Command Line</title>
+      <link>https://oshea00.github.io/series/llms-at-the-command-line/</link>
+      <pubDate>Sat, 18 Jan 2025 00:00:00 +0000</pubDate>
+      <guid>https://oshea00.github.io/series/llms-at-the-command-line/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

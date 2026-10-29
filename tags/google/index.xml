@@ -4,7 +4,12 @@
     <title>Google on MikesBlog</title>
     <link>https://oshea00.github.io/tags/google/</link>
     <description>Recent content in Google on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 28 Sep 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/google/index.xml" rel="self" type="application/rss+xml" />
@@ -13,13 +18,29 @@
       <link>https://oshea00.github.io/posts/a2a-thoughts/</link>
       <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/a2a-thoughts/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputeragentstalking.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>An experiment with Google&amp;#39;s Agent-to-Agent (A2A) protocol to see what it adds beyond APIs, MCP, and classic distributed computing.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputeragentstalking.png#center"/> 
+</figure>
 
-&lt;p&gt;&lt;em&gt;Is this just distributed computing re-packaged for AI?&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id=&#34;what-is-a2a-without-ai-agents&#34;&gt;What is A2A Without AI Agents?&lt;/h2&gt;
-&lt;p&gt;I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini&amp;rsquo;s Creator) had &lt;a href=&#34;https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/&#34;&gt;announced A2A in April&lt;/a&gt;, and Gemini got a little &amp;ldquo;gushy&amp;rdquo; on how it was &amp;ldquo;a revolutionary new idea.&amp;rdquo; Also, perhaps &amp;ldquo;debate&amp;rdquo; is too strong a word. And I might want to consider getting out more often.&lt;/p&gt;</description>
+<p><em>Is this just distributed computing re-packaged for AI?</em></p>
+<h2 id="what-is-a2a-without-ai-agents">What is A2A Without AI Agents?</h2>
+<p>I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini&rsquo;s Creator) had <a href="https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/">announced A2A in April</a>, and Gemini got a little &ldquo;gushy&rdquo; on how it was &ldquo;a revolutionary new idea.&rdquo; Also, perhaps &ldquo;debate&rdquo; is too strong a word. And I might want to consider getting out more often.</p>
+<p>An experiment was needed. I wanted to explore A2A features and get a better idea of what A2A is bringing over and above APIs, MCP (Model Context Protocol), and other distributed computing paradigms of the past and present. The resulting project [1] can be found on GitHub, and the DeepWiki version [2] - where the below diagram comes from.</p>
+<figure>
+    <img loading="lazy" src="images/sequencediagramA2A.png"/> <figcaption>
+            <p>Figure 1. A2A Communication. [2]</p>
+        </figcaption>
+</figure>
+
+<p>When I got done with this experiment (<em>helped largely by Claude Code</em>), it all worked very well, but I realized there was <strong>no &ldquo;AI&rdquo; in the solution!</strong> it was just routing messages and responses between client and remote JSON-RPC services. Sprinkle on a little bit of &ldquo;discovery&rdquo; in the form of &ldquo;Agent Cards&rdquo; (<code>./well-known/agent-card.json</code>), and this looks like YADS (Yet Another Distributed Service) architecture - minus the AI part.</p>
+<p>It is early for A2A, so much of the value is yet to come. The other parts, the layering on of service negotiation, reputation, security, payments, and other features needed to realize a fully self-organizing Agentic AI collaboration infrastructure are still on the drawing board.</p>
+<p>For now, MCP, and Agent frameworks have a head start.</p>
+<hr>
+<h2 id="references">References</h2>
+<p>[1] O&rsquo;Shea, M. (2025). A2A Example Project. <em>GitHub repository</em>. <a href="https://github.com/oshea00/a2a-proj">https://github.com/oshea00/a2a-proj</a></p>
+<p>[2] DeepWiki. (2025). A2A Project Wiki. <a href="https://deepwiki.com/oshea00/a2a-proj">https://deepwiki.com/oshea00/a2a-proj</a></p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

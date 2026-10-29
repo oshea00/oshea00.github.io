@@ -4,7 +4,12 @@
     <title>Agents on MikesBlog</title>
     <link>https://oshea00.github.io/tags/agents/</link>
     <description>Recent content in Agents on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 11 Apr 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/agents/index.xml" rel="self" type="application/rss+xml" />
@@ -13,49 +18,536 @@
       <link>https://oshea00.github.io/posts/optimizing-tools-with-monty/</link>
       <pubDate>Sat, 11 Apr 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/optimizing-tools-with-monty/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputercoder.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Letting the LLM write sandboxed Python with Monty to chain tool calls, instead of one round-trip per tool.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputercoder.png#center"/> 
+</figure>
 
-&lt;p&gt;Inspired by &lt;a href=&#34;https://www.anthropic.com/engineering/code-execution-with-mcp&#34;&gt;Anthropic&amp;rsquo;s recent article&lt;/a&gt; on using code execution to improve MCP tool calling, and having just discovered &lt;a href=&#34;https://github.com/pydantic/monty&#34;&gt;Monty&lt;/a&gt; — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.&lt;/p&gt;
-&lt;p&gt;Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The &lt;a href=&#34;https://github.com/oshea00/monty-example&#34;&gt;monty-example&lt;/a&gt; project explores a different approach: let the model &lt;em&gt;write code&lt;/em&gt; that orchestrates tool calls and executes that code in a sandbox running within your code!&lt;/p&gt;</description>
+<p>Inspired by <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">Anthropic&rsquo;s recent article</a> on using code execution to improve MCP tool calling, and having just discovered <a href="https://github.com/pydantic/monty">Monty</a> — a new sandboxed Python runtime from Pydantic — I was motivated to spend a weekend building an example project to explore further.</p>
+<p>Standard LLM tool calling has a fundamental inefficiency: the model calls one tool at a time, waits for the result, decides what to call next, and round-trips back to the model for every step. For questions that require fetching data from multiple sources, time (and tokens) add up fast. The <a href="https://github.com/oshea00/monty-example">monty-example</a> project explores a different approach: let the model <em>write code</em> that orchestrates tool calls and executes that code in a sandbox running within your code!</p>
+<h2 id="monty-a-sandboxed-python-runtime">Monty: A Sandboxed Python Runtime</h2>
+<p><a href="https://github.com/pydantic/monty">Monty</a> is a Rust-based sandboxed Python runtime. It compiles a subset of Python into its own bytecode and runs it in its own VM, in-process on the calling thread. Crucially, it has no direct access to networking or OS I/O — but it <em>can</em> call a set of external host functions that you explicitly expose. This makes it a practical execution environment for LLM-generated code: the model gets a real Python interpreter with real control flow, and the host retains control over what the code can actually touch.</p>
+<h2 id="the-three-phase-pattern">The Three-Phase Pattern</h2>
+<p>The key idea is to split each conversational turn into up to three phases: tool discovery, optional code generation, and final synthesis back to the user.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/flowchart.png#center"/> <figcaption>
+            <p>Figure 1. Three-phase orchestration flow.</p>
+        </figcaption>
+</figure>
+
+<p><strong>Phase 1 — Tool Discovery (and direct answer when possible)</strong></p>
+<p>The model receives the user prompt, conversation history, and OpenAI tool schemas derived from a set of functions to be used by the agent. If the data needed to answer is already present in the conversation history, the model answers directly — no further LLM calls are made. If new data is required, the LLM will return tool calls in its response — signalling that tools are needed — and Phase 2 begins.</p>
+<p><strong>Phase 2 — Code Generation + Monty (Python) Execution</strong></p>
+<p>The model writes Python code using type stubs generated from the host tool functions. It decides which functions to call, in what order, and how to combine results, including <code>asyncio.gather</code> for parallel fetches. That code runs in the Monty sandbox, which calls back to the external host functions. If the generated code fails to compile or run, the error is fed back to the model and it retries up to a max number of attempts. The result is collected as a <code>&lt;tool_results&gt;</code> context block added to the conversation.</p>
+<p><strong>Phase 3 — Final Answer</strong></p>
+<p>The original prompt plus the tool results are sent to the model as part of the final prompt, no tools array provided, as any data will come from the context data/results inserted from Phase 2. The model produces a data-grounded natural-language reply.</p>
+<p>Conversation history retains only the user prompt and assistant reply — keeping context compact across turns.</p>
+<h2 id="demo-session">Demo Session</h2>
+<p>The left pane tails the session log showing phase details and actions; the right pane shows the chat.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/demo-preview.gif#center" width="100%"/> <figcaption>
+            <p>Figure 2. Demo session showing the three-phase pattern in action.</p>
+        </figcaption>
+</figure>
+
+<h2 id="code-generation-in-action">Code Generation in Action</h2>
+<p>For the example, a set of functions and data related to an expense management system are provided. The agent is given these, along with a system prompt:</p>
+<pre tabindex="0"><code>_PHASE1_SYSTEM = (
+    &#34;You are a helpful assistant that analyses team expense data. &#34;
+    &#34;First check the conversation history — if the data needed to answer the &#34;
+    &#34;user&#39;s question is already present (e.g. in a prior &lt;tool_results&gt; block), &#34;
+    &#34;answer directly using that data without calling any tools. &#34;
+    &#34;Only call tools when genuinely new data is required that is not already &#34;
+    &#34;in the conversation.&#34;
+)
+</code></pre><p>Here is an example of the code the model generates for the prompt <em>&ldquo;fetch all flight expenses across the team&rdquo;</em>. Phase 1 detects that expense data is needed and hands off to Phase 2, where the model writes:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">department</span> <span class="o">=</span> <span class="s1">&#39;Engineering&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">quarter</span> <span class="o">=</span> <span class="s1">&#39;Q3&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">category</span> <span class="o">=</span> <span class="s1">&#39;travel&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">members_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_team_members</span><span class="p">(</span><span class="n">department</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">members</span> <span class="o">=</span> <span class="n">members_data</span><span class="p">[</span><span class="s1">&#39;members&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">expenses_tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_expenses</span><span class="p">(</span><span class="n">member</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">],</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_list</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">expenses_tasks</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filtered_expenses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">expenses</span> <span class="ow">in</span> <span class="n">expenses_list</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="s1">&#39;flight&#39;</span> <span class="ow">in</span> <span class="n">expense</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">            <span class="n">filtered_expenses</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+</span></span><span class="line"><span class="cl">                <span class="s1">&#39;user_id&#39;</span><span class="p">:</span> <span class="n">expenses</span><span class="p">[</span><span class="s1">&#39;user_id&#39;</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">                <span class="s1">&#39;expense&#39;</span><span class="p">:</span> <span class="n">expense</span>
+</span></span><span class="line"><span class="cl">            <span class="p">})</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">filtered_expenses</span>
+</span></span></code></pre></div><p>All five team members&rsquo; expenses are fetched in parallel via <code>asyncio.gather</code>, then filtered in a single Monty execution. The model only sees the final result — not five intermediate round-trips.</p>
+<p>Follow-up turns that ask for reformatting or aggregation are answered by Phase 1 directly from context, with no tool calls at all.</p>
+<h2 id="session-logging">Session Logging</h2>
+<p>Session logging makes the token and time breakdown visible per turn, and is useful to see how the example is working. In a real-world example you&rsquo;d use Open Telemetry and observability tools, like <a href="https://pydantic.dev/logfire">Pydantic Logfire</a>, but the simple logging here is easy to use for debugging (see Demo Session above in the left pane).</p>
+<h2 id="when-code-generation-goes-wrong">When Code Generation Goes Wrong</h2>
+<p>The following are examples of mishaps I encountered along the way.</p>
+<h3 id="assignment-statement-as-last-expression-breaks-things">Assignment statement as last expression breaks things</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;get the first expense line for Bob Smith and tell me the items on it&rdquo;</em></p>
+<p>The generated code correctly located Bob Smith (user_id 2) and fetched his expenses, but ended with an assignment statement rather than a bare expression:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">members_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_team_members</span><span class="p">(</span><span class="s1">&#39;Engineering&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">members</span> <span class="o">=</span> <span class="n">members_data</span><span class="p">[</span><span class="s1">&#39;members&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">bob_id</span> <span class="o">=</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">members</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">if</span> <span class="s1">&#39;bob smith&#39;</span> <span class="ow">in</span> <span class="n">member</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bob_id</span> <span class="o">=</span> <span class="n">member</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">        <span class="k">break</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">expenses_data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get_expenses</span><span class="p">(</span><span class="n">bob_id</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;travel&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">expenses</span> <span class="o">=</span> <span class="n">expenses_data</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">first_expense</span> <span class="o">=</span> <span class="n">expenses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">expenses</span> <span class="k">else</span> <span class="kc">None</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">result</span> <span class="o">=</span> <span class="n">first_expense</span>   <span class="c1"># ← assignment, not a bare expression</span>
+</span></span></code></pre></div><p>Monty evaluates the last expression as the return value. An assignment statement has no value, so the sandbox returned <code>null</code>. Phase 3 received <code>null</code> as its tool result and (correctly) reported that no expenses were found.</p>
+<p><strong>Fix:</strong> the code generation rules now explicitly require that the last line be a bare expression, not an assignment — e.g. <code>first_expense</code> rather than <code>result = first_expense</code>.</p>
+<hr>
+<h3 id="over-fetching-due-to-unnecessary-parameter-combinations">Over-fetching due to unnecessary parameter combinations</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;try looking for user id 2&rdquo;</em> (follow-up after the <code>null</code> result above)</p>
+<p>With the user_id supplied directly, the model generated code that iterated over all quarters and categories rather than making a single call:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">quarters</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Q1&#39;</span><span class="p">,</span> <span class="s1">&#39;Q2&#39;</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;Q4&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;travel&#39;</span><span class="p">,</span> <span class="s1">&#39;meals&#39;</span><span class="p">,</span> <span class="s1">&#39;accommodation&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl"><span class="k">for</span> <span class="n">quarter</span> <span class="ow">in</span> <span class="n">quarters</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_expenses</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">quarter</span><span class="p">,</span> <span class="n">category</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+</span></span></code></pre></div><p>Because <code>get_expenses</code> ignores the <code>quarter</code> and <code>category</code> arguments and always returns the same full expense list, this produced 12 identical responses — 572 lines of duplicate JSON. Phase 3 received 5,620 prompt tokens to answer what was a trivial single-call lookup. The session log made the cost immediately visible:</p>
+<pre tabindex="0"><code>[TURN STATS]
+  phase 1 :    ...
+  phase 2 :  1,004 tokens (1 attempt)  ...
+  phase 3 :  5,620p + ...
+  subtotal:  7,229 tokens  (code-gen: 1,004  non-code: 6,225)  13.45s LLM
+</code></pre><p><strong>Root cause:</strong> the model learned from the Phase 2 type stubs that <code>get_expenses</code> accepts <code>quarter</code> and <code>category</code> parameters, and assumed (reasonably) that they were filters. Because the stub does not signal that the parameters are currently ignored, the model hedged by fetching all combinations.</p>
+<p><strong>Takeaway:</strong> keep tool semantics honest in docstrings and stubs. If a parameter is accepted but not yet filtering, document that clearly so the model does not over-fetch defensively.</p>
+<hr>
+<h3 id="logic-wrapped-in-an-uncalled-function--silent-failure">Logic wrapped in an uncalled function — silent failure</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;itemize member&rsquo;s expenses that have &lsquo;flight&rsquo; in the description&rdquo;</em></p>
+<p>The generated code placed all fetching and filtering logic inside an <code>async def main()</code> function but never called it:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">asyncio</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">    <span class="n">user_ids</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="n">expenses_results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="o">*</span><span class="p">[</span><span class="n">get_expenses</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="s1">&#39;Q3&#39;</span><span class="p">,</span> <span class="s1">&#39;travel&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">user_id</span> <span class="ow">in</span> <span class="n">user_ids</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flight_expenses</span> <span class="o">=</span> <span class="p">[]</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">expenses_results</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">        <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;expenses&#39;</span><span class="p">]:</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="s1">&#39;flight&#39;</span> <span class="ow">in</span> <span class="n">expense</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+</span></span><span class="line"><span class="cl">                <span class="n">flight_expenses</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">...</span><span class="p">})</span>
+</span></span><span class="line"><span class="cl">    <span class="n">flight_expenses</span>  <span class="c1"># ← inside the function body, never reached</span>
+</span></span></code></pre></div><p>From Monty&rsquo;s perspective, the top-level code was a single <code>async def</code> statement — a declaration with no value. The sandbox returned <code>null</code> without error. Phase 3 received <code>null</code> and faithfully reported that no flight expenses existed.</p>
+<p>This failure is particularly insidious because the retry loop only triggers on exceptions. A silent <code>null</code> passes straight through to Phase 3.</p>
+<p><strong>Fixes applied (two layers):</strong></p>
+<ol>
+<li>
+<p><strong>Prompt hardening</strong> — The code-gen system prompt was strengthened from the vague <em>&ldquo;do not define functions&rdquo;</em> to an explicit prohibition: <em>&ldquo;NEVER use <code>def</code> or <code>async def</code> — not even a helper. Every <code>await</code> must appear at the top level.&rdquo;</em></p>
+</li>
+<li>
+<p><strong>Deterministic pre-check</strong> — Before compilation, the generated code is scanned for the pattern <code>\bdef\s+\w</code>. If found, the attempt is rejected immediately with a clear error message fed back to the model, without ever running the code:</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&#34;\bdef\s+\w&#34;</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+</span></span><span class="line"><span class="cl">    <span class="n">last_error</span> <span class="o">=</span> <span class="p">(</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;Code contains a `def` or `async def` statement, which is forbidden. &#34;</span>
+</span></span><span class="line"><span class="cl">        <span class="s2">&#34;All logic must be written as flat top-level async code.&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">)</span>
+</span></span></code></pre></div><ol start="3">
+<li><strong>Null-result guard</strong> — Even if a future pattern produces <code>None</code> without defining a function (e.g. the last line is an assignment), the executor now rejects <code>None</code> as a retriable error rather than passing it to Phase 3.</li>
+</ol>
+<p><strong>Broader principle:</strong> prompt rules alone are insufficient for constraints that have a clear syntactic signature. Pair each important rule with a deterministic code scan so violations are caught before they silently corrupt results. Other candidates for the same treatment: <code>next()</code> (not available in Monty&rsquo;s builtins — scan for <code>\bnext\s*\(</code>), <code>return</code> statements at the top level, and bare <code>import</code> of third-party libraries.</p>
+<hr>
+<h3 id="llm-arithmetic-in-phase-3-produces-wrong-totals">LLM arithmetic in Phase 3 produces wrong totals</h3>
+<p><strong>Prompt:</strong> <em>&ldquo;itemize member&rsquo;s expenses that have &lsquo;flight&rsquo; in the description&rdquo;</em> (same prompt as Failure 3, different manifestation once the null was fixed)</p>
+<p>After the null fix, Phase 2 correctly returned a list of 15 flight expense items. Phase 3 was then asked to present the results and computed the total in prose — but large language models are unreliable at arithmetic. Across multiple runs the same 15 items produced totals of 8,530, 9,370, and 11,950 depending on the run, when the correct answer is 10,510.</p>
+<p><strong>Root cause:</strong> Phase 3 model call was doing the sum itself from the raw item list rather than reading a pre-computed value from the Phase 2 result.</p>
+<p><strong>Fix — add a bookkeeping tool and require its use:</strong></p>
+<p>A <code>sum_amounts</code> external function was added to <code>external_tools.py</code>:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="k">async</span> <span class="k">def</span> <span class="nf">sum_amounts</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&#34;amount&#34;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="s2">&#34;&#34;&#34;Sum a numeric field across a list of dicts.&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">field</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">)</span>
+</span></span></code></pre></div><p>Because it is registered in <code>TOOL_FUNCTIONS</code>, <code>OPENAI_TOOLS</code>, and <code>MONTY_TOOLS</code>, it is visible to Phase 2&rsquo;s code generator as a callable. A new code-gen rule was added to the system prompt:</p>
+<blockquote>
+<p><em>&ldquo;Always compute totals and subtotals using <code>sum_amounts</code> and include them in the returned dict or list. Never leave arithmetic to the final answer phase — if you return a list of expense items, wrap it: <code>{&quot;items&quot;: [...], &quot;total&quot;: await sum_amounts(items)}</code>.&rdquo;</em></p>
+</blockquote>
+<p>With this in place, Phase 2 returns, for example:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;items&#34;</span><span class="p">:</span> <span class="p">[</span><span class="err">...</span><span class="p">],</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;total&#34;</span><span class="p">:</span> <span class="mf">10510.0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>Phase 3 reads <code>10510.0</code> directly — no arithmetic required, no rounding errors, no hallucinated sums.</p>
+<p><strong>Broader principle:</strong> any value that requires exact computation (sums, counts, percentages, date arithmetic) should be calculated in Python by Phase 2 and surfaced as a named field in the return value. Phase 3&rsquo;s role is narration, not calculation.</p>
+<h2 id="final-takeaways">Final Takeaways</h2>
+<h3 id="performance-observations">Performance observations</h3>
+<table>
+	<thead>
+			<tr>
+					<th></th>
+					<th>Tokens</th>
+					<th>Time</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Code Generation</td>
+					<td>3,957 (32%)</td>
+					<td>0.005s</td>
+			</tr>
+			<tr>
+					<td>Model Processing</td>
+					<td>8,299 (68%)</td>
+					<td>23.86s</td>
+			</tr>
+			<tr>
+					<td><strong>Total</strong></td>
+					<td><strong>12,256</strong></td>
+					<td><strong>23.865s</strong></td>
+			</tr>
+	</tbody>
+</table>
+<p><em>Table 1. Session totals from the demo conversation.</em></p>
+<p><strong>Code execution is essentially free.</strong> The entire session required 0.005 seconds of code execution time. In a standard sequential tool-calling setup, each of those fetches would have required a round-trip back to the LLM to decide what to call next.</p>
+<p><strong>Code generation overhead is real but bounded.</strong> Code-generated tokens (3,957) accounted for about 32% of total token spend. That cost is paid once per turn that requires new data, not once per tool call. Turns five and six in the demo were answered directly from context — no code generated, no tools called — so the overhead only appears when it&rsquo;s actually needed.</p>
+<p><strong>Conversation history stays compact.</strong> Rather than accumulating individual tool call/response pairs for every intermediate step, the history retains only the user prompt, a single <code>&lt;tool_results&gt;</code> block with the computed result, and the assistant reply. This trimmed-down context helps improve model performance.</p>
+<h3 id="other-considerations">Other considerations</h3>
+<p><strong>Evaluations are not optional.</strong> During development I encountered &ldquo;happy mistakes&rdquo; in the generated code — cases where the model produced the right answer for the wrong reasons. In a production setting, keep your model &ldquo;Honest ABE&rdquo; (Always Be Evaluating) to detect new edge cases and make adjustments.</p>
+<p><strong>Prompts alone won&rsquo;t hold the line.</strong> Code-generation constraints are expressed in the system prompt, but the model ignores them often enough that prompt rules alone are insufficient. The more reliable pattern is to pair each important rule with a deterministic check that runs before the code is compiled and run. A couple of targeted regexes (<code>\bdef\s+\w</code>, <code>\bnext\s*\(</code>) catch whole classes of silent failures cheaply.</p>
+<p><strong>Fit matters.</strong> This approach works best when the tools map cleanly to the domain and the data shapes are predictable. As the failure cases above show, good docstrings and type stubs matter a lot. The Anthropic article [3] referenced at the top covers similar tradeoffs in the context of MCP and is worth reading alongside this example.</p>
+<h2 id="references">References</h2>
+<p>[1] oshea00, &ldquo;monty-example: LLM + Monty Tool Calling,&rdquo; <em>GitHub</em>, 2025. Available: <a href="https://github.com/oshea00/monty-example">https://github.com/oshea00/monty-example</a></p>
+<p>[2] pydantic, &ldquo;Monty: Sandboxed Python Runtime,&rdquo; <em>GitHub</em>, 2025. Available: <a href="https://github.com/pydantic/monty">https://github.com/pydantic/monty</a></p>
+<p>[3] Anthropic, &ldquo;Code execution with MCP,&rdquo; <em>Anthropic Engineering</em>, 2025. Available: <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">https://www.anthropic.com/engineering/code-execution-with-mcp</a></p>
+]]></content:encoded>
     </item>
     <item>
       <title>Agentic Orchestration is Not a Moat</title>
       <link>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</link>
       <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarmy.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Agent orchestration tools like OpenClaw and GasTown are easy to build; 1000x productivity without good ideas is not a moat.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerarmy.png#center"/> 
+</figure>
 
-&lt;p&gt;The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it&amp;rsquo;s a trivial solution, and it will be copied, relentlessly, and everyone will move on to something else&amp;ndash;not sure what that will be.&lt;/p&gt;</description>
+<p>The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it&rsquo;s a trivial solution, and it will be copied, relentlessly, and everyone will move on to something else&ndash;not sure what that will be.</p>
+<p>We&rsquo;ve arrived at the point where everyone can be 1000x, but with no good ideas on where to find value to apply it. &ldquo;When everyone is super…&rdquo; Perhaps this will be a good thing. Once the hangover wears off and we start looking for harder problems to solve, we&rsquo;ll find bigger nails. What should those problems look like?</p>
+<h2 id="1000x-productivity--same-idea-x-1000">1000x Productivity = Same Idea x 1000?</h2>
+<p>How many internal dashboards, custom support bots, and AI-enhanced document search tools do we <em>really</em> need? One thing that&rsquo;s becoming very clear is that armies of agents <em>will</em> be able to create infinitely bespoke versions of these in mere hours (possibly minutes), on-demand and as-needed. If your business model derives its value from finding things, or analyzing things, better than anyone else, you might want to think about <em>creating</em> new things to find instead.</p>
+<p>We should be shifting from &ldquo;exploit&rdquo; to &ldquo;explore&rdquo; post-haste while it&rsquo;s getting cheaper to iterate. This is an area where large language models can provide good value. They make excellent sounding boards and the agent armies will help, but it&rsquo;s not the abundance of capacity which we should be chasing&ndash;it&rsquo;s how we can improve execution, judgment, and domain insight to raise value, and therefore profits.</p>
+<h2 id="when-anything-becomes-possible">When &ldquo;Anything&rdquo; Becomes Possible</h2>
+<p>In a world where boilerplate code is instant, CRUD apps are trivial, API wrappers are disposable, and infrastructure scaffolding is one prompt away, then what changes? The scarcity frontier moves. The scarce resource is no longer syntax knowledge and coding skill. The scarce resource becomes problem selection, taste, systems thinking, and understanding of the messy reality of constraints imposed by physics, law, and economics.</p>
+<p>Elon Musk&rsquo;s idea of &ldquo;Data Centers in Space&rdquo; comes to mind as a masterclass in ignoring constraints.</p>
+<p>If everyone can wrap an LLM, add tool calls, add vector search, and an agent loop, then that stack is infrastructure&ndash;not differentiation. The moat moves to proprietary data, deep domain insight, distribution, workflow integration, regulatory defensibility, and trust and reliability. Companies chasing &lsquo;AI features&rsquo; without asking what hard problem are we uniquely positioned to solve? or what do we understand better than anyone else? will end up shipping demos rather than defensible, value-added systems.</p>
+<h2 id="what-this-means-for-engineers">What This Means for Engineers</h2>
+<p>The career question: if you can get anything you ask for by prompting, then what should you strive for?</p>
+<p>Engineers in tech have some short-term advantages:</p>
+<ul>
+<li>Understanding failure modes&ndash;how systems and models break</li>
+<li>Understanding data and its provenance</li>
+<li>Understanding problem selection</li>
+<li>Understanding boundaries and constraints</li>
+</ul>
+<p>Longer term, the focus will need to move to systems thinking and constraint-heavy domains, such as energy, risk modeling, things with atoms in them, design, architecture, and research.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/skillabundance.png#center" width="70%"/> 
+</figure>
+
+<p>If an LLM (or agentic orchestration system) can write the code, then the value moves from &ldquo;I can implement&rdquo; to &ldquo;I can decide what should exist.&rdquo;</p>
+<h2 id="what-this-means-for-companies">What This Means for Companies</h2>
+<p>If your AI strategy is to &ldquo;add an LLM to the product,&rdquo; you don&rsquo;t have a strategy—you have a feature that will be table stakes within a quarter. The companies that win won&rsquo;t be the ones who learned to marshal agent hordes better. They&rsquo;ll be the ones who understand which problems are worth solving in the first place.</p>
+<p>The tooling is getting commoditized. The execution layer is getting commoditized. What isn&rsquo;t getting commoditized is judgment, taste, and deep understanding of where value actually lives. The shift from exploit to explore is the only move that doesn&rsquo;t end with you competing on price against a thousand identical wrappers.</p>
+<p>Build for the hard problems. The easy ones are already solved, a thousand times over, by agents that don&rsquo;t sleep.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Model Context Protocol (MCP) Best Practices</title>
       <link>https://oshea00.github.io/posts/mcp-practices/</link>
       <pubDate>Mon, 29 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/mcp-practices/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cuteMCP.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Best practices for designing Model Context Protocol (MCP) servers that expose tools and data to AI agents.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cuteMCP.png#center"/> 
+</figure>
 
-&lt;p&gt;&lt;em&gt;As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.&lt;/em&gt;&lt;/p&gt;
-&lt;p&gt;MCP is an &lt;strong&gt;open standard&lt;/strong&gt; (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
-It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]&lt;/p&gt;</description>
+<p><em>As we integrate services and data APIs into agentic AI solutions, interest is growing in how the Model Context Protocol (MCP) can standardize the way tools expose their capabilities to agents. With that in mind, I’ve assembled—yes, with the help of AI—a survey of key topics and resources related to MCP.</em></p>
+<p>MCP is an <strong>open standard</strong> (launched by Anthropic in Nov 2024) for exposing data sources, tools, and “resources” to AI agents via a uniform interface.
+It is designed to replace the ad-hoc “one-off connector per tool/agent” pattern, simplifying how LLM-based agents integrate with live systems. [1]</p>
+<p>Under the MCP architecture, you typically have:</p>
+<ol>
+<li><strong>MCP Clients</strong> (embedded in agent/assistant hosts) that issue structured requests</li>
+<li><strong>MCP Servers</strong> that wrap data sources, APIs, internal systems, and expose capabilities</li>
+<li><strong>Resources / Tools / Prompts / Logging</strong> as first-class concepts in the protocol [2]</li>
+</ol>
+<p>Communication is based on <strong>JSON-RPC 2.0</strong> messages over standard transports (stdio, HTTP, with optional SSE)</p>
+<p>MCP has already been adopted or integrated by several tool providers (e.g. Google Drive, Slack, GitHub, Postgres) and platforms (Replit, Sourcegraph, Zed) as reference servers.</p>
+<p>Note there is active research pointing out <strong>security &amp; risk</strong> challenges with MCP (e.g., prompt injection, permission escalation). For example, the <em>“MCP Safety Audit”</em> shows how misconfigured tools can lead to <strong>credential leaks</strong> and <strong>privilege escalation</strong>. [4]</p>
+<p>Given that background, here are <strong>best practices, design patterns, semantic types, and worked examples</strong> for using MCP (or MCP-inspired) in agent systems.</p>
+<hr>
+<h2 id="best-practices--design-patterns-for-mcp-based-architectures">Best Practices &amp; Design Patterns for MCP-based Architectures</h2>
+<p>Below is a guide to designing robust, maintainable, and secure agent systems using MCP or MCP-like protocols. You can think of this as a “playbook” or cheat sheet.</p>
+<table>
+	<thead>
+			<tr>
+					<th>Area</th>
+					<th>Best Practice / Pattern</th>
+					<th>Rationale &amp; Risks</th>
+					<th>Notes / Examples</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>Modular Server Design</strong></td>
+					<td>Break MCP servers by domain (e.g. “Git”, “Database”, “Search”, “Notifications”)</td>
+					<td>Keeps responsibilities small and limits blast radius of errors</td>
+					<td>The reference MCP repository already includes separate servers for e.g. GitHub, Postgres, Slack. [1]</td>
+			</tr>
+			<tr>
+					<td><strong>Domain-Specific Abstractions vs. CRUD</strong></td>
+					<td>Design tools around meaningful domain actions instead of low-level CRUD primitives</td>
+					<td>Improves agent reasoning, reduces ambiguity</td>
+					<td>E.g. &ldquo;submit_expense_report&rdquo; instead of &ldquo;create_record&rdquo;</td>
+			</tr>
+			<tr>
+					<td><strong>Rate Limiting, Throttling &amp; Quotas</strong></td>
+					<td>Impose per-agent or per-method usage quotas</td>
+					<td>Avoid abuse, runaway loops, or denial-of-service</td>
+					<td>Useful in multi-tenant settings</td>
+			</tr>
+			<tr>
+					<td><strong>Input / Output Validation &amp; Sanitization</strong></td>
+					<td>Strict schema validation on method parameters and return values</td>
+					<td>Prevent injection, malformed queries, or security exploits</td>
+					<td>E.g. sanitize SQL fragments, path names, or user-provided arguments</td>
+			</tr>
+			<tr>
+					<td><strong>Idempotency &amp; Transaction Safety</strong></td>
+					<td>For write operations, support idempotent execution or confirm semantics</td>
+					<td>Avoid accidental duplication if retries occur</td>
+					<td>E.g. a “create_user” call should handle duplicates safely</td>
+			</tr>
+			<tr>
+					<td><strong>Contextual Logging, Auditing &amp; Traceability</strong></td>
+					<td>Log every request, which agent invoked it, parameters, and response; enable trace replay</td>
+					<td>Facilitates debugging, security audits, and rollback reasoning</td>
+					<td>You can integrate prompt- or event-level logging as a separate MCP “logging” channel [2]</td>
+			</tr>
+			<tr>
+					<td><strong>Graceful Fallback &amp; Error Propagation</strong></td>
+					<td>Clients should elegantly handle server errors, timeouts, or partial failures</td>
+					<td>Agents can fall back to default heuristics or emit human-readable error messages</td>
+					<td>Always wrap network/IO calls with retries or timeouts</td>
+			</tr>
+			<tr>
+					<td><strong>Sandboxing / Isolation</strong></td>
+					<td>Run server logic in controlled containers or isolated environments</td>
+					<td>Limits damage from exploits or malicious tool usage</td>
+					<td>Prevent direct OS-level command execution unless explicitly allowed</td>
+			</tr>
+			<tr>
+					<td><strong>Metadata &amp; Typing</strong></td>
+					<td>Use rich type definitions, units, constraints, and semantic labels on method arguments/return values</td>
+					<td>This helps the agent choose correct methods and helps schema validation</td>
+					<td>E.g. define a <code>Timestamp</code>, <code>Currency</code>, <code>UserId</code> type rather than generic string [5]</td>
+			</tr>
+			<tr>
+					<td><strong>Least Privilege Principle</strong></td>
+					<td>Only expose minimal methods and resources needed for the task</td>
+					<td>Reduces attack surface and cognitive load</td>
+					<td>Avoid a “catch-all” server that has full DB, full file system, etc.</td>
+			</tr>
+			<tr>
+					<td><strong>Security Auditing &amp; Fuzz Testing</strong></td>
+					<td>Regularly run adversarial tests, fuzz input spaces, and validate permission enforcement</td>
+					<td>MCP-specific research has already exposed vulnerabilities in naive servers [4]</td>
+					<td>Tools like <code>MCPSafetyScanner</code> can help detect misuse or misconfiguration. [4]</td>
+			</tr>
+			<tr>
+					<td><strong>Governance, Certification &amp; Tool Vetting</strong></td>
+					<td>In enterprise contexts, classify or “vet” MCP servers/tools, register trusted servers, and maintain a registry</td>
+					<td>So that only approved tools are callable by agents</td>
+					<td>Similar to how plugin stores vet plugins in ChatGPT</td>
+			</tr>
+			<tr>
+					<td><strong>Testing via Benchmarks / Simulators</strong></td>
+					<td>Build internal benchmarks for multi-step workflows, stress test tool orchestration, simulate agent failure modes</td>
+					<td>E.g. “MCP-Bench” is a published benchmark for evaluating tool-using agents via MCP. [6]</td>
+					<td></td>
+			</tr>
+	</tbody>
+</table>
+<p>These practices help maintain tractability, safety, observability, and modularity in your agent architecture.</p>
+<hr>
+<h2 id="semantic-types--abstractions-in-mcp">Semantic Types / Abstractions in MCP</h2>
+<p>In MCP, the protocol emphasizes several core conceptual categories (or semantic types). Understanding them helps you decide when and how to use them.</p>
+<ol>
+<li>
+<p><strong>Tools</strong></p>
+<ul>
+<li>Entity: executable methods / functions / actions (with parameters &amp; returns)</li>
+<li>Examples: &ldquo;run SQL query&rdquo;, &ldquo;send Slack message&rdquo;, &ldquo;create GitHub issue&rdquo;, &ldquo;invoke HTTP API&rdquo;</li>
+<li>Tools often effect side-effects (writes, mutations) or return structured data.</li>
+<li>Agents can choose among available tools based on context and reasoning.</li>
+</ul>
+</li>
+<li>
+<p><strong>Resources</strong></p>
+<ul>
+<li>Entity: referenceable data context or assets (documents, embeddings, corpora, static files, templates)</li>
+<li>These are passive (no side-effect) — they serve as context for prompting or retrieval</li>
+<li>Example: a company policy document, a knowledge base, a style guide, code snippets</li>
+<li>Agents can “fetch” or “load” resources and incorporate them into prompts.</li>
+</ul>
+</li>
+<li>
+<p><strong>Prompts / Prompt Templates</strong></p>
+<ul>
+<li>Predefined or configurable prompt scaffolding, instructions, or system messages</li>
+<li>Can be versioned, parameterized, or dynamically generated</li>
+<li>Helps standardize agent behavior (e.g. “You are a financial analyst” template)</li>
+<li>Agents might request a prompt template given context or task.</li>
+</ul>
+</li>
+<li>
+<p><strong>Logging / Traces / Events</strong></p>
+<ul>
+<li>Channels to emit or collect event-level or request-level logs</li>
+<li>Useful for audit trails, feedback loops, debugging, alignment</li>
+<li>Example: capturing agent decisions, tool calls, errors, retries</li>
+</ul>
+</li>
+<li>
+<p><strong>Sessions / Context State</strong></p>
+<ul>
+<li>Agents maintain conversational or reasoning state (e.g. memory, partial results)</li>
+<li>MCP may allow state references or handles passed across calls</li>
+<li>Useful for chaining tool calls across turns</li>
+</ul>
+</li>
+<li>
+<p><strong>Schemas / Metadata</strong></p>
+<ul>
+<li>Definitions of types, constraints, method signatures, documentation</li>
+<li>Tools/resources should carry descriptive metadata: name, description, input/output schema, usage cost, permission levels</li>
+</ul>
+</li>
+<li>
+<p><strong>Transports / Connectivity</strong></p>
+<ul>
+<li>The protocol layer (e.g. JSON-RPC over HTTP, stdio, SSE, WebSockets)</li>
+<li>Allows flexible deployment: local, remote, hybrid</li>
+</ul>
+</li>
+</ol>
+<p>These abstractions align with how agents reason (plan, select tools, fetch context, execute, log). It is important to design tools that make MCP more expressive and modular than flat function-call APIs. Avoid modeling MCP tools strictly in terms of “CRUD” operations — this is a low-level abstraction that does not map well to MCP’s richer capability model.</p>
+<p>For example, instead of exposing generic methods like <code>create_record</code> or <code>update_row</code>, an MCP server might offer domain-aware actions such as <code>submit_expense_report</code>, <code>approve_leave_request</code>, or <code>schedule_meeting</code>. These higher-level tools are easier for agents to understand, reason about, and chain together.</p>
+<hr>
+<h2 id="examples--projects-in-the-community">Examples &amp; Projects in the Community</h2>
+<p>Here are some illustrative examples, open-source projects, and research directions in the MCP / agent-tooling ecosystem:</p>
+<ul>
+<li>
+<p><strong>MCP-Bench</strong>
+A benchmark suite connecting agents with real-world tasks across many domains using live MCP servers (250+ tools) to assess planning, tool selection, error recovery, etc. [6]</p>
+</li>
+<li>
+<p><strong>MCP-Zero</strong>
+A research framework that allows agents to <em>dynamically discover and request</em> relevant tool schemas rather than injecting all tool specs into the prompt. Useful for reducing prompt/context size in systems with large tool sets. [7]</p>
+</li>
+<li>
+<p><strong>MCPSafetyScanner</strong>
+A tool for auditing MCP servers for security vulnerabilities (credential leakage, command injection, tool misuse) by probing adversarial usage patterns. [4]</p>
+</li>
+<li>
+<p><strong>MCPSecBench</strong>
+A security benchmarking framework that enumerates attack surfaces in MCP systems (17 attack types) and tests client/server combinations. [8]</p>
+</li>
+<li>
+<p><strong>“Leveling Up Your AI Agents” (blog)</strong>
+A developer-friendly walkthrough of MCP’s four pillars (tools, resources, prompts, logging) with narrative examples and schema choices. [2]</p>
+</li>
+<li>
+<p><strong>AWS / Cloud Integration</strong>
+AWS published blog content showing how to run MCP clients and servers in the cloud, integrate with Bedrock, and compose agent workflows across distributed systems. [9]</p>
+</li>
+<li>
+<p><strong>Reference MCP Servers (official)</strong>
+The MCP project offers open-source servers for systems like Google Drive, Slack, GitHub, Postgres, Puppeteer, Stripe, etc. [1]</p>
+</li>
+<li>
+<p><strong>OpenAI / .NET + MCP</strong>
+Microsoft docs show how to build .NET apps with MCP clients/servers connecting to databases or external services. [10]</p>
+</li>
+</ul>
+<hr>
+<h2 id="summary--recommendations">Summary &amp; Recommendations</h2>
+<ul>
+<li>MCP represents a shift toward <strong>standardization, modularity, and safer integration</strong> of AI agents with real systems.</li>
+<li>The distinction between <strong>tools</strong>, <strong>resources</strong>, <strong>prompts</strong>, and <strong>logging</strong> is important: treat each as a different kind of capability.</li>
+<li>Follow architectural best practices (modularity, versioning, ACLs, isolation, logging, auditability) to avoid potential pitfalls, especially security.</li>
+<li>Use existing projects (e.g. dbt MCP, MCP-Bench, MCPSafetyScanner) as foundations or testbeds.</li>
+<li>Make security a first-class concern — many MCP risks arise from over-permissive servers or schema misuse.</li>
+<li>Model the agent’s orchestration carefully: tool chaining, fallback logic, partial failure modes, simulation/dry-run support.</li>
+<li>Maintain a registry or catalog of trusted MCP servers and vet them in enterprise settings.</li>
+</ul>
+<hr>
+<h2 id="references">References</h2>
+<p>[1] Anthropic, “Introducing the Model Context Protocol (MCP),” <em>Anthropic Newsroom</em>, Nov. 2024. [Online]. Available: <a href="https://www.anthropic.com/news/model-context-protocol">https://www.anthropic.com/news/model-context-protocol</a></p>
+<p>[2] D. Nahata, “Leveling Up Your AI Agents: A Story-Driven Guide to MCP Tools, Resources, Prompts, and Logging,” <em>blog.codewithdan.com</em>, 2024. [Online]. Available: <a href="https://blog.codewithdan.com/leveling-up-your-ai-agents-a-story-driven-guide-to-mcp-tools-resources-prompts-and-logging/">https://blog.codewithdan.com/leveling-up-your-ai-agents-a-story-driven-guide-to-mcp-tools-resources-prompts-and-logging/</a></p>
+<p>[3] J. Wang, “Model Context Protocol (MCP): Real World Use Cases, Adoptions, and Comparison to Function Calling,” <em>Medium</em>, 2024. [Online]. Available: <a href="https://medium.com/@laowang_journey/model-context-protocol-mcp-real-world-use-cases-adoptions-and-comparison-to-functional-calling-9320b775845c">https://medium.com/@laowang_journey/model-context-protocol-mcp-real-world-use-cases-adoptions-and-comparison-to-functional-calling-9320b775845c</a></p>
+<p>[4] N. Shinn <em>et al.</em>, “MCP Safety Audit: LLMs with the Model Context Protocol Allow Major Security Exploits,” <em>arXiv preprint</em>, arXiv:2504.03767, Apr. 2025. [Online]. Available: <a href="https://arxiv.org/abs/2504.03767">https://arxiv.org/abs/2504.03767</a></p>
+<p>[5] Model Context Protocol, <em>What is the Model Context Protocol (MCP)?</em>, 2024. [Online]. Available: <a href="https://modelcontextprotocol.io/">https://modelcontextprotocol.io/</a></p>
+<p>[6] D. Dohan <em>et al.</em>, “MCP-Bench: Benchmarking Tool-Using LLM Agents with Complex Real-World Tasks via MCP Servers,” <em>arXiv preprint</em>, arXiv:2508.20453, Aug. 2025. [Online]. Available: <a href="https://arxiv.org/abs/2508.20453">https://arxiv.org/abs/2508.20453</a></p>
+<p>[7] B. Peng <em>et al.</em>, “MCP-Zero: Proactive Toolchain Construction for LLM Agents from Scratch,” <em>arXiv preprint</em>, arXiv:2506.01056, Jun. 2025. [Online]. Available: <a href="https://arxiv.org/abs/2506.01056">https://arxiv.org/abs/2506.01056</a></p>
+<p>[8] X. Qiu <em>et al.</em>, “MCPSecBench: A Systematic Security Benchmark and Playground for Testing Model Context Protocols,” <em>arXiv preprint</em>, arXiv:2508.13220, Aug. 2025. [Online]. Available: <a href="https://arxiv.org/abs/2508.13220">https://arxiv.org/abs/2508.13220</a></p>
+<p>[9] Amazon Web Services, “Unlocking the Power of Model Context Protocol (MCP) on AWS,” <em>AWS Machine Learning Blog</em>, 2024. [Online]. Available: <a href="https://aws.amazon.com/blogs/machine-learning/unlocking-the-power-of-model-context-protocol-mcp-on-aws/">https://aws.amazon.com/blogs/machine-learning/unlocking-the-power-of-model-context-protocol-mcp-on-aws/</a></p>
+<p>[10] Microsoft, “Get Started with .NET AI and MCP,” <em>Microsoft Learn</em>, 2024. [Online]. Available: <a href="https://learn.microsoft.com/en-us/dotnet/ai/get-started-mcp">https://learn.microsoft.com/en-us/dotnet/ai/get-started-mcp</a></p>
+]]></content:encoded>
     </item>
     <item>
       <title>A2A Doesn&#39;t need AI Agents</title>
       <link>https://oshea00.github.io/posts/a2a-thoughts/</link>
       <pubDate>Sun, 28 Sep 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/a2a-thoughts/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputeragentstalking.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>An experiment with Google&amp;#39;s Agent-to-Agent (A2A) protocol to see what it adds beyond APIs, MCP, and classic distributed computing.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputeragentstalking.png#center"/> 
+</figure>
 
-&lt;p&gt;&lt;em&gt;Is this just distributed computing re-packaged for AI?&lt;/em&gt;&lt;/p&gt;
-&lt;h2 id=&#34;what-is-a2a-without-ai-agents&#34;&gt;What is A2A Without AI Agents?&lt;/h2&gt;
-&lt;p&gt;I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini&amp;rsquo;s Creator) had &lt;a href=&#34;https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/&#34;&gt;announced A2A in April&lt;/a&gt;, and Gemini got a little &amp;ldquo;gushy&amp;rdquo; on how it was &amp;ldquo;a revolutionary new idea.&amp;rdquo; Also, perhaps &amp;ldquo;debate&amp;rdquo; is too strong a word. And I might want to consider getting out more often.&lt;/p&gt;</description>
+<p><em>Is this just distributed computing re-packaged for AI?</em></p>
+<h2 id="what-is-a2a-without-ai-agents">What is A2A Without AI Agents?</h2>
+<p>I got into a debate with Gemini recently about Agent-To-Agent protocol (A2A). I said I thought it was a retread of existing distributed computing technologies like Service Discovery, Mesh, CORBA, etc. Perhaps Gemini took it personally, as Google (Gemini&rsquo;s Creator) had <a href="https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/">announced A2A in April</a>, and Gemini got a little &ldquo;gushy&rdquo; on how it was &ldquo;a revolutionary new idea.&rdquo; Also, perhaps &ldquo;debate&rdquo; is too strong a word. And I might want to consider getting out more often.</p>
+<p>An experiment was needed. I wanted to explore A2A features and get a better idea of what A2A is bringing over and above APIs, MCP (Model Context Protocol), and other distributed computing paradigms of the past and present. The resulting project [1] can be found on GitHub, and the DeepWiki version [2] - where the below diagram comes from.</p>
+<figure>
+    <img loading="lazy" src="images/sequencediagramA2A.png"/> <figcaption>
+            <p>Figure 1. A2A Communication. [2]</p>
+        </figcaption>
+</figure>
+
+<p>When I got done with this experiment (<em>helped largely by Claude Code</em>), it all worked very well, but I realized there was <strong>no &ldquo;AI&rdquo; in the solution!</strong> it was just routing messages and responses between client and remote JSON-RPC services. Sprinkle on a little bit of &ldquo;discovery&rdquo; in the form of &ldquo;Agent Cards&rdquo; (<code>./well-known/agent-card.json</code>), and this looks like YADS (Yet Another Distributed Service) architecture - minus the AI part.</p>
+<p>It is early for A2A, so much of the value is yet to come. The other parts, the layering on of service negotiation, reputation, security, payments, and other features needed to realize a fully self-organizing Agentic AI collaboration infrastructure are still on the drawing board.</p>
+<p>For now, MCP, and Agent frameworks have a head start.</p>
+<hr>
+<h2 id="references">References</h2>
+<p>[1] O&rsquo;Shea, M. (2025). A2A Example Project. <em>GitHub repository</em>. <a href="https://github.com/oshea00/a2a-proj">https://github.com/oshea00/a2a-proj</a></p>
+<p>[2] DeepWiki. (2025). A2A Project Wiki. <a href="https://deepwiki.com/oshea00/a2a-proj">https://deepwiki.com/oshea00/a2a-proj</a></p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

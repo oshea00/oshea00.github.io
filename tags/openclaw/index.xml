@@ -4,7 +4,12 @@
     <title>Openclaw on MikesBlog</title>
     <link>https://oshea00.github.io/tags/openclaw/</link>
     <description>Recent content in Openclaw on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 14 Feb 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/openclaw/index.xml" rel="self" type="application/rss+xml" />
@@ -13,11 +18,40 @@
       <link>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</link>
       <pubDate>Sat, 14 Feb 2026 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-orchestration-not-a-moat/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputerarmy.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Agent orchestration tools like OpenClaw and GasTown are easy to build; 1000x productivity without good ideas is not a moat.</description>
+      <content:encoded><![CDATA[<figure class="align-center ">
+    <img loading="lazy" src="images/cutecomputerarmy.png#center"/> 
+</figure>
 
-&lt;p&gt;The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it&amp;rsquo;s a trivial solution, and it will be copied, relentlessly, and everyone will move on to something else&amp;ndash;not sure what that will be.&lt;/p&gt;</description>
+<p>The recent explosion of social media frenzy over agentic orchestration tools such as OpenClaw and GasTown, vibe-coded and quickly released into the wild, is yet another symptom of overhyped expectations related to generative AI models. If it takes three weeks to go viral after a few months of vibe coding, it&rsquo;s a trivial solution, and it will be copied, relentlessly, and everyone will move on to something else&ndash;not sure what that will be.</p>
+<p>We&rsquo;ve arrived at the point where everyone can be 1000x, but with no good ideas on where to find value to apply it. &ldquo;When everyone is super…&rdquo; Perhaps this will be a good thing. Once the hangover wears off and we start looking for harder problems to solve, we&rsquo;ll find bigger nails. What should those problems look like?</p>
+<h2 id="1000x-productivity--same-idea-x-1000">1000x Productivity = Same Idea x 1000?</h2>
+<p>How many internal dashboards, custom support bots, and AI-enhanced document search tools do we <em>really</em> need? One thing that&rsquo;s becoming very clear is that armies of agents <em>will</em> be able to create infinitely bespoke versions of these in mere hours (possibly minutes), on-demand and as-needed. If your business model derives its value from finding things, or analyzing things, better than anyone else, you might want to think about <em>creating</em> new things to find instead.</p>
+<p>We should be shifting from &ldquo;exploit&rdquo; to &ldquo;explore&rdquo; post-haste while it&rsquo;s getting cheaper to iterate. This is an area where large language models can provide good value. They make excellent sounding boards and the agent armies will help, but it&rsquo;s not the abundance of capacity which we should be chasing&ndash;it&rsquo;s how we can improve execution, judgment, and domain insight to raise value, and therefore profits.</p>
+<h2 id="when-anything-becomes-possible">When &ldquo;Anything&rdquo; Becomes Possible</h2>
+<p>In a world where boilerplate code is instant, CRUD apps are trivial, API wrappers are disposable, and infrastructure scaffolding is one prompt away, then what changes? The scarcity frontier moves. The scarce resource is no longer syntax knowledge and coding skill. The scarce resource becomes problem selection, taste, systems thinking, and understanding of the messy reality of constraints imposed by physics, law, and economics.</p>
+<p>Elon Musk&rsquo;s idea of &ldquo;Data Centers in Space&rdquo; comes to mind as a masterclass in ignoring constraints.</p>
+<p>If everyone can wrap an LLM, add tool calls, add vector search, and an agent loop, then that stack is infrastructure&ndash;not differentiation. The moat moves to proprietary data, deep domain insight, distribution, workflow integration, regulatory defensibility, and trust and reliability. Companies chasing &lsquo;AI features&rsquo; without asking what hard problem are we uniquely positioned to solve? or what do we understand better than anyone else? will end up shipping demos rather than defensible, value-added systems.</p>
+<h2 id="what-this-means-for-engineers">What This Means for Engineers</h2>
+<p>The career question: if you can get anything you ask for by prompting, then what should you strive for?</p>
+<p>Engineers in tech have some short-term advantages:</p>
+<ul>
+<li>Understanding failure modes&ndash;how systems and models break</li>
+<li>Understanding data and its provenance</li>
+<li>Understanding problem selection</li>
+<li>Understanding boundaries and constraints</li>
+</ul>
+<p>Longer term, the focus will need to move to systems thinking and constraint-heavy domains, such as energy, risk modeling, things with atoms in them, design, architecture, and research.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/skillabundance.png#center" width="70%"/> 
+</figure>
+
+<p>If an LLM (or agentic orchestration system) can write the code, then the value moves from &ldquo;I can implement&rdquo; to &ldquo;I can decide what should exist.&rdquo;</p>
+<h2 id="what-this-means-for-companies">What This Means for Companies</h2>
+<p>If your AI strategy is to &ldquo;add an LLM to the product,&rdquo; you don&rsquo;t have a strategy—you have a feature that will be table stakes within a quarter. The companies that win won&rsquo;t be the ones who learned to marshal agent hordes better. They&rsquo;ll be the ones who understand which problems are worth solving in the first place.</p>
+<p>The tooling is getting commoditized. The execution layer is getting commoditized. What isn&rsquo;t getting commoditized is judgment, taste, and deep understanding of where value actually lives. The shift from exploit to explore is the only move that doesn&rsquo;t end with you competing on price against a thousand identical wrappers.</p>
+<p>Build for the hard problems. The easy ones are already solved, a thousand times over, by agents that don&rsquo;t sleep.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

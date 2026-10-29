@@ -4,7 +4,12 @@
     <title>Transformer on MikesBlog</title>
     <link>https://oshea00.github.io/tags/transformer/</link>
     <description>Recent content in Transformer on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 27 May 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/transformer/index.xml" rel="self" type="application/rss+xml" />
@@ -13,8 +18,64 @@
       <link>https://oshea00.github.io/posts/transformers-positional-encoding/</link>
       <pubDate>Mon, 27 May 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/transformers-positional-encoding/</guid>
-      <description>&lt;p&gt;Since transformer input is processed in parallel rather than serially, it is necessary to encode the relative positions of the input sequence of tokens in some way. The positional encoding in the transformer model uses sinusoidal functions to create a unique encoding for each position.&lt;/p&gt;
-&lt;p&gt;In working through the article on Transformers, as described in the original paper &lt;a href=&#34;https://arxiv.org/pdf/1706.03762&#34;&gt;&amp;ldquo;Attention is All You Need&amp;rdquo; by Vaswani et al.&lt;/a&gt;, the following formulas are used to encode the PE tensor values:&lt;/p&gt;</description>
+      <description>Working through the sinusoidal positional encoding from &amp;#39;Attention Is All You Need&amp;#39;, with code and visualizations.</description>
+      <content:encoded><![CDATA[<p>Since transformer input is processed in parallel rather than serially, it is necessary to encode the relative positions of the input sequence of tokens in some way. The positional encoding in the transformer model uses sinusoidal functions to create a unique encoding for each position.</p>
+<p>In working through the article on Transformers, as described in the original paper <a href="https://arxiv.org/pdf/1706.03762">&ldquo;Attention is All You Need&rdquo; by Vaswani et al.</a>, the following formulas are used to encode the PE tensor values:</p>
+<p>$$
+PE_{(pos,2i)}=sin(\frac{pos}{10000^{2i/d_{model}}})
+$$
+$$
+PE_{(pos,2i+1)}=cos(\frac{pos}{10000^{2i/d_{model}}})
+$$</p>
+<p>Where $pos$ is the position in the sequence, $i$ is the position in the positional encoding tensor, and $d_{model}$ is the dimension of the model, which is also used as the length of the embedding tensors which will be assigned to each position in the sequence.</p>
+<p>Note below where these Positional Encoding tensors are applied to the Input and Output Embedding tensors:
+<figure class="align-center ">
+    <img loading="lazy" src="images/transformer.png#center"/> <figcaption>
+            <p>Figure 1. Attention is All You Need</p>
+        </figcaption>
+</figure>
+</p>
+<p>At first glance, it&rsquo;s not apparent to me how the encoding values in the PE tensors can provide positional &ldquo;intelligence&rdquo; to the transformer model. What is going on here?</p>
+<p>The intuition for the PE tensor values created with these formulas has several elements:</p>
+<ol>
+<li>Using different frequencies ranging from short to long wavelengths in these sinusoidal functions allows the model to capture positional information at various scales from near to far.</li>
+<li>These smooth repeating functions can scale easily to different sequence lengths.</li>
+<li>Each position has a unique encoding aided by the alternating use of $sin$ and $cos$ in the even and odd positions.</li>
+</ol>
+<p>It is always easier for me to use a visual to understand things better. Using a scaled-down transformer might help to get a better intuition of what this looks like. Let&rsquo;s use the above formulas and PyTorch to create the PE tensor. We will use a maximum sequence length of twenty and a $d_{model}$ dimension of six:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="c1"># model config</span>
+</span></span><span class="line"><span class="cl"><span class="n">seq_len</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># maximum tokenized sequence length</span>
+</span></span><span class="line"><span class="cl"><span class="n">d_model</span> <span class="o">=</span> <span class="mi">6</span> <span class="c1"># dimension of the model and the embeddings (meanings)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Positional encoding.</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Creating the division term for the positional encoding formula</span>
+</span></span><span class="line"><span class="cl"><span class="n">pe</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">seq_len</span><span class="p">,</span> <span class="n">d_model</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">position</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">div_term</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">d_model</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">float</span><span class="p">()</span> <span class="o">*</span> <span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">10000.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">d_model</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Apply sine to even indices in PE</span>
+</span></span><span class="line"><span class="cl"><span class="n">pe</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">position</span> <span class="o">*</span> <span class="n">div_term</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Apply cosine to odd indices in PE</span>
+</span></span><span class="line"><span class="cl"><span class="n">pe</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">position</span> <span class="o">*</span> <span class="n">div_term</span><span class="p">)</span>
+</span></span></code></pre></div><p>The shape of the PE tensor will be $[20, 6]$, or $[seqlen, d_{model}]$.
+The embedding dimensions are always the same as the model dimension. This PE tensor will be added to the input and output sequence embedding tensors during model processing (see <em>Figure 1.</em>).</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/peTensor.png#center"/> <figcaption>
+            <p>Figure 2. PE Tensor</p>
+        </figcaption>
+</figure>
+
+<p>Embeddings are created based on the dictionary of tokens. For each token in the training input data, an embedding tensor of length $d_{model}$ is assigned from training. These embedding tensors encode the &ldquo;meaning&rdquo;, as understood by the model, via the text it has been trained on.</p>
+<p>To see what these positional encoding values look like, for each column in the above PE tensor, I&rsquo;ve plotted the values:</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/peEncoding.png#center"/> <figcaption>
+            <p>Figure 3. Graphing Positional Encoding</p>
+        </figcaption>
+</figure>
+
+<p>As you can see, the first two positions are the $sin$ and $cos$ functions. In later positions, the same functions are modified to longer wavelengths, so we can see how adding these functions to the embeddings imbues them with some sense of relative position, from near to far, between the tokens being evaluated.</p>
+<p>With some imagination, it&rsquo;s possible to see how other encodings could be used to represent positional offsets. This would be a fun experiment to try. I&rsquo;ve put the <a href="https://github.com/oshea00/pytorchcuda/tree/main/transformer">code from the article here</a> in case you want to play with it.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>

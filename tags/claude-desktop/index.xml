@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Claude Desktop on MikesBlog</title>
+    <title>Claude-Desktop on MikesBlog</title>
     <link>https://oshea00.github.io/tags/claude-desktop/</link>
-    <description>Recent content in Claude Desktop on MikesBlog</description>
-    <generator>Hugo -- 0.168.0</generator>
+    <description>Recent content in Claude-Desktop on MikesBlog</description>
+    <image>
+      <title>MikesBlog</title>
+      <url>https://oshea00.github.io/images/site-card.png</url>
+      <link>https://oshea00.github.io/images/site-card.png</link>
+    </image>
+    <generator>Hugo -- 0.169.0</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 01 May 2025 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://oshea00.github.io/tags/claude-desktop/index.xml" rel="self" type="application/rss+xml" />
@@ -13,35 +18,268 @@
       <link>https://oshea00.github.io/posts/agentic-codegen-part2/</link>
       <pubDate>Thu, 01 May 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-codegen-part2/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentflock.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Generating and scoring many candidate apps with GPT-4.1, Claude 3.7, and GPT-4o using radon and pytest metrics.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/agentflock.png#center"/> 
+</figure>
 
-In this segment, I&amp;rsquo;ll generate many candidate applications using my experimental framework, &lt;a href=&#34;https://github.com/oshea00/codeagents&#34;&gt;CodeAgents&lt;/a&gt;, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I&amp;rsquo;ll compare and contrast the solutions. Along the way, I&amp;rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.&lt;/p&gt;
-&lt;p&gt;It isn&amp;rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would &amp;ldquo;maintainability,&amp;rdquo; as that&amp;rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.&lt;/p&gt;</description>
+In this segment, I&rsquo;ll generate many candidate applications using my experimental framework, <a href="https://github.com/oshea00/codeagents">CodeAgents</a>, choosing from a set of models: GPT-4.1, Claude 3.7, and GPT-4o. Then, I&rsquo;ll compare and contrast the solutions. Along the way, I&rsquo;ll present some ideas and tips on improving AI-generated code in ways that generally translate to other tools and frameworks.</p>
+<p>It isn&rsquo;t easy to score how good an AI-coded solution is. Of the possible metrics, code complexity might not be as meaningful as long as the AI understands the code, as would &ldquo;maintainability,&rdquo; as that&rsquo;s based on human limitations; the AI can refactor on the fly. Test coverage is a good metric as it measures how well the AI-generated test suite covers the code.</p>
+<p>Other subjective measures of the generated application are difficult to quantify. For example, UX (User Experience) and how well the problem was solved are more difficult to measure and automate. Still, a combination of all these metrics may serve as a good proxy for choosing the best candidates.</p>
+<p>I will use <a href="https://pypi.org/project/radon"><code>radon</code></a>, a Python tool that extracts various metrics from source code, and <code>PyTest</code> to pull other statistics:</p>
+<ul>
+<li>Raw statistics:
+<ul>
+<li>Logical lines of code (LLOC) - Every LLOC contains exactly one statement and is a good proxy for how &ldquo;chatty&rdquo; the code is. Chatty code is typically more complicated.</li>
+</ul>
+</li>
+<li>Halstead metrics:
+<ul>
+<li>Difficulty - another measure of complexity.</li>
+<li>Time to program (sec) - a size metric.</li>
+<li>Delivered bugs - estimated bug rate.</li>
+</ul>
+</li>
+<li>Cyclomatic Complexity:
+<ul>
+<li>Average complexity - measures path complexity in the code.</li>
+</ul>
+</li>
+<li>Test coverage percentage - using <code>PyTest</code> coverage reporting.</li>
+</ul>
+<p>Lastly, I will add a 1-5 score of the UX based on my interaction with the application. This score will include a sense of how well it addresses the given problem and how easy it is to use generally.</p>
+<p>I will only use three of these metrics to compare solutions: UX score, time to program, and average complexity, but I will include the other metrics to double-check how the various statistics relate and compare. This approach will favor the best UX and tie-break using the other two size and complexity metrics.</p>
+<h1 id="the-good-the-bad">The Good, The Bad&hellip;</h1>
+<h2 id="key-points">Key Points</h2>
+<ul>
+<li>How do the models compare (time to generate, variability, prompting, and overall quality)</li>
+<li>From the general to the specific - updating the problem to improve overall quality.</li>
+<li>Further areas to explore: performance, change management, AI-coding vs. Human-coding, mixing models.</li>
+</ul>
+<h2 id="the-problem">The Problem</h2>
+<p>Version 1 of the problem asks for a basic four-function calculator as a command line REPL (Read-Eval-Print-Loop)</p>
+<pre tabindex="0"><code>create a cli calculator that runs in a REPL loop and handles basic arithmetic. 
+Ensure that operations follow the precedence rules for arithmetic, and handle
+negative number literals properly, keeping in mind that consecutive minus signs
+can precede a unary expression. 
+For example: --3 is equal to 3. 
+The negative sign should have higher precedence when preceding a unary
+expression. 
+The basic arithmetic operations (+,-,/,*) when used to take two arguments should
+treat multiplication and division with higher priority than addition and 
+subtraction. When precedent is equal, operations are handled in sequence.
+</code></pre><p>The problem stated above was originally given without all the details about precedence, but using that description caused all the models to generate code that badly fumbled the arithmetic. So, I needed to add more context to improve the generated applications.</p>
+<p>Tip: the more context you can provide to the AI models, the better the solutions will be—sometimes in surprising ways. However, a follow-up to this tip would be to add only as much context as needed. Don&rsquo;t overdo it.</p>
+<h2 id="problem-one-results">Problem One Results</h2>
+<h3 id="gpt-41">GPT-4.1</h3>
+<p>The experiments are ordered as shown in the sort statement, with UX descending, and ascending by time-to-code, and complexity. This will be consistent throughout the following examples, leaving the top 2 experiments as the best candidates.</p>
+<figure class="align-center ">
+    <img loading="lazy" src="images/gpt41_calc.png#center"/> 
+</figure>
+
+<p>The sixth and second runs gave the best results, but there were some bad examples in experiments three and four - where the code did not recognize parentheses. This will cause me to add some more context to the problem later on (see Tip 1)</p>
+<p>Speed-wise, GPT-4o is the fastest model, followed by GPT-4.1 and Claude 3.7. Another interesting thing to note is that LLOC and complexity will typically be low in the higher-ranked solutions, even though I&rsquo;m not explicitly sorting by these features.</p>
+<p>Example session:
+<figure class="align-center ">
+    <img loading="lazy" src="images/gpt41_test6.png#center"/> 
+</figure>
+</p>
+<p>GPT-4o and Claude 3.7 produced similar results on this problem, so I will skip ahead to the revised problem, adding in the mention of parentheses handling, and also adding a requirement for a &lsquo;help&rsquo; command.</p>
+<h2 id="problem-update-1">Problem Update 1</h2>
+<p>I added this context to the problem:</p>
+<pre tabindex="0"><code>Allow expressions to be inside parentheses.
+Provide a help command that explains how to use the calculator. 
+</code></pre><h3 id="gpt-41-1">GPT-4.1</h3>
+<figure class="align-center ">
+    <img loading="lazy" src="images/gpt41_calchelp.png#center"/> 
+</figure>
+
+<h3 id="gpt-4o">GPT-4o</h3>
+<figure class="align-center ">
+    <img loading="lazy" src="images/gpt4o_calchelp.png#center"/> 
+</figure>
+
+<h3 id="claude-37">Claude 3.7</h3>
+<figure class="align-center ">
+    <img loading="lazy" src="images/c37_calchelp.png#center"/> 
+</figure>
+
+<p>All the models produced good solutions to this revised problem, with some surprises.</p>
+<p>Note the variability in LLOC and difficulty. The metrics related to complexity and size are more or less scattered depending on the model. Of these, Claude 3.7 shows the most variability. Surprisingly, Claude produced both the best and the worst solution in this run.</p>
+<p>I need to add more data to confirm my intuition that Claude 3.7 tends to produce more complex and diverse solutions than GPT-4.1 and GPT-4o, yet I&rsquo;ve noticed this in other projects. It can produce very high-quality solutions, but it&rsquo;s hard to predict what you&rsquo;ll get. Adding more context often improves the result, but adding more cases is a little painful, as Claude is chatty and slower than GPT-4.1 or GPT-4o.</p>
+<p>I don&rsquo;t want to pick on Claude 3.7. I think I may also need to provide better (or different) agent prompting to my framework tuned specifically to Claude 3.7—that may help as well.</p>
+<p>With all this said, Claude produced the best version, which included command line history, even though I didn&rsquo;t ask for that. So, was this &ldquo;creativity&rdquo; at work or something else? I&rsquo;ll leave that discussion for another day.</p>
+<p>Example session:
+<figure class="align-center ">
+    <img loading="lazy" src="images/session_calchelp.png#center"/> 
+</figure>
+</p>
+<h2 id="final-version">Final Version</h2>
+<p>In the final iteration, I added:</p>
+<pre tabindex="0"><code>the calculator should support command line history via up/down arrow.
+</code></pre><p>Overall, for this exercise, GPT-4.1 turned out to be the best option, as it shows more consistent results and runs faster than Claude 3.7.</p>
+<h3 id="gpt-41-2">GPT-4.1</h3>
+<figure class="align-center ">
+    <img loading="lazy" src="images/gpt41_calccmd.png#center"/> 
+</figure>
+
+<p>Example session:
+<figure class="align-center ">
+    <img loading="lazy" src="images/session_calccmd.png#center"/> 
+</figure>
+</p>
+<h2 id="further-areas-to-explore">Further Areas to Explore</h2>
+<p>This experimental framework has been a useful and fun tool for exploring AI code generation.</p>
+<p>A key takeaway is the value of adding context to the initial prompt used for code generation. This technique proves useful across all the models.</p>
+<p>Choosing metrics to evaluate solutions is still an art form. In many cases, I think the way AI models generate code is based on the human examples they have been trained on. So, for now, some of these metrics are still useful for automated evaluation—especially ones related to complexity and code coverage. In the future who knows?</p>
+<p>We still need a &ldquo;human in the loop&rdquo; to evaluate the user experience, but perhaps a mixture of automated evaluations can help us narrow down the candidates for review.</p>
+<p>Other topics:</p>
+<ul>
+<li>Change management - how to minimize the impact of new requirements.</li>
+<li>Performance - how to scale the generation of code.</li>
+<li>Evaluation - more ideas are needed.</li>
+<li>Computer Language
+<ul>
+<li>Are AI&rsquo;s limited by human-designed languages?</li>
+<li>Could they do better with languages designed by AI&rsquo;s themselves?</li>
+<li>What metrics would apply to evaluating these?</li>
+</ul>
+</li>
+</ul>
+<p>I&rsquo;ll explore more on these topics in future posts.</p>
+<p>Especially that last one 😀.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Vibecoding an Agentic Coder - Part 1</title>
       <link>https://oshea00.github.io/posts/agentic-codegen-part1/</link>
       <pubDate>Sun, 27 Apr 2025 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-codegen-part1/</guid>
-      <description>&lt;p&gt;&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/agentengineer_3_1_aspect_ratio.png#center&#34;/&gt; 
-&lt;/figure&gt;
+      <description>Building an experimental agentic code generator, and asking whether LLMs make most software dependencies unnecessary.</description>
+      <content:encoded><![CDATA[<p><figure class="align-center ">
+    <img loading="lazy" src="images/agentengineer_3_1_aspect_ratio.png#center"/> 
+</figure>
 
-I&amp;rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &amp;ldquo;vibing&amp;rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.&lt;/p&gt;
-&lt;p&gt;I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.&lt;/p&gt;</description>
+I&rsquo;ve tried Cursor, Replit, Lovable, and Bolt with varying degrees of success and found recurring themes in the use of these tools that require &ldquo;vibing&rdquo; until you arrive at a finished, hopefully working, result. Whether the result is good can sometimes be in the eye of the beholder.</p>
+<p>I’ve also become fascinated by how these tools will change the way programmers think about code and its organization — how many rules will be thrown completely out the window and how, oddly, the new rules will harken back to the early days of programming before Google and the Internet.</p>
+<p>One of these ideas is that we may no longer need so many dependencies in our code bases. Eventually, all LLMs will be able to generate all of the code needed and, more importantly, <strong>only</strong> the code needed to solve any given problem.</p>
+<p>Why do we have so many dependencies in our projects? In a nutshell,  programmers are lazy. Alright, maybe it’s just because we are human beings with limited time and memory. We solve related problems and lump code into libraries to save time through reuse; cognitively, we can stay focused on the main problems we are trying to solve.</p>
+<p>Why do LLMs need so many dependencies in their generated projects? Perhaps because they learned to code from humans? “Cargo culting” all of that code has brought certain old problems into the equation, such as security exploits and buggy dependencies.</p>
+<p>We can ask our LLMs to code from &ldquo;first principles.&rdquo;</p>
+<p>To learn more and explore some of these ideas while also having a meaty example to later test on the open source and commercial tools I mentioned earlier, I decided to use a powerful code generation model, Claude 3.7, to generate an “agentic” code generator from first principles.</p>
+<p>The journey has revealed some insights and taken on a life of its own.</p>
+<h2 id="hey-claude-make-this">Hey Claude, make this&hellip;</h2>
+<p>Using a Claude Desktop project, I generated a basic code generation framework using these prompts:</p>
+<pre tabindex="0"><code>Write a python program which implements an agentic flow from basic
+principles, using the openai api and the GPT-4o model.
+There will be two agents:
+1. Architect - an agent which takes a problem description and 
+   converts it into a plan for developing a software solution.
+2. The second agent will be a software engineer that can write python code
+   which implements the system outlined by the architect agent.
+</code></pre><pre tabindex="0"><code>we need to add a third agent to this framework that will be able to compile
+and test the code developed by the software engineer. It will take the
+implementation from the software engineer agent, and return a test_report
+showing whether the code is compiling, and whether the tests are passing,
+along with suggestions how the code might be fixed if it fails to compile
+or run properly.
+The report may itself be a json object with a boolean &#39;passed&#39; key,
+along with &#39;results&#39; key to suggested fixes if passed == False, or test results
+if passed = True.
+we can adjust the software engineer agent to look for test_report,
+along with the software engineer specification, and its own last-generated
+implementation. If the test_report shows passed == False, it can use the
+suggestions from the test agent to attempt to fix the implementation.
+We can then put this interaction in a loop that breaks once the passed == True
+is returned from the test agent, or after a maximum number of attempts.
+</code></pre><p>The resulting code worked, but the testing agent did not actually run tests; rather, it generated test cases and then attempted to predict whether each test case passed. The results were passed back and integrated into future passes. So, although it hallucinated its ability to interpret the code, it did create the overall flow correctly.</p>
+<p>So, I needed to create a real software testing agent, for which I used the following prompts to generate:</p>
+<pre tabindex="0"><code>Create a python class that can take a python program as text and
+perform the following:
+1. Determine the python packages needed by the program.
+2. Create a Dockerfile that loads the required packages along
+   with the pytest framework required to run tests against the program.
+</code></pre><pre tabindex="0"><code>but our code, implementation.py, and its test test_implementation.py
+need to be copied over to app dir in the Dockerfile, and the pytest
+command can be run with app as the curent dir, so tests will run.
+Make the changes needed for this to be done in the dockerfile
+</code></pre><pre tabindex="0"><code>let&#39;s change this code as follows:
+1. replace the sample_code with a check for a src_dir on the command line,
+   from which python files are loaded, and checked for dependencies so that
+   a requirements.txt file can be created.
+2. the src_dir will be used in the Docker file to copy python files into
+   the WORKDIR
+</code></pre><pre tabindex="0"><code>minor change to the requirements file generation needed to exclude package
+names matching the application files loaded from the source directory.
+</code></pre><p>Finally, Claude returns code for a testing framework:</p>
+<figure>
+    <img loading="lazy" src="images/claude_tester.png"/> <figcaption>
+            <p>Figure 1. Claude test agent description.</p>
+        </figcaption>
+</figure>
+
+<h2 id="putting-all-the-pieces-together">Putting all the pieces together</h2>
+<p>Putting the code together into a project, I ended up adding a few enhancements, including the ability to choose other model providers. I used Claude 3.7 to analyze the combined code and asked it to create a DOT-language (Graphviz) representation of the code&rsquo;s flowchart below using the following prompt:</p>
+<pre tabindex="0"><code>Examine the code and create a flowchart of its operation using the DOT language.
+(code attached)
+</code></pre><figure>
+    <img loading="lazy" src="images/agenticflow.png"/> <figcaption>
+            <p>Figure 2. Agentic code generator flowchart.</p>
+        </figcaption>
+</figure>
+
+<p>As was my goal, the generated agent code has just standard packages as dependencies (shown below). Although I initially had Claude create the ability to choose different model providers, I eventually chose LiteLLM to make it easier for me to compare output from other providers without having to re-generate this part.</p>
+<figure>
+    <img loading="lazy" src="images/dependencies.png"/> <figcaption>
+            <p>Figure 3. Dependencies for agentic code generator.</p>
+        </figcaption>
+</figure>
+
+<p>The current project can be found at <a href="https://github.com/oshea00/codeagents">CodeAgents on GitHub</a></p>
+<h2 id="taking-it-out-for-a-test-drive">Taking it out for a test drive</h2>
+<p>I have included notable examples of two projects that I generated using this framework in the GitHub repository above: a scientific calculator as CLI and a weather API using FastAPI. I found these project types useful for testing across different models and providers. They are non-trivial enough to be interesting and small enough to run frequent passes with different providers. In my next post on this topic, I’ll present some results and conclusions about these comparisons.</p>
+<p><figure>
+    <img loading="lazy" src="images/calc.png"/> <figcaption>
+            <p>Figure 4. Scientific calculator CLI.</p>
+        </figcaption>
+</figure>
+
+<figure>
+    <img loading="lazy" src="images/weather.png"/> <figcaption>
+            <p>Figure 5. Weather API.</p>
+        </figcaption>
+</figure>
+
+<figure>
+    <img loading="lazy" src="images/forecast.png"/> <figcaption>
+            <p>Figure 6. Forecast.</p>
+        </figcaption>
+</figure>
+</p>
+<h2 id="coming-next">Coming next</h2>
+<p>For now, I can say the promise of “hands-free” code generation of production-quality code is still a way off, although I can see no reason why the quality won’t continue to improve. I think we need to set our expectations accordingly. One thing is clear: These tools will change the way we develop software - mostly for the better.</p>
+]]></content:encoded>
     </item>
     <item>
       <title>Experimenting with Agentic AI Tooling: My Journey Through the Cutting Edge</title>
       <link>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</link>
       <pubDate>Mon, 30 Dec 2024 00:00:00 +0000</pubDate>
       <guid>https://oshea00.github.io/posts/agentic-ai-tooling-pains/</guid>
-      <description>&lt;figure class=&#34;align-center &#34;&gt;
-    &lt;img loading=&#34;lazy&#34; src=&#34;images/cutecomputereditor.png#center&#34;/&gt; 
-&lt;/figure&gt;
-
-&lt;p&gt;The first time I fired up an MCP (Model Context Protocol) server plugin, &amp;ldquo;Agent,&amp;rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&amp;rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&amp;rsquo;re in the early days, and there&amp;rsquo;s a lot of ground to cover before Agents become seamless collaborators.&lt;/p&gt;</description>
+      <description>Lessons from wiring MCP server agents into Claude Desktop: autonomy is hard, and agents will need their own UI.</description>
+      <content:encoded><![CDATA[<p>The first time I fired up an MCP (Model Context Protocol) server plugin, &ldquo;Agent,&rdquo; I was excited to see it registered in Claude Desktop but immediately annoyed by the errors that popped up. I didn&rsquo;t expect a smooth experience in my encounter with the future of Agentic AI, but I found many configuration tweaks, clunky debugging tools, and broken dependencies along the way. It was a stark reminder that we&rsquo;re in the early days, and there&rsquo;s a lot of ground to cover before Agents become seamless collaborators.</p>
+<h2 id="autonomy-is-hard">Autonomy is Hard</h2>
+<p>Once I had a demo MCP-enabled Agent up and running under Claude Desktop, it became clear that autonomy would not be easy as the interplay between myself and the model continued. The handoffs felt awkward, with the model frequently pausing to ask for confirmation and review before continuing. At one point, it even obscured the information about the action it needed guidance on, content I needed to review behind a popup, like someone standing in front of the whiteboard while you&rsquo;re trying to solve a problem.</p>
+<p>It became clear that future Agents must generate custom UI/UX as part of their operation. Integrating a set of Agent plugins to solve unique problems with a generic UI doesn&rsquo;t seem workable. Claude Desktop points in the right direction, but it won&rsquo;t scale to more complex activities.</p>
+<h2 id="seeing-the-potential-for-saas-disruption">Seeing the Potential for SaaS Disruption</h2>
+<p>In some ways, these tools already shine in vertical applications like customer support or order management, where workflows are predictable and well-defined. We&rsquo;ll continue to see SaaS providers using these AI tools to improve their products, but I don&rsquo;t think Agents will be a SaaS killer soon.</p>
+<p>For someone like me, and probably many other knowledge workers who must hop between projects and improvise solutions on the fly, Agents are more like a collection of loose parts than a fully formed toolkit. There is potential, but the vast majority of more &ldquo;horizontal&rdquo; applications will require a vast improvement in execution capabilities.</p>
+<p>In addition to improving agents&rsquo; capabilities, entirely new and mature ecosystems need to be in place to support the effective deployment and operation of Agentic AI networks. The SaaS providers have invested in robust ecosystems, which will not easily be replaced or updated.</p>
+<h2 id="bridging-the-gap">Bridging the Gap</h2>
+<p>That gap between tools that work for specialized tasks and those flexible enough for day-to-day experimentation and use might be the biggest challenge these systems face. The idea of &ldquo;horizontal integration&rdquo; sounds great in theory, but in practice, the tools still demand a lot of customization to fit into diverse workflows.
+Take monitoring, for example. Robust monitoring is a must-have for scaling these tools, especially in professional settings. During one experiment, I used MCP Inspector to visualize the capabilities of an MCP server. It was a step in the right direction, but even that felt like a workaround rather than an integral part of the system. For these tools to take off, monitoring and diagnostic capabilities must be baked in, not bolted on.</p>
+<h2 id="is-the-agentic-future-here-yet">Is the Agentic Future Here Yet?</h2>
+<p>I see many challenges and opportunities in the next year. On one hand, we&rsquo;re still in the experimentation phase, and the tools are rough around the edges. The key will be simplifying the interactions, refining the interfaces, and improving the tools while also delivering on the ecosystems, allowing users to monitor and manage large Agent networks easily. The dream is a set of AI tools that don&rsquo;t just augment workflows in specific domains but empower users across the board to create and innovate on their own terms.</p>
+]]></content:encoded>
     </item>
   </channel>
 </rss>
