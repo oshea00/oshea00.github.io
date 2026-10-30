@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>Ai on MikesBlog</title>
+    <title>AI on MikesBlog</title>
     <link>https://oshea00.github.io/tags/ai/</link>
-    <description>Recent content in Ai on MikesBlog</description>
+    <description>Recent content in AI on MikesBlog</description>
     <image>
       <title>MikesBlog</title>
       <url>https://oshea00.github.io/images/site-card.png</url>
@@ -25,7 +25,7 @@
 
 <p>There is that old joke told by Woody Allen describing his experience as a university student: &ldquo;I was thrown out of college for cheating on the metaphysics exam; I looked into the soul of the boy sitting next to me.&rdquo; If he&rsquo;d managed to pass his course, Woody Allen might have been ahead of his time.</p>
 <p>Metaphysics is becoming a popular topic today, and it seems now everyone desperately wants to look for souls in large language models (LLMs). A recent conference last April was held by Anthropic with religious scholars and philosophical thinkers to discuss the nature of the soul when it came to their latest Claude models. It seems they needed guidance that Dario Amodei was unable to provide.</p>
-<p>The time seems ripe to dig into how we might actually peer into the mind of the LLM sitting next to you. There&rsquo;s been a lot of ongoing research; however, the self-same foundation model companies, Anthropic and OpenAI among them, have been <a href="https://www.theinformation.com/newsletters/ai-agenda/openai-anthropic-cap-compute-r-d-say-ai-safety-advocates">criticized by safety advocates</a> for pouring compute into ever-more-capable models rather than into understanding them. Mechanistic interpretability, the corner of AI safety research devoted to exploring what goes on inside these models, has <a href="https://aisecurityandsafety.org/en/guides/mechanistic-interpretability/">grown from a handful of researchers in 2021 to hundreds of active contributors</a>—still a small number given the stakes. Yet, in spite of funding gaps and the lack of larger colloquiums, the research community has been coming up with some interesting insights and tools to help do the &ldquo;peering.&rdquo;</p>
+<p>The time seems ripe to dig into how we might actually peer into the mind of the LLM sitting next to you. There&rsquo;s been a lot of ongoing research; however, the self-same foundation model companies, Anthropic and OpenAI among them, have been <a href="https://www.theinformation.com/newsletters/ai-agenda/openai-anthropic-cap-compute-r-d-say-ai-safety-advocates">criticized</a> for dedicating more compute dollars into better models rather than the safety research. Mechanistic interpretability, the field of AI research devoted to exploring what goes on inside these models, has <a href="https://aisecurityandsafety.org/en/guides/mechanistic-interpretability/">grown from a handful of researchers in 2021 to hundreds of active contributors</a>. Yet, in spite of funding gaps and the lack of larger colloquiums, the research community has been coming up with some interesting insights and tools to help do the &ldquo;peering.&rdquo;</p>
 <p>Rather than sit on the sidelines and wonder how this could be done, I thought it would be interesting to create a tool that would allow more people to join the party. And that is what led to the development of the &ldquo;TinyGPT Visualizer.&rdquo; The goals I had for this were modest. I wanted a tool I could use to survey the field and try the actual techniques to learn how they work. Being a visual person, I began thinking about an X-ray machine—something able to see inside a real model. Not a toy model. A real one, but one small enough to see on a screen with all its working parts.</p>
 <p>Let me show what it looks like:</p>
 <figure class="video-embed">
