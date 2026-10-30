@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>AI on MikesBlog</title>
+    <title>Ai on MikesBlog</title>
     <link>https://oshea00.github.io/tags/ai/</link>
-    <description>Recent content in AI on MikesBlog</description>
+    <description>Recent content in Ai on MikesBlog</description>
     <image>
       <title>MikesBlog</title>
       <url>https://oshea00.github.io/images/site-card.png</url>
@@ -36,7 +36,7 @@
   <figcaption>TinyGPT Visualizer walkthrough: inside the network</figcaption>
 </figure>
 
-<p>We may wonder where the consciousness can be found in the collection of numeric matrices that our models comprise; the numbers are there to see. Unlike the brains of humans, we can stop and look at the numbers as the thoughts are formed in these models without killing the patient, and, unlike human brains, we can search those numbers for patterns and algorithms which explain the results these models emit as well-formed prose, code, music, and videos. Will we find well-formed emotions? If so, they will be in the numbers.</p>
+<p>We may wonder where the consciousness can be found in the collection of numeric matrices that our models comprise; the numbers are there to see. Unlike the brains of humans, we can stop and look at the numbers as the thoughts are formed without killing the patient, and, unlike human brains, we can search those numbers for patterns and algorithms which explain the results these models emit as well-formed prose, code, music, and videos. Will we find well-formed emotions? If so, they will be in the numbers.</p>
 <p>Will philosophy and religion help us? These disciplines haven&rsquo;t had to rely on numbers and calculations up to this point, but perhaps they now have new ground to pound.</p>
 <p>TinyGPT Visualizer is open source. You can find the code, setup instructions, and documentation on GitHub: <a href="https://github.com/oshea00/tinygpt-viz">github.com/oshea00/tinygpt-viz</a>.</p>
 ]]></content:encoded>
