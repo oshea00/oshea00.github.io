@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>AI Safety | MikesBlog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
+<meta name="author" content="Michael OShea">
+<link rel="canonical" href="https://oshea00.github.io/tags/ai-safety/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.5316e5a0567547e502364f80c04245ee5314347c8b4cf1843aa51696144ec923.css" integrity="sha256-UxbloFZ1R&#43;UCNk&#43;AwEJF7lMUNHyLTPGEOqUWlhROySM=" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://oshea00.github.io/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://oshea00.github.io/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://oshea00.github.io/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://oshea00.github.io/apple-touch-icon.png">
+<link rel="mask-icon" href="https://oshea00.github.io/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://oshea00.github.io/tags/ai-safety/index.xml">
+<link rel="alternate" hreflang="en" href="https://oshea00.github.io/tags/ai-safety/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+
+
+
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-37B7H2GBCX"></script>
+      <script>
+        var doNotTrack = false;
+        if ( true ) {
+          var dnt = (navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack);
+          var doNotTrack = (dnt == "1" || dnt == "yes");
+        }
+        if (!doNotTrack) {
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-37B7H2GBCX');
+        }
+      </script><meta property="og:url" content="https://oshea00.github.io/tags/ai-safety/">
+  <meta property="og:site_name" content="MikesBlog">
+  <meta property="og:title" content="AI Safety">
+  <meta property="og:description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
+  <meta property="og:locale" content="en-us">
+  <meta property="og:type" content="website">
+      <meta property="og:image" content="https://oshea00.github.io/images/site-card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://oshea00.github.io/images/site-card.png">
+<meta name="twitter:title" content="AI Safety">
+<meta name="twitter:description" content="Hands-on notes on LLMs, agentic AI, MCP, and the economics of AI-assisted software, by Michael OShea.">
+
+</head>
+
+<body class="list" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://oshea00.github.io/" accesskey="h" title="MikesBlog (Alt + H)">MikesBlog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="https://oshea00.github.io/about/" title="About">
+                    <span>About</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/archives" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/tags/" title="Tags">
+                    <span>Tags</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/search/" title="Search (Alt &#43; /)" accesskey=/>
+                    <span>Search</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://oshea00.github.io/posts/" title="Posts">
+                    <span>Posts</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header"><div class="breadcrumbs"><a href="https://oshea00.github.io/">Home</a>&nbsp;»&nbsp;<a href="https://oshea00.github.io/tags/">Tags</a></div>
+  <h1>
+    AI Safety
+    <a href="/tags/ai-safety/index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry tag-entry"> 
+<figure class="entry-cover">
+            <img loading="lazy"
+                srcset='https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor_hu_aea870d534fff017.jpg 360w,https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor_hu_c6f4635589257d03.jpg 480w,https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor_hu_4bf1e3260738ea33.jpg 720w,https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor_hu_68349427deaa9a05.jpg 1080w,https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor.jpg 1120w'
+                src="https://oshea00.github.io/posts/tinygpt-visualizer/images/cutecomputerdoctor.jpg"
+                sizes="(min-width: 768px) 720px, 100vw"
+                width="1120" height="956"
+                alt="On metaphysics, large language models, and souls. Using TinyGPT Visualizer to decode how large language models think.">
+</figure>
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">TinyGPT Visualizer: Tools for Exploring the Souls of Large Language Models
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p> There is that old joke told by Woody Allen describing his experience as a university student: “I was thrown out of college for cheating on the metaphysics exam; I looked into the soul of the boy sitting next to me.” If he’d managed to pass his course, Woody Allen might have been ahead of his time.
+Metaphysics is becoming a popular topic today, and it seems now everyone desperately wants to look for souls in large language models (LLMs). A recent conference last April was held by Anthropic with religious scholars and philosophical thinkers to discuss the nature of the soul when it came to their latest Claude models. It seems they needed guidance that Dario Amodei was unable to provide.
+...</p>
+  </div>
+  <footer class="entry-footer"><span title='2026-10-29 00:00:00 +0000 UTC'>October 29, 2026</span>&nbsp;·&nbsp;3 min&nbsp;·&nbsp;Michael OShea</footer>
+  <a class="entry-link" aria-label="post link to TinyGPT Visualizer: Tools for Exploring the Souls of Large Language Models" href="https://oshea00.github.io/posts/tinygpt-visualizer/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2026 <a href="https://oshea00.github.io/">MikesBlog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
